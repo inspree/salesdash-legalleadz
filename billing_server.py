@@ -1736,13 +1736,18 @@ def hubspot_get_signed_deals_for_firm(firm_name):
             body["after"] = str(after)
 
         for attempt in range(3):
-            resp = req.post(
-                "https://api.hubapi.com/crm/v3/objects/deals/search",
-                headers=headers, json=body
-            )
+            try:
+                resp = req.post(
+                    "https://api.hubapi.com/crm/v3/objects/deals/search",
+                    headers=headers, json=body, timeout=15
+                )
+            except req.exceptions.Timeout:
+                break
             if resp.status_code == 429:
                 time.sleep(int(resp.headers.get("Retry-After", 2)) + 1)
                 continue
+            break
+        else:
             break
 
         if resp.status_code != 200:
@@ -1810,6 +1815,29 @@ def api_sales_snapshot_leads(token, firm_name):
 @app.route("/sales-snapshot/health")
 def sales_snapshot_health():
     return jsonify({"status": "ok"})
+
+
+@app.route("/sales-snapshot/debug")
+def sales_snapshot_debug():
+    """Debug endpoint to check HubSpot connectivity."""
+    import requests as req
+    has_key = bool(HUBSPOT_API_KEY)
+    key_preview = HUBSPOT_API_KEY[:8] + "..." if has_key else "NOT SET"
+    result = {"hubspot_key_set": has_key, "key_preview": key_preview}
+
+    if has_key:
+        try:
+            resp = req.get(
+                "https://api.hubapi.com/crm/v3/objects/deals?limit=1",
+                headers={"Authorization": f"Bearer {HUBSPOT_API_KEY}"},
+                timeout=10
+            )
+            result["hubspot_status"] = resp.status_code
+            result["hubspot_response"] = resp.text[:200]
+        except Exception as e:
+            result["hubspot_error"] = str(e)
+
+    return jsonify(result)
 
 
 # ── Main ──
