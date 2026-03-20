@@ -1709,7 +1709,18 @@ def hubspot_get_signed_deals_for_firm(firm_name):
     # Signed deal stages
     SIGNED_STAGES = ["closedwon", "closedlost", "3022527196", "3022527198"]
 
-    search_token = firm_name.split()[0]
+    # Use the most distinguishing word from the firm name for searching
+    # Skip common legal words that would match too many deals
+    SKIP_WORDS = {"the", "law", "office", "of", "a", "and", "llc", "pc", "pllc",
+                  "group", "firm", "legal", "services", "injury", "attorneys", "associates"}
+    words = firm_name.split()
+    # Find most specific word — usually the attorney's surname (last non-common word)
+    search_token = words[0]  # fallback to first word
+    for w in reversed(words):
+        if w.lower().rstrip(".,") not in SKIP_WORDS and len(w) > 1:
+            search_token = w.rstrip(".,")
+            break
+
     deals = []
     after = 0
 
