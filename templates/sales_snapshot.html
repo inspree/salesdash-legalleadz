@@ -61,7 +61,7 @@
 
         /* Summary Cards */
         .summary-row {
-            display: grid; grid-template-columns: repeat(4, 1fr);
+            display: grid; grid-template-columns: repeat(3, 1fr);
             gap: 16px; margin-bottom: 32px;
         }
         .summary-card {
@@ -236,7 +236,7 @@
             .page-wrap { padding: 16px; }
             .summary-row { grid-template-columns: repeat(2, 1fr); }
             .firm-header { flex-direction: column; align-items: flex-start; }
-            .firm-stats { width: 100%; justify-content: space-between; }
+            .firm-stats { width: 100%; justify-content: space-between; flex-wrap: wrap; }
             .invoice-grid { grid-template-columns: 1fr 1fr; }
             .cases-section { padding: 16px; }
             .invoice-breakdown { padding: 16px; }
@@ -288,6 +288,16 @@
                 <div class="num num-warning">${{ "%.2f"|format(total_paid_legal_leadz_actual) }}</div>
                 <div class="lbl">Paid to Legal Leadz</div>
             </div>
+            <div class="summary-card">
+                <div class="num num-danger">${{ "%.2f"|format(total_ad_spend) }}</div>
+                <div class="lbl">Total Legal Leadz Ad Spend</div>
+            </div>
+            <div class="summary-card">
+                <div class="num num-danger" id="totalCostPerCase">
+                    <div class="loading-spinner" style="width:24px;height:24px;margin:0 auto;border-width:2px;"></div>
+                </div>
+                <div class="lbl">Cost Per Case</div>
+            </div>
         </div>
 
         <!-- Per-Firm Sections -->
@@ -308,6 +318,16 @@
                         <div class="stat-num num-warning">${{ "%.2f"|format(firm_entry.paid_legal_leadz) }}</div>
                         <div class="stat-lbl">Legal Leadz</div>
                     </div>
+                    {% if firm_entry.ad_spend > 0 %}
+                    <div class="firm-stat">
+                        <div class="stat-num num-danger">${{ "%.2f"|format(firm_entry.ad_spend) }}</div>
+                        <div class="stat-lbl">Ad Spend</div>
+                    </div>
+                    <div class="firm-stat">
+                        <div class="stat-num num-danger" id="cpc-{{ loop.index }}">--</div>
+                        <div class="stat-lbl">Cost/Case</div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -364,6 +384,12 @@
         var firmNames = {{ firm_names_json|safe }};
         var allFirmLeads = {};  // index -> leads array (all leads for each firm)
         var firmsLoaded = 0;
+        var totalAdSpend = {{ total_ad_spend }};
+        var firmAdSpend = {
+            {% for firm_entry in firms %}
+            {{ loop.index }}: {{ firm_entry.ad_spend }}{% if not loop.last %},{% endif %}
+            {% endfor %}
+        };
 
         document.addEventListener('DOMContentLoaded', function() {
             firmNames.forEach(function(name, idx) {
@@ -446,6 +472,31 @@
             });
 
             document.getElementById('totalSignedAll').textContent = totalSigned;
+
+            // Cost per case = total ad spend / total signed cases
+            var cpcEl = document.getElementById('totalCostPerCase');
+            if (totalSigned > 0) {
+                cpcEl.textContent = '$' + (totalAdSpend / totalSigned).toFixed(2);
+            } else {
+                cpcEl.textContent = '--';
+            }
+
+            // Per-firm cost per case
+            firmNames.forEach(function(name, idx) {
+                var index = idx + 1;
+                var cpcFirmEl = document.getElementById('cpc-' + index);
+                if (!cpcFirmEl) return;
+                var leads = allFirmLeads[index];
+                if (!leads) return;
+                var filteredLeads = leads.filter(function(l) { return leadMatchesDateRange(l, filter); });
+                var signed = filteredLeads.filter(function(l) { return isSigned(l.status); });
+                var spend = firmAdSpend[index] || 0;
+                if (signed.length > 0 && spend > 0) {
+                    cpcFirmEl.textContent = '$' + (spend / signed.length).toFixed(2);
+                } else {
+                    cpcFirmEl.textContent = '--';
+                }
+            });
         }
 
         function isSigned(status) {

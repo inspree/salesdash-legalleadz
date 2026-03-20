@@ -1663,6 +1663,8 @@ def sales_snapshot(token):
     firms_context = []
     total_paid_hq_intake = 0.0
     total_paid_legal_leadz_actual = 0.0
+    total_ad_spend = 0.0
+    ad_spend_map = token_data.get("ad_spend", {})
 
     for name in firm_names:
         firm = firms_data.get(name, {})
@@ -1670,9 +1672,12 @@ def sales_snapshot(token):
         paid_hq_fb = firm.get("fb_total_paid", 0.0) or 0.0
         # Legal Leadz payments (will come from QuickBooks once connected)
         paid_ll = 0.0
+        # Ad spend from Google Sheets data (stored in token config)
+        firm_ad_spend = ad_spend_map.get(name, 0.0)
 
         total_paid_hq_intake += paid_hq_fb
         total_paid_legal_leadz_actual += paid_ll
+        total_ad_spend += firm_ad_spend
 
         firms_context.append({
             "firm_name": name,
@@ -1680,6 +1685,7 @@ def sales_snapshot(token):
             "paid_legal_leadz": paid_ll,
             "fb_invoice_count": firm.get("fb_invoice_count", 0) or 0,
             "total_signups": firm.get("hubspot_signups_since_dec20", 0) or firm.get("total_signups", 0) or 0,
+            "ad_spend": firm_ad_spend,
         })
 
     generated_at = datetime.now().strftime("%B %d, %Y at %I:%M %p")
@@ -1690,6 +1696,7 @@ def sales_snapshot(token):
         firm_names_json=json.dumps(firm_names),
         total_paid_legal_leadz=total_paid_hq_intake,
         total_paid_legal_leadz_actual=total_paid_legal_leadz_actual,
+        total_ad_spend=total_ad_spend,
         generated_at=generated_at,
     )
 
