@@ -1858,52 +1858,178 @@ def sales_snapshot_debug():
     return jsonify(result)
 
 
-# ── QuickBooks OAuth ──
+# ── QuickBooks OAuth & API Integration ──
+import logging
+
 QB_CLIENT_ID = os.environ.get("QUICKBOOKS_CLIENT_ID", "")
 QB_CLIENT_SECRET = os.environ.get("QUICKBOOKS_CLIENT_SECRET", "")
 QB_REDIRECT_URI = os.environ.get("QUICKBOOKS_REDIRECT_URI", "")
 QB_TOKENS_FILE = CREDENTIALS_DIR / "quickbooks_tokens.json"
+QB_LOG_FILE = DASHBOARD_DIR / "logs" / "quickbooks_api.log"
+QB_SUPPORT_EMAIL = "admin@hqintake.com"
+
+# Set up QuickBooks-specific file logger
+(DASHBOARD_DIR / "logs").mkdir(exist_ok=True)
+qb_logger = logging.getLogger("quickbooks")
+qb_logger.setLevel(logging.DEBUG)
+_qb_fh = logging.FileHandler(str(QB_LOG_FILE))
+_qb_fh.setFormatter(logging.Formatter(
+    "%(asctime)s [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+))
+qb_logger.addHandler(_qb_fh)
 
 
 def load_qb_tokens():
     if QB_TOKENS_FILE.exists():
         try:
             return json.loads(QB_TOKENS_FILE.read_text())
-        except:
-            pass
+        except Exception as e:
+            qb_logger.error(f"Failed to load QB tokens: {e}")
     return None
 
 
 def save_qb_tokens(tokens):
     CREDENTIALS_DIR.mkdir(exist_ok=True)
     QB_TOKENS_FILE.write_text(json.dumps(tokens, indent=2))
+    qb_logger.info("QuickBooks tokens saved successfully")
+
+
+def _log_qb_response(resp, context=""):
+    """Log intuit_tid and response details from any QuickBooks API response."""
+    intuit_tid = resp.headers.get("intuit_tid", "N/A")
+    qb_logger.info(
+        f"[{context}] status={resp.status_code} intuit_tid={intuit_tid}"
+    )
+    if resp.status_code >= 400:
+        qb_logger.error(
+            f"[{context}] ERROR status={resp.status_code} intuit_tid={intuit_tid} "
+            f"body={resp.text[:1000]}"
+        )
+    return intuit_tid
+
+
+def _qb_error_response(status_code, message, intuit_tid="N/A", context=""):
+    """Build a standardized error response for QuickBooks API errors."""
+    error_detail = {
+        "error": message,
+        "intuit_tid": intuit_tid,
+        "support": QB_SUPPORT_EMAIL,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    qb_logger.error(f"[{context}] Returning error to client: {error_detail}")
+    return jsonify(error_detail), status_code
 
 
 def refresh_qb_token():
     tokens = load_qb_tokens()
     if not tokens or not tokens.get("refresh_token"):
+        qb_logger.warning("Token refresh requested but no refresh_token available")
         return None
     import requests as req
     import base64
     auth = base64.b64encode(f"{QB_CLIENT_ID}:{QB_CLIENT_SECRET}".encode()).decode()
-    resp = req.post("https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer",
-        headers={"Authorization": f"Basic {auth}", "Content-Type": "application/x-www-form-urlencoded"},
-        data={"grant_type": "refresh_token", "refresh_token": tokens["refresh_token"]},
-        timeout=15)
-    if resp.status_code == 200:
-        new_tokens = resp.json()
-        new_tokens["realm_id"] = tokens.get("realm_id", "")
-        new_tokens["updated_at"] = datetime.now().isoformat()
-        save_qb_tokens(new_tokens)
-        return new_tokens
+    try:
+        resp = req.post("https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer",
+            headers={"Authorization": f"Basic {auth}", "Content-Type": "application/x-www-form-urlencoded"},
+            data={"grant_type": "refresh_token", "refresh_token": tokens["refresh_token"]},
+            timeout=15)
+        intuit_tid = _log_qb_response(resp, context="token_refresh")
+        if resp.status_code == 200:
+            new_tokens = resp.json()
+            new_tokens["realm_id"] = tokens.get("realm_id", "")
+            new_tokens["updated_at"] = datetime.now().isoformat()
+            save_qb_tokens(new_tokens)
+            return new_tokens
+        qb_logger.error(
+            f"Token refresh failed: status={resp.status_code} intuit_tid={intuit_tid} "
+            f"body={resp.text[:500]}"
+        )
+    except Exception as e:
+        qb_logger.error(f"Token refresh exception: {e}")
     return None
+
+
+def qb_api_request(method, url, **kwargs):
+    """Make a QuickBooks API request with automatic token refresh and error handling.
+
+    Returns (response, intuit_tid) on success, or raises an exception with logged details.
+    Handles: 401 (auto-refresh), 403, 404, syntax/validation errors.
+    """
+    import requests as req
+    tokens = load_qb_tokens()
+    if not tokens or not tokens.get("access_token"):
+        qb_logger.error("No access token available for API request")
+        return None, None
+
+    headers = kwargs.pop("headers", {})
+    headers.setdefault("Authorization", f"Bearer {tokens['access_token']}")
+    headers.setdefault("Accept", "application/json")
+    headers.setdefault("Content-Type", "application/json")
+
+    context = kwargs.pop("context", url)
+
+    try:
+        resp = req.request(method, url, headers=headers, timeout=kwargs.pop("timeout", 30), **kwargs)
+        intuit_tid = _log_qb_response(resp, context=context)
+
+        # 401 — token expired, try refresh once
+        if resp.status_code == 401:
+            qb_logger.info(f"[{context}] 401 received, attempting token refresh...")
+            new_tokens = refresh_qb_token()
+            if new_tokens:
+                headers["Authorization"] = f"Bearer {new_tokens['access_token']}"
+                resp = req.request(method, url, headers=headers, timeout=30, **kwargs)
+                intuit_tid = _log_qb_response(resp, context=f"{context}_retry")
+            else:
+                qb_logger.error(f"[{context}] Token refresh failed, cannot retry")
+
+        # Log specific error categories
+        if resp.status_code == 403:
+            qb_logger.error(
+                f"[{context}] 403 Forbidden — check app permissions. intuit_tid={intuit_tid}"
+            )
+        elif resp.status_code == 404:
+            qb_logger.error(
+                f"[{context}] 404 Not Found — resource does not exist. intuit_tid={intuit_tid}"
+            )
+        elif resp.status_code == 400:
+            # Syntax/validation errors from QuickBooks
+            try:
+                err_body = resp.json()
+                fault = err_body.get("Fault", {})
+                errors = fault.get("Error", [])
+                for err in errors:
+                    qb_logger.error(
+                        f"[{context}] Validation error: code={err.get('code')} "
+                        f"element={err.get('element', 'N/A')} "
+                        f"message={err.get('Message', '')} "
+                        f"detail={err.get('Detail', '')} intuit_tid={intuit_tid}"
+                    )
+            except Exception:
+                qb_logger.error(
+                    f"[{context}] 400 Bad Request: {resp.text[:500]} intuit_tid={intuit_tid}"
+                )
+
+        return resp, intuit_tid
+
+    except req.exceptions.Timeout:
+        qb_logger.error(f"[{context}] Request timed out")
+        return None, None
+    except req.exceptions.ConnectionError as e:
+        qb_logger.error(f"[{context}] Connection error: {e}")
+        return None, None
+    except Exception as e:
+        qb_logger.error(f"[{context}] Unexpected error: {e}")
+        return None, None
 
 
 @app.route("/quickbooks/connect")
 def qb_connect():
     """Start QuickBooks OAuth flow."""
     if not QB_CLIENT_ID:
-        return "QuickBooks Client ID not configured", 500
+        qb_logger.error("OAuth connect attempted but QUICKBOOKS_CLIENT_ID not set")
+        return (f"QuickBooks Client ID not configured. "
+                f"Contact {QB_SUPPORT_EMAIL} for assistance."), 500
     import urllib.parse
     params = urllib.parse.urlencode({
         "client_id": QB_CLIENT_ID,
@@ -1912,6 +2038,7 @@ def qb_connect():
         "redirect_uri": QB_REDIRECT_URI,
         "state": hashlib.sha256(QB_CLIENT_ID.encode()).hexdigest()[:16],
     })
+    qb_logger.info("OAuth flow initiated")
     return redirect(f"https://appcenter.intuit.com/connect/oauth2?{params}")
 
 
@@ -1923,18 +2050,19 @@ def qb_callback():
 
     # POST = Intuit webhook notification
     if request.method == "POST":
-        # Intuit signs webhook payloads with HMAC-SHA256 using the verifier token
-        import hmac
+        import hmac as hmac_mod
         verifier = os.environ.get("QUICKBOOKS_VERIFIER_TOKEN", "")
         signature = request.headers.get("intuit-signature", "")
         payload = request.get_data()
+        qb_logger.info(f"Webhook received: {len(payload)} bytes")
         if verifier and signature:
             expected = base64.b64encode(
-                hmac.new(verifier.encode(), payload, hashlib.sha256).digest()
+                hmac_mod.new(verifier.encode(), payload, hashlib.sha256).digest()
             ).decode()
-            if not hmac.compare_digest(expected, signature):
+            if not hmac_mod.compare_digest(expected, signature):
+                qb_logger.warning("Webhook signature verification FAILED")
                 return "Invalid signature", 401
-        # Log the webhook event (for now just acknowledge)
+        qb_logger.info(f"Webhook processed OK: {payload[:200]}")
         return "OK", 200
 
     # GET = OAuth callback
@@ -1944,33 +2072,48 @@ def qb_callback():
     error = request.args.get("error")
 
     if error:
-        return f"QuickBooks authorization denied: {error}", 400
+        qb_logger.error(f"OAuth denied by user: {error}")
+        return (f"QuickBooks authorization denied: {error}. "
+                f"Contact {QB_SUPPORT_EMAIL} for assistance."), 400
     if not code:
-        return "Missing authorization code", 400
+        qb_logger.error("OAuth callback missing authorization code")
+        return (f"Missing authorization code. "
+                f"Contact {QB_SUPPORT_EMAIL} for assistance."), 400
 
     auth = base64.b64encode(f"{QB_CLIENT_ID}:{QB_CLIENT_SECRET}".encode()).decode()
-    resp = req.post("https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer",
-        headers={"Authorization": f"Basic {auth}", "Content-Type": "application/x-www-form-urlencoded"},
-        data={
-            "grant_type": "authorization_code",
-            "code": code,
-            "redirect_uri": QB_REDIRECT_URI,
-        },
-        timeout=15)
+    try:
+        resp = req.post("https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer",
+            headers={"Authorization": f"Basic {auth}", "Content-Type": "application/x-www-form-urlencoded"},
+            data={
+                "grant_type": "authorization_code",
+                "code": code,
+                "redirect_uri": QB_REDIRECT_URI,
+            },
+            timeout=15)
+        intuit_tid = _log_qb_response(resp, context="oauth_token_exchange")
+    except Exception as e:
+        qb_logger.error(f"OAuth token exchange exception: {e}")
+        return (f"Token exchange failed. Contact {QB_SUPPORT_EMAIL} for assistance. "
+                f"Error: {e}"), 500
 
     if resp.status_code != 200:
-        return f"Token exchange failed: {resp.status_code} — {resp.text}", 500
+        return (f"Token exchange failed (status {resp.status_code}, intuit_tid={intuit_tid}). "
+                f"Contact {QB_SUPPORT_EMAIL} for assistance."), 500
 
     tokens = resp.json()
     tokens["realm_id"] = realm_id or ""
     tokens["connected_at"] = datetime.now().isoformat()
     save_qb_tokens(tokens)
 
+    qb_logger.info(f"QuickBooks connected: realm_id={realm_id} intuit_tid={intuit_tid}")
     return f"""<html><body style="font-family:sans-serif;text-align:center;padding:60px;">
     <h1 style="color:#059669;">QuickBooks Connected!</h1>
     <p>Company ID: {realm_id}</p>
     <p>Access token and refresh token saved. The dashboard will now pull Legal Leadz payment data automatically.</p>
     <p><a href="/">Back to Dashboard</a></p>
+    <p style="color:#666;font-size:0.85em;margin-top:40px;">
+        Need help? Contact <a href="mailto:{QB_SUPPORT_EMAIL}">{QB_SUPPORT_EMAIL}</a>
+    </p>
     </body></html>"""
 
 
@@ -1979,12 +2122,17 @@ def qb_status():
     """Check QuickBooks connection status."""
     tokens = load_qb_tokens()
     if not tokens:
-        return jsonify({"connected": False, "connect_url": "/quickbooks/connect"})
+        return jsonify({
+            "connected": False,
+            "connect_url": "/quickbooks/connect",
+            "support": QB_SUPPORT_EMAIL,
+        })
     return jsonify({
         "connected": True,
         "realm_id": tokens.get("realm_id", ""),
         "connected_at": tokens.get("connected_at", ""),
         "has_refresh_token": bool(tokens.get("refresh_token")),
+        "support": QB_SUPPORT_EMAIL,
     })
 
 
