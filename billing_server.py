@@ -1915,11 +1915,29 @@ def qb_connect():
     return redirect(f"https://appcenter.intuit.com/connect/oauth2?{params}")
 
 
-@app.route("/quickbooks/callback")
+@app.route("/quickbooks/callback", methods=["GET", "POST"])
 def qb_callback():
-    """Handle QuickBooks OAuth callback."""
+    """Handle QuickBooks OAuth callback (GET) and webhook events (POST)."""
     import requests as req
     import base64
+
+    # POST = Intuit webhook notification
+    if request.method == "POST":
+        # Intuit signs webhook payloads with HMAC-SHA256 using the verifier token
+        import hmac
+        verifier = os.environ.get("QUICKBOOKS_VERIFIER_TOKEN", "")
+        signature = request.headers.get("intuit-signature", "")
+        payload = request.get_data()
+        if verifier and signature:
+            expected = base64.b64encode(
+                hmac.new(verifier.encode(), payload, hashlib.sha256).digest()
+            ).decode()
+            if not hmac.compare_digest(expected, signature):
+                return "Invalid signature", 401
+        # Log the webhook event (for now just acknowledge)
+        return "OK", 200
+
+    # GET = OAuth callback
     code = request.args.get("code")
     realm_id = request.args.get("realmId")
     state = request.args.get("state")
