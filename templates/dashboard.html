@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HQ Intake — Billing Portal</title>
+    <style>
+        :root {
+            --bg: #0a0c10;
+            --surface: #12151c;
+            --surface-2: #1a1e2a;
+            --surface-3: #232838;
+            --border: #2a2f42;
+            --border-light: #353b52;
+            --text: #e8eaf4;
+            --text-muted: #7c8198;
+            --text-dim: #555a6e;
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-glow: rgba(99, 102, 241, 0.15);
+            --success: #10b981;
+            --success-light: #34d399;
+            --success-bg: rgba(16, 185, 129, 0.08);
+            --warning: #f59e0b;
+            --warning-light: #fbbf24;
+            --warning-bg: rgba(245, 158, 11, 0.08);
+            --danger: #ef4444;
+            --danger-light: #f87171;
+            --danger-bg: rgba(239, 68, 68, 0.06);
+            --info: #3b82f6;
+            --info-light: #60a5fa;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg); color: var(--text); line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container { max-width: 1640px; margin: 0 auto; padding: 28px 32px; }
+
+        /* Header */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border);
+        }
+        .header h1 {
+            font-size: 26px; font-weight: 700; letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #818cf8, #60a5fa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .header .subtitle { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
+        .header .right-side { display: flex; align-items: center; gap: 14px; }
+        .header .timestamp { color: var(--text-dim); font-size: 12px; line-height: 1.6; text-align: right; }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+            cursor: pointer; border: none; transition: all 0.15s; text-decoration: none;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: var(--success-light); }
+        .btn-warning { background: var(--warning); color: #000; }
+        .btn-warning:hover { background: var(--warning-light); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary-light); }
+        .btn-sm { padding: 5px 10px; font-size: 11px; border-radius: 6px; }
+        .btn-xs { padding: 3px 8px; font-size: 10px; border-radius: 5px; }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid; grid-template-columns: repeat(6, 1fr);
+            gap: 14px; margin-bottom: 24px;
+        }
+        .summary-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 18px 20px; position: relative; overflow: hidden;
+        }
+        .summary-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+        }
+        .summary-card.accent-primary::before { background: var(--primary); }
+        .summary-card.accent-success::before { background: var(--success); }
+        .summary-card.accent-warning::before { background: var(--warning); }
+        .summary-card.accent-danger::before { background: var(--danger); }
+        .summary-card.accent-info::before { background: var(--info); }
+        .summary-card .label {
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-muted); margin-bottom: 6px; font-weight: 500;
+        }
+        .summary-card .value { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+        .summary-card .sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+        .value-primary { color: var(--primary-light); }
+        .value-success { color: var(--success-light); }
+        .value-warning { color: var(--warning-light); }
+        .value-danger { color: var(--danger-light); }
+        .value-info { color: var(--info-light); }
+
+        /* Aging Bar */
+        .aging-row {
+            display: flex; gap: 20px; margin-bottom: 24px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 16px 24px; align-items: center;
+        }
+        .aging-label { font-size: 13px; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+        .aging-buckets { display: flex; gap: 24px; flex: 1; }
+        .aging-bucket { text-align: center; }
+        .aging-bucket .bucket-label { font-size: 11px; color: var(--text-dim); margin-bottom: 2px; }
+        .aging-bucket .bucket-value { font-size: 16px; font-weight: 700; }
+
+        /* Alerts Section */
+        .alerts-section {
+            background: var(--danger-bg); border: 1px solid rgba(239, 68, 68, 0.15);
+            border-radius: 12px; padding: 20px; margin-bottom: 24px;
+        }
+        .alerts-section h2 {
+            color: var(--danger-light); font-size: 16px; margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px; font-weight: 600;
+        }
+        .alert-cards-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px;
+        }
+        .alert-card {
+            background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.18);
+            border-radius: 8px; padding: 12px 16px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .alert-card-info { flex: 1; }
+        .alert-card-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+        .alert-card-name a { color: inherit; text-decoration: none; }
+        .alert-card-name a:hover { color: var(--primary-light); }
+        .alert-card-detail { color: var(--text-muted); font-size: 12px; }
+        .alert-card-actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: 12px; }
+
+        /* Panels */
+        .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+        .panel {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 18px 20px;
+        }
+        .panel h3 {
+            font-size: 14px; font-weight: 600; margin-bottom: 14px;
+            color: var(--text); display: flex; align-items: center; gap: 8px;
+        }
+        .panel h3 .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-primary { background: var(--primary); }
+        .dot-warning { background: var(--warning); }
+        .dot-danger { background: var(--danger); }
+        .dot-success { background: var(--success); }
+
+        /* Mini Tables */
+        .mini-table { width: 100%; border-collapse: collapse; }
+        .mini-table th {
+            padding: 6px 10px; font-size: 10px; text-transform: uppercase;
+            letter-spacing: 0.4px; color: var(--text-dim); text-align: left;
+            border-bottom: 1px solid var(--border); font-weight: 600;
+        }
+        .mini-table td { padding: 7px 10px; font-size: 13px; border-bottom: 1px solid rgba(42, 47, 66, 0.5); }
+        .mini-table tr:last-child td { border-bottom: none; }
+        .mini-table tr:hover { background: var(--primary-glow); }
+
+        /* Main Table */
+        .table-container {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; overflow: hidden;
+        }
+        .table-header {
+            padding: 18px 24px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .table-header h2 { font-size: 18px; font-weight: 600; }
+        .table-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+        .search-input {
+            background: var(--surface-2); border: 1px solid var(--border);
+            border-radius: 8px; padding: 8px 14px; color: var(--text);
+            font-size: 13px; width: 220px; transition: border-color 0.2s;
+        }
+        .search-input:focus { outline: none; border-color: var(--primary); background: var(--surface-3); }
+        .search-input::placeholder { color: var(--text-dim); }
+
+        .filter-btn {
+            background: var(--surface-2); border: 1px solid var(--border);
+            border-radius: 8px; padding: 7px 14px; color: var(--text-muted);
+            font-size: 12px; cursor: pointer; transition: all 0.15s; font-weight: 500;
+        }
+        .filter-btn:hover { border-color: var(--primary); color: var(--primary-light); }
+        .filter-btn.active { border-color: var(--primary); color: var(--primary-light); background: var(--primary-glow); }
+
+        .table-scroll { max-height: 680px; overflow-y: auto; }
+        .table-scroll::-webkit-scrollbar { width: 6px; }
+        .table-scroll::-webkit-scrollbar-track { background: var(--surface); }
+        .table-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            background: var(--surface-2); padding: 10px 14px; text-align: left;
+            font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-dim); white-space: nowrap; position: sticky; top: 0;
+            cursor: pointer; user-select: none; font-weight: 600; z-index: 1;
+        }
+        thead th:hover { color: var(--primary-light); }
+        thead th.sorted-asc::after { content: ' \u25B2'; font-size: 8px; }
+        thead th.sorted-desc::after { content: ' \u25BC'; font-size: 8px; }
+        tbody td {
+            padding: 10px 14px; border-top: 1px solid rgba(42, 47, 66, 0.5);
+            font-size: 13px; white-space: nowrap;
+        }
+        tbody tr:hover { background: var(--primary-glow); }
+        .alert-row { background: var(--danger-bg) !important; }
+        .alert-row:hover { background: rgba(239, 68, 68, 0.1) !important; }
+
+        .firm-link {
+            color: var(--text); text-decoration: none; font-weight: 500;
+            max-width: 280px; overflow: hidden; text-overflow: ellipsis; display: inline-block;
+            vertical-align: middle;
+        }
+        .firm-link:hover { color: var(--primary-light); text-decoration: underline; }
+
+        /* Progress bars in table */
+        .mini-progress { width: 50px; height: 5px; background: var(--surface-3); border-radius: 3px; display: inline-block; vertical-align: middle; margin-left: 4px; }
+        .mini-progress-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+
+        .text-end { text-align: right; }
+        .text-center { text-align: center; }
+        .fw-bold { font-weight: 600; }
+        .text-success { color: var(--success-light); }
+        .text-warning { color: var(--warning-light); }
+        .text-danger { color: var(--danger-light); }
+        .text-muted { color: var(--text-muted); }
+
+        .badge {
+            display: inline-block; padding: 2px 7px; border-radius: 4px;
+            font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px;
+            vertical-align: middle; margin-left: 4px;
+        }
+        .badge-danger { background: rgba(239, 68, 68, 0.18); color: var(--danger); }
+        .badge-warning { background: rgba(245, 158, 11, 0.18); color: var(--warning); }
+        .badge-success { background: rgba(16, 185, 129, 0.18); color: var(--success); }
+        .badge-info { background: rgba(59, 130, 246, 0.18); color: var(--info); }
+
+        .health-dot {
+            width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+            vertical-align: middle; margin-right: 6px;
+        }
+        .health-green { background: var(--success); box-shadow: 0 0 4px var(--success); }
+        .health-yellow { background: var(--warning); box-shadow: 0 0 4px var(--warning); }
+        .health-red { background: var(--danger); box-shadow: 0 0 4px var(--danger); }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 24px; right: 24px; padding: 12px 20px;
+            border-radius: 8px; font-size: 13px; z-index: 1000;
+            transform: translateY(100px); opacity: 0; transition: all 0.3s;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast-success { background: var(--success); color: white; }
+        .toast-error { background: var(--danger); color: white; }
+
+        .spinner {
+            display: inline-block; width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
+            border-radius: 50%; animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .footer {
+            text-align: center; padding: 20px; color: var(--text-dim);
+            font-size: 11px; border-top: 1px solid var(--border); margin-top: 28px;
+        }
+
+        @media (max-width: 1280px) {
+            .summary-grid { grid-template-columns: repeat(3, 1fr); }
+            .three-col { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 1024px) {
+            .two-col { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .summary-grid { grid-template-columns: 1fr; }
+            .container { padding: 12px; }
+            .table-controls { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>HQ Intake Billing Portal</h1>
+                <div class="subtitle">Retainers &middot; Minutes &middot; Invoices &middot; Signups</div>
+            </div>
+            <div class="right-side">
+                <a href="/api/export/all" class="btn btn-outline btn-sm">Download All as Excel</a>
+                <button class="btn btn-primary" onclick="refreshData()" id="refreshBtn">Refresh Data</button>
+                <div class="timestamp">
+                    {{ generated_at[:19] if generated_at else 'N/A' }}<br>
+                    {{ data_range.get('start', '') }} to {{ data_range.get('end', '') }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+            <div class="summary-card accent-info">
+                <div class="label">Total Revenue (Paid)</div>
+                <div class="value value-success">${{ "{:,.0f}".format(summary.get('total_fb_paid', 0)) }}</div>
+                <div class="sub">FreshBooks paid invoices</div>
+            </div>
+            <div class="summary-card accent-warning">
+                <div class="label">Total Outstanding</div>
+                <div class="value value-warning">${{ "{:,.0f}".format(summary.get('total_fb_outstanding', 0)) }}</div>
+                <div class="sub">${{ "{:,.0f}".format(summary.get('total_fb_invoiced', 0)) }} invoiced total</div>
+            </div>
+            <div class="summary-card accent-primary">
+                <div class="label">Active Firms</div>
+                <div class="value value-primary">{{ summary.get('total_firms', 0) }}</div>
+                <div class="sub">{{ summary.get('firms_with_alerts', 0) }} need attention</div>
+            </div>
+            <div class="summary-card accent-info">
+                <div class="label">HubSpot Signups</div>
+                <div class="value value-info">{{ "{:,}".format(summary.get('hubspot_signups_since_dec20', 0)) }}</div>
+                <div class="sub">Since Dec 20, 2025</div>
+            </div>
+            <div class="summary-card accent-primary">
+                <div class="label">Convoso Today</div>
+                <div class="value value-primary">{{ "{:,}".format(summary.get('convoso_total_calls_today', 0)) }}</div>
+                <div class="sub">{{ "{:.1f}".format(summary.get('convoso_total_minutes_today', 0)) }} minutes</div>
+            </div>
+            <div class="summary-card accent-danger">
+                <div class="label">Alerts</div>
+                <div class="value value-danger">{{ alert_firms|length }}</div>
+                <div class="sub">Firms below 20% threshold</div>
+            </div>
+        </div>
+
+        <!-- Aging Row -->
+        <div class="aging-row">
+            <div class="aging-label">Outstanding Aging:</div>
+            <div class="aging-buckets">
+                <div class="aging-bucket">
+                    <div class="bucket-label">0-30 days</div>
+                    <div class="bucket-value value-success">${{ "{:,.0f}".format(aging.get('0_30', 0)) }}</div>
+                </div>
+                <div class="aging-bucket">
+                    <div class="bucket-label">30-60 days</div>
+                    <div class="bucket-value value-warning">${{ "{:,.0f}".format(aging.get('30_60', 0)) }}</div>
+                </div>
+                <div class="aging-bucket">
+                    <div class="bucket-label">60-90 days</div>
+                    <div class="bucket-value value-danger">${{ "{:,.0f}".format(aging.get('60_90', 0)) }}</div>
+                </div>
+                <div class="aging-bucket">
+                    <div class="bucket-label">90+ days</div>
+                    <div class="bucket-value value-danger">${{ "{:,.0f}".format(aging.get('90_plus', 0)) }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts Section -->
+        {% if alert_firms or overdue_firms %}
+        <div class="alerts-section">
+            <h2>&#9888; Priority Alerts</h2>
+            <div class="alert-cards-grid">
+                {% for f in alert_firms %}
+                <div class="alert-card">
+                    <div class="alert-card-info">
+                        <div class="alert-card-name"><a href="/firm/{{ f._id }}">{{ f._name }}</a></div>
+                        <div class="alert-card-detail">
+                            {% if f.retainer_alert %}Retainer: {{ f.retainer_remaining_pct|default(0)|int }}% remaining{% endif %}
+                            {% if f.retainer_alert and f.minutes_alert %} | {% endif %}
+                            {% if f.minutes_alert %}Minutes: {{ f.minutes_remaining_pct|default(0)|int }}% remaining{% endif %}
+                        </div>
+                    </div>
+                    <div class="alert-card-actions">
+                        <button class="btn btn-warning btn-xs" onclick="draftInvoice('{{ f._id }}', '{{ f._name|e }}')">Draft Invoice</button>
+                        <button class="btn btn-danger btn-xs" onclick="sendInvoicePrompt('{{ f._id }}', '{{ f._name|e }}')">Send Invoice</button>
+                    </div>
+                </div>
+                {% endfor %}
+                {% for f in overdue_firms if f not in alert_firms %}
+                <div class="alert-card" style="border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.04);">
+                    <div class="alert-card-info">
+                        <div class="alert-card-name"><a href="/firm/{{ f._id }}">{{ f._name }}</a></div>
+                        <div class="alert-card-detail">Outstanding: ${{ "{:,.2f}".format(f.fb_total_outstanding) }} (30+ days)</div>
+                    </div>
+                    <div class="alert-card-actions">
+                        <a href="/firm/{{ f._id }}" class="btn btn-outline btn-xs">View</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Two Column: Top Outstanding + Top Signups -->
+        <div class="two-col">
+            <div class="panel">
+                <h3><span class="dot dot-warning"></span> Top 10 -- Outstanding Balance</h3>
+                <table class="mini-table">
+                    <thead>
+                        <tr><th>Firm</th><th class="text-end">Outstanding</th><th class="text-end">Invoiced</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for f in top_outstanding %}
+                        <tr>
+                            <td><a href="/firm/{{ f._id }}" class="firm-link" style="max-width:200px">{{ f._name }}</a></td>
+                            <td class="text-end fw-bold text-warning">${{ "{:,.2f}".format(f.fb_total_outstanding) }}</td>
+                            <td class="text-end text-muted">${{ "{:,.2f}".format(f.fb_total_invoiced) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel">
+                <h3><span class="dot dot-primary"></span> Top 10 -- Signups (Dec 20+)</h3>
+                <table class="mini-table">
+                    <thead>
+                        <tr><th>Firm</th><th class="text-center">Signups</th><th class="text-end">Invoiced</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for f in top_signups %}
+                        <tr>
+                            <td><a href="/firm/{{ f._id }}" class="firm-link" style="max-width:200px">{{ f._name }}</a></td>
+                            <td class="text-center fw-bold">{{ "{:,}".format(f.hubspot_signups_since_dec20) }}</td>
+                            <td class="text-end text-muted">${{ "{:,.2f}".format(f.fb_total_invoiced) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Full Client Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h2>All Clients ({{ firms|length }})</h2>
+                <div class="table-controls">
+                    <input type="text" class="search-input" placeholder="Search firms..." id="searchInput" oninput="filterTable()">
+                    <button class="filter-btn active" onclick="toggleFilter('all')" id="btn-all">All</button>
+                    <button class="filter-btn" onclick="toggleFilter('active')" id="btn-active">Active</button>
+                    <button class="filter-btn" onclick="toggleFilter('alerts')" id="btn-alerts">Alerts</button>
+                    <button class="filter-btn" onclick="toggleFilter('outstanding')" id="btn-outstanding">Outstanding</button>
+                    <button class="filter-btn" onclick="toggleFilter('overdue')" id="btn-overdue">Overdue 30d+</button>
+                    <a href="/api/export/all" class="btn btn-outline btn-sm">Export Excel</a>
+                </div>
+            </div>
+            <div class="table-scroll">
+                <table id="mainTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable(0)" id="th-0">Firm Name</th>
+                            <th onclick="sortTable(1)" id="th-1" class="text-end">Retainers</th>
+                            <th onclick="sortTable(2)" id="th-2" class="text-end">Ret %</th>
+                            <th onclick="sortTable(3)" id="th-3" class="text-end">Min Pre/Used/Rem</th>
+                            <th onclick="sortTable(4)" id="th-4" class="text-end">Min %</th>
+                            <th onclick="sortTable(5)" id="th-5" class="text-end">Convoso</th>
+                            <th onclick="sortTable(6)" id="th-6" class="text-end">FB Invoiced</th>
+                            <th onclick="sortTable(7)" id="th-7" class="text-end">FB Paid</th>
+                            <th onclick="sortTable(8)" id="th-8" class="text-end">Outstanding</th>
+                            <th onclick="sortTable(9)" id="th-9" class="text-center">Signups</th>
+                            <th onclick="sortTable(10)" id="th-10" class="text-center">Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        {% for f in firms %}
+                        {% set cv = convoso.get('firms', {}).get(f._name, {}) %}
+                        {% set mins_prepaid = f.fb_prepaid_minutes or 0 %}
+                        {% set mins_used = f.fb_minutes_used or 0 %}
+                        {% set mins_remaining = max(0, mins_prepaid - mins_used) %}
+                        <tr class="{% if f.retainer_alert or f.minutes_alert %}alert-row{% endif %}"
+                            data-invoiced="{{ f.fb_total_invoiced }}"
+                            data-alert="{{ 1 if f.retainer_alert or f.minutes_alert else 0 }}"
+                            data-outstanding="{{ f.fb_total_outstanding }}"
+                            data-fb="{{ 1 if f.fb_total_invoiced > 0 or f.hubspot_signups_since_dec20 > 0 else 0 }}"
+                            data-overdue="{{ 1 if f.fb_total_outstanding > 0 else 0 }}">
+                            <td>
+                                <span class="health-dot health-{{ f._health }}"></span>
+                                <a href="/firm/{{ f._id }}" class="firm-link">{{ f._name }}</a>
+                                {% if f.minutes_alert %}<span class="badge badge-danger">LOW MIN</span>{% endif %}
+                                {% if f.retainer_alert %}<span class="badge badge-warning">LOW RET</span>{% endif %}
+                            </td>
+                            <td class="text-end">{{ f.retainers_prepaid|int if f.retainers_prepaid else '-' }}</td>
+                            <td class="text-end {% if f.retainer_remaining_pct is not none and f.retainer_remaining_pct <= 20 %}text-danger fw-bold{% elif f.retainer_remaining_pct is not none and f.retainer_remaining_pct <= 40 %}text-warning{% endif %}">
+                                {% if f.retainer_remaining_pct is not none %}{{ f.retainer_remaining_pct|int }}%
+                                <span class="mini-progress"><span class="mini-progress-fill" style="width:{{ f.retainer_remaining_pct }}%; background:{% if f.retainer_remaining_pct > 50 %}var(--success){% elif f.retainer_remaining_pct > 20 %}var(--warning){% else %}var(--danger){% endif %};"></span></span>
+                                {% else %}-{% endif %}
+                            </td>
+                            <td class="text-end">
+                                {% if mins_prepaid %}{{ "{:,}".format(mins_prepaid) }} / {{ "{:,}".format(mins_used) }} / {{ "{:,}".format(mins_remaining) }}{% else %}-{% endif %}
+                            </td>
+                            <td class="text-end {% if f.minutes_remaining_pct is not none and f.minutes_remaining_pct <= 20 %}text-danger fw-bold{% elif f.minutes_remaining_pct is not none and f.minutes_remaining_pct <= 40 %}text-warning{% endif %}">
+                                {% if f.minutes_remaining_pct is not none %}{{ f.minutes_remaining_pct|int }}%
+                                <span class="mini-progress"><span class="mini-progress-fill" style="width:{{ f.minutes_remaining_pct }}%; background:{% if f.minutes_remaining_pct > 50 %}var(--success){% elif f.minutes_remaining_pct > 20 %}var(--warning){% else %}var(--danger){% endif %};"></span></span>
+                                {% else %}-{% endif %}
+                            </td>
+                            <td class="text-end">{{ "{:.1f}".format(cv.get('total_minutes', 0)) if cv else '-' }}</td>
+                            <td class="text-end">{{ '${:,.0f}'.format(f.fb_total_invoiced) if f.fb_total_invoiced else '-' }}</td>
+                            <td class="text-end">{{ '${:,.0f}'.format(f.fb_total_paid) if f.fb_total_paid else '-' }}</td>
+                            <td class="text-end {% if f.fb_total_outstanding > 0 %}fw-bold text-warning{% endif %}">
+                                {{ '${:,.0f}'.format(f.fb_total_outstanding) if f.fb_total_outstanding else '-' }}
+                            </td>
+                            <td class="text-center">{{ "{:,}".format(f.hubspot_signups_since_dec20) if f.hubspot_signups_since_dec20 else '-' }}</td>
+                            <td class="text-center">
+                                {% if f._health == 'red' %}<span class="badge badge-danger">CRITICAL</span>
+                                {% elif f._health == 'yellow' %}<span class="badge badge-warning">WATCH</span>
+                                {% else %}<span class="badge badge-success">OK</span>{% endif %}
+                            </td>
+                            <td class="text-center" style="white-space: nowrap;">
+                                {% if f._has_share %}
+                                <button class="btn btn-outline btn-xs" onclick="copyLink('{{ f._share_token }}')" title="Copy share link">Link</button>
+                                {% else %}
+                                <button class="btn btn-outline btn-xs" onclick="genShare('{{ f._id }}')" title="Generate share link">Share</button>
+                                {% endif %}
+                                {% if f.retainer_alert or f.minutes_alert %}
+                                <button class="btn btn-warning btn-xs" onclick="draftInvoice('{{ f._id }}', '{{ f._name|e }}')">Invoice</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer">
+            HQ Intake Billing Portal &mdash; Powered by Forest Jr &mdash; Data from FreshBooks + Convoso + HubSpot + Google Sheets
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let currentFilter = 'all';
+        let sortCol = 8; // Default sort by outstanding
+        let sortAsc = false;
+
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast toast-' + type + ' show';
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        function toggleFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-' + filter).classList.add('active');
+            filterTable();
+        }
+
+        function filterTable() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+            let visible = 0;
+            rows.forEach(row => {
+                const name = row.querySelector('td a').textContent.toLowerCase();
+                const matchSearch = !query || name.includes(query);
+                let matchFilter = true;
+                if (currentFilter === 'active') matchFilter = row.dataset.fb === '1';
+                else if (currentFilter === 'alerts') matchFilter = row.dataset.alert === '1';
+                else if (currentFilter === 'outstanding') matchFilter = parseFloat(row.dataset.outstanding) > 0;
+                else if (currentFilter === 'overdue') matchFilter = row.dataset.overdue === '1';
+                const show = matchSearch && matchFilter;
+                row.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+        }
+
+        function sortTable(col) {
+            // Clear previous sort indicators
+            for (let i = 0; i <= 10; i++) {
+                const th = document.getElementById('th-' + i);
+                if (th) th.classList.remove('sorted-asc', 'sorted-desc');
+            }
+
+            if (sortCol === col) sortAsc = !sortAsc;
+            else { sortCol = col; sortAsc = col === 0; }
+
+            const th = document.getElementById('th-' + col);
+            if (th) th.classList.add(sortAsc ? 'sorted-asc' : 'sorted-desc');
+
+            const tbody = document.getElementById('tableBody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            rows.sort((a, b) => {
+                let aVal = a.children[col].textContent.trim();
+                let bVal = b.children[col].textContent.trim();
+                if (aVal === '-') aVal = col === 0 ? 'zzz' : '-999999';
+                if (bVal === '-') bVal = col === 0 ? 'zzz' : '-999999';
+                const aNum = parseFloat(aVal.replace(/[$,%,\/\s]/g, ''));
+                const bNum = parseFloat(bVal.replace(/[$,%,\/\s]/g, ''));
+                if (!isNaN(aNum) && !isNaN(bNum)) return sortAsc ? aNum - bNum : bNum - aNum;
+                return sortAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+            });
+            rows.forEach(r => tbody.appendChild(r));
+        }
+
+        function refreshData() {
+            const btn = document.getElementById('refreshBtn');
+            btn.innerHTML = '<span class="spinner"></span> Refreshing...';
+            btn.disabled = true;
+            fetch('/api/refresh', { method: 'POST' })
+                .then(r => r.json())
+                .then(d => {
+                    showToast('Data refresh started. Page will reload in 30 seconds.', 'success');
+                    setTimeout(() => location.reload(), 30000);
+                })
+                .catch(e => {
+                    showToast('Refresh failed: ' + e, 'error');
+                    btn.innerHTML = 'Refresh Data'; btn.disabled = false;
+                });
+        }
+
+        function draftInvoice(firmId, firmName) {
+            if (!confirm('Create a FreshBooks invoice draft for ' + firmName + '?')) return;
+            fetch('/api/invoice/draft/' + firmId, { method: 'POST' })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.error) { showToast('Error: ' + d.error, 'error'); }
+                    else {
+                        showToast('Invoice draft created for ' + d.firm + ' ($' + d.amount.toFixed(2) + ')', 'success');
+                        if (d.view_url) setTimeout(() => window.open(d.view_url, '_blank'), 1000);
+                    }
+                })
+                .catch(e => showToast('Error: ' + e, 'error'));
+        }
+
+        function sendInvoicePrompt(firmId, firmName) {
+            const invoiceId = prompt('Enter FreshBooks Invoice ID to send for ' + firmName + ':');
+            if (!invoiceId) return;
+            fetch('/api/invoice/send/' + invoiceId, { method: 'POST' })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.error) showToast('Error: ' + d.error, 'error');
+                    else showToast('Invoice #' + invoiceId + ' sent!', 'success');
+                })
+                .catch(e => showToast('Error: ' + e, 'error'));
+        }
+
+        function genShare(firmId) {
+            fetch('/api/share/generate/' + firmId, { method: 'POST' })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.error) { showToast('Error: ' + d.error, 'error'); return; }
+                    navigator.clipboard.writeText(d.url).then(() => {
+                        showToast('Share link copied: ' + d.url, 'success');
+                    }).catch(() => {
+                        showToast('Share link: ' + d.url, 'success');
+                    });
+                    setTimeout(() => location.reload(), 1500);
+                })
+                .catch(e => showToast('Error: ' + e, 'error'));
+        }
+
+        function copyLink(token) {
+            const url = location.origin + '/share/' + token;
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('Share link copied!', 'success');
+            }).catch(() => {
+                showToast('Link: ' + url, 'success');
+            });
+        }
+    </script>
+</body>
+</html>

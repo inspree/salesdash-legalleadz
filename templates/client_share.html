@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ firm_name }} — Lead Report | HQ Intake</title>
+    <style>
+        :root {
+            --bg: #f8f9fb;
+            --surface: #ffffff;
+            --surface-2: #f1f3f7;
+            --border: #e2e5ec;
+            --border-light: #ebeef3;
+            --text: #1a1d2b;
+            --text-muted: #6b7185;
+            --text-dim: #9ba1b5;
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-bg: #eef2ff;
+            --success: #059669;
+            --success-light: #10b981;
+            --success-bg: #ecfdf5;
+            --warning: #d97706;
+            --warning-light: #f59e0b;
+            --warning-bg: #fffbeb;
+            --danger: #dc2626;
+            --danger-light: #ef4444;
+            --danger-bg: #fef2f2;
+            --info: #2563eb;
+            --info-bg: #eff6ff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg); color: var(--text); line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page-wrap { max-width: 1200px; margin: 0 auto; padding: 32px; }
+
+        /* Header */
+        .header {
+            text-align: center; margin-bottom: 36px; padding: 40px 0 32px;
+            border-bottom: 1px solid var(--border);
+        }
+        .header .logo {
+            font-size: 11px; text-transform: uppercase; letter-spacing: 3px;
+            color: var(--text-dim); margin-bottom: 12px; font-weight: 600;
+        }
+        .header h1 {
+            font-size: 32px; font-weight: 700; color: var(--text);
+            letter-spacing: -0.5px;
+        }
+        .header .subtitle {
+            color: var(--text-muted); font-size: 15px; margin-top: 8px;
+        }
+        .header .date-range-label {
+            color: var(--primary); font-size: 13px; margin-top: 6px; font-weight: 500;
+        }
+
+        /* Summary Cards */
+        .summary-row {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 16px; margin-bottom: 24px;
+        }
+        .summary-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px; text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .summary-card .num { font-size: 32px; font-weight: 700; letter-spacing: -1px; }
+        .summary-card .lbl {
+            font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-muted); margin-top: 4px; font-weight: 500;
+        }
+        .num-primary { color: var(--primary); }
+        .num-success { color: var(--success); }
+        .num-warning { color: var(--warning); }
+        .num-danger { color: var(--danger); }
+
+        /* Date Range Controls */
+        .date-controls {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .date-controls-label {
+            font-size: 13px; font-weight: 600; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .range-btn {
+            padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
+            cursor: pointer; border: 1px solid var(--border); background: var(--surface);
+            color: var(--text-muted); transition: all 0.15s;
+        }
+        .range-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .range-btn.active {
+            background: var(--primary); color: white; border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+        }
+        .date-sep { color: var(--text-dim); font-size: 13px; }
+        input[type="date"] {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 8px; padding: 8px 12px; color: var(--text);
+            font-size: 13px; font-family: inherit;
+        }
+        input[type="date"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-bg); }
+
+        /* Controls */
+        .controls {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 16px; flex-wrap: wrap; gap: 12px;
+        }
+        .controls-left { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+        .search-input {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; padding: 10px 16px; color: var(--text);
+            font-size: 14px; width: 280px; transition: border-color 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-bg); }
+        .search-input::placeholder { color: var(--text-dim); }
+
+        select {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; padding: 10px 14px; color: var(--text);
+            font-size: 14px; cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+        select:focus { outline: none; border-color: var(--primary); }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 500;
+            cursor: pointer; border: none; transition: all 0.15s; text-decoration: none;
+        }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3); }
+        .btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); }
+        .btn-outline {
+            background: var(--surface); border: 1px solid var(--border); color: var(--text-muted);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* Table */
+        .table-wrap {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+
+        thead th {
+            background: var(--surface-2); padding: 12px 16px; text-align: left;
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+            color: var(--text-muted); white-space: nowrap; cursor: pointer;
+            user-select: none; font-weight: 600; border-bottom: 1px solid var(--border);
+        }
+        thead th:hover { color: var(--primary); }
+
+        tbody td {
+            padding: 12px 16px; border-top: 1px solid var(--border-light); font-size: 14px;
+        }
+        tbody tr:hover { background: var(--primary-bg); }
+        tbody tr:nth-child(even) { background: rgba(241, 243, 247, 0.4); }
+        tbody tr:nth-child(even):hover { background: var(--primary-bg); }
+
+        .badge {
+            display: inline-block; padding: 4px 12px; border-radius: 16px;
+            font-size: 12px; font-weight: 600;
+        }
+        .badge-success { background: var(--success-bg); color: var(--success); }
+        .badge-warning { background: var(--warning-bg); color: var(--warning); }
+        .badge-danger { background: var(--danger-bg); color: var(--danger); }
+        .badge-info { background: var(--info-bg); color: var(--info); }
+        .badge-muted { background: var(--surface-2); color: var(--text-muted); }
+
+        .table-footer {
+            padding: 14px 16px; border-top: 1px solid var(--border);
+            font-size: 13px; color: var(--text-muted);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .loading { text-align: center; padding: 60px; color: var(--text-muted); }
+        .loading-spinner {
+            width: 36px; height: 36px; border: 3px solid var(--border);
+            border-top-color: var(--primary); border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .empty-state { text-align: center; padding: 60px; color: var(--text-muted); font-size: 15px; }
+
+        .footer {
+            text-align: center; padding: 40px 0 20px; color: var(--text-dim); font-size: 12px;
+        }
+        .footer a { color: var(--primary); text-decoration: none; }
+
+        @media (max-width: 768px) {
+            .page-wrap { padding: 16px; }
+            .summary-row { grid-template-columns: repeat(2, 1fr); }
+            .controls { flex-direction: column; align-items: stretch; }
+            .controls-left { flex-direction: column; }
+            .search-input { width: 100%; }
+            .date-controls { gap: 8px; }
+            .range-btn { padding: 6px 14px; font-size: 12px; }
+        }
+        @media (max-width: 480px) {
+            .summary-row { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrap">
+        <div class="header">
+            <div class="logo">HQ Intake</div>
+            <h1>{{ firm_name }}</h1>
+            <div class="subtitle">Lead Performance Report</div>
+            <div class="date-range-label" id="dateRangeLabel"></div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="num num-primary" id="totalLeads">--</div>
+                <div class="lbl">Total Leads</div>
+            </div>
+            <div class="summary-card">
+                <div class="num num-success" id="signedLeads">--</div>
+                <div class="lbl">Signed</div>
+            </div>
+            <div class="summary-card">
+                <div class="num num-warning" id="pendingLeads">--</div>
+                <div class="lbl">Pending</div>
+            </div>
+            <div class="summary-card">
+                <div class="num num-danger" id="rejectedLeads">--</div>
+                <div class="lbl">Rejected</div>
+            </div>
+        </div>
+
+        <!-- Date Range Controls -->
+        <div class="date-controls">
+            <span class="date-controls-label">Period:</span>
+            <button class="range-btn" onclick="setRange(30)" id="btn30">30 Days</button>
+            <button class="range-btn" onclick="setRange(60)" id="btn60">60 Days</button>
+            <button class="range-btn" onclick="setRange(90)" id="btn90">90 Days</button>
+            <button class="range-btn active" onclick="setRange(0)" id="btnAll">All Time</button>
+            <span class="date-sep">|</span>
+            <input type="date" id="dateFrom" title="From date">
+            <span class="date-sep">to</span>
+            <input type="date" id="dateTo" title="To date">
+            <button class="range-btn" onclick="applyCustomDates()" style="background: var(--primary-bg); color: var(--primary); border-color: var(--primary);">Apply</button>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="controls-left">
+                <input type="text" class="search-input" placeholder="Search by name, email, or phone..." id="searchInput" oninput="filterLeads()">
+                <select id="statusFilter" onchange="filterLeads()">
+                    <option value="">All Statuses</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="/api/export/share/{{ token }}" class="btn btn-primary">Download Report</a>
+                <button class="btn btn-outline" onclick="location.reload()">Refresh</button>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrap">
+            <div id="leadsContainer">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    Loading your leads...
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            Powered by <a href="https://hqintake.com">HQ Intake</a> &mdash; Questions? <a href="mailto:admin@hqintake.com">admin@hqintake.com</a>
+        </div>
+    </div>
+
+    <script>
+        const token = '{{ token }}';
+        let allLeads = [];
+        let activeDateFrom = '';
+        let activeDateTo = '';
+        let activeRange = 30;
+
+        document.addEventListener('DOMContentLoaded', loadLeads);
+
+        function toDateStr(date) {
+            // Returns YYYY-MM-DD string from Date object
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + d;
+        }
+
+        function getLeadDate(lead) {
+            // Normalize lead date to YYYY-MM-DD for comparison
+            if (!lead.date) return '';
+            return (lead.date || '').substring(0, 10);
+        }
+
+        function setRange(days) {
+            activeRange = days;
+            // Update button states
+            document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+            if (days === 30) document.getElementById('btn30').classList.add('active');
+            else if (days === 60) document.getElementById('btn60').classList.add('active');
+            else if (days === 90) document.getElementById('btn90').classList.add('active');
+            else if (days === 0) document.getElementById('btnAll').classList.add('active');
+
+            if (days > 0) {
+                const now = new Date();
+                const from = new Date();
+                from.setDate(now.getDate() - days);
+                activeDateFrom = toDateStr(from);
+                activeDateTo = toDateStr(now);
+                document.getElementById('dateFrom').value = activeDateFrom;
+                document.getElementById('dateTo').value = activeDateTo;
+            } else {
+                activeDateFrom = '';
+                activeDateTo = '';
+                document.getElementById('dateFrom').value = '';
+                document.getElementById('dateTo').value = '';
+            }
+
+            filterLeads();
+        }
+
+        function applyCustomDates() {
+            const from = document.getElementById('dateFrom').value;
+            const to = document.getElementById('dateTo').value;
+            if (!from && !to) return;
+
+            activeRange = -1; // custom
+            document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+
+            activeDateFrom = from || '';
+            activeDateTo = to || '';
+            filterLeads();
+        }
+
+        function updateDateLabel() {
+            const label = document.getElementById('dateRangeLabel');
+            if (activeRange === 0) {
+                label.textContent = 'Showing all time';
+            } else if (activeRange > 0) {
+                label.textContent = 'Last ' + activeRange + ' days';
+            } else if (activeDateFrom || activeDateTo) {
+                const fromStr = activeDateFrom ? new Date(activeDateFrom + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Start';
+                const toStr = activeDateTo ? new Date(activeDateTo + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Today';
+                label.textContent = fromStr + ' — ' + toStr;
+            } else {
+                label.textContent = '';
+            }
+        }
+
+        function loadLeads() {
+            fetch('/api/share/leads/' + token)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('leadsContainer').innerHTML =
+                            '<div class="empty-state">Unable to load leads. Please try again later.</div>';
+                        return;
+                    }
+
+                    allLeads = data.leads || [];
+
+                    // Sort by date DESC by default
+                    allLeads.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+                    // Populate status filter with ALL leads (not filtered)
+                    const statuses = [...new Set(allLeads.map(l => l.status).filter(Boolean))].sort();
+                    const sel = document.getElementById('statusFilter');
+                    sel.innerHTML = '<option value="">All Statuses (' + allLeads.length + ')</option>';
+                    statuses.forEach(s => {
+                        const count = allLeads.filter(l => l.status === s).length;
+                        sel.innerHTML += '<option value="' + s + '">' + s + ' (' + count + ')</option>';
+                    });
+
+                    if (allLeads.length === 0) {
+                        document.getElementById('leadsContainer').innerHTML =
+                            '<div class="empty-state">No leads found yet. Check back soon!</div>';
+                        return;
+                    }
+
+                    // Default: show all time so numbers are accurate
+                    setRange(0);
+                })
+                .catch(e => {
+                    document.getElementById('leadsContainer').innerHTML =
+                        '<div class="empty-state">Connection error. Please refresh the page.</div>';
+                });
+        }
+
+        function isSigned(s) { if (!s) return false; s = s.toLowerCase(); return s.includes('signed') || s.includes('won'); }
+        function isPending(s) { if (!s) return false; s = s.toLowerCase(); return s.includes('pending') || s.includes('new') || s.includes('open') || s.includes('contacted'); }
+        function isRejected(s) { if (!s) return false; s = s.toLowerCase(); return s.includes('reject') || s.includes('lost') || s.includes('dead'); }
+
+        function renderLeads(leads) {
+            const container = document.getElementById('leadsContainer');
+
+            let html = '<table><thead><tr>';
+            html += '<th onclick="sortLeads(\'name\')">Name</th>';
+            html += '<th onclick="sortLeads(\'phone\')">Phone</th>';
+            html += '<th onclick="sortLeads(\'email\')">Email</th>';
+            html += '<th onclick="sortLeads(\'status\')">Status</th>';
+            html += '<th onclick="sortLeads(\'date\')">Date</th>';
+            html += '</tr></thead><tbody>';
+
+            if (leads.length === 0) {
+                html += '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted);">No leads match your filters</td></tr>';
+            } else {
+                leads.forEach(l => {
+                    html += '<tr>';
+                    html += '<td style="font-weight:500">' + esc(l.name || '-') + '</td>';
+                    html += '<td>' + esc(l.phone || '-') + '</td>';
+                    html += '<td>' + esc(l.email || '-') + '</td>';
+                    html += '<td><span class="badge ' + getStatusBadge(l.status) + '">' + esc(l.status || 'Unknown') + '</span></td>';
+                    html += '<td>' + formatDate(l.date) + '</td>';
+                    html += '</tr>';
+                });
+            }
+
+            html += '</tbody></table>';
+            html += '<div class="table-footer"><span>Showing ' + leads.length + ' of ' + allLeads.length + ' total leads</span>';
+            html += '<span>Last updated: ' + new Date().toLocaleString() + '</span></div>';
+            container.innerHTML = html;
+        }
+
+        function esc(text) {
+            const d = document.createElement('div');
+            d.textContent = text;
+            return d.innerHTML;
+        }
+
+        function formatDate(d) {
+            if (!d) return '-';
+            try { return new Date(d + (d.length === 10 ? 'T00:00:00' : '')).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+            catch(e) { return d; }
+        }
+
+        function getStatusBadge(status) {
+            if (!status) return 'badge-muted';
+            const s = status.toLowerCase();
+            if (s.includes('signed') || s.includes('won')) return 'badge-success';
+            if (s.includes('reject') || s.includes('lost') || s.includes('dead')) return 'badge-danger';
+            if (s.includes('pending') || s.includes('open') || s.includes('new') || s.includes('contacted')) return 'badge-warning';
+            return 'badge-info';
+        }
+
+        function getFilteredLeads() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+
+            let filtered = allLeads;
+
+            // Date filtering
+            if (activeDateFrom) {
+                filtered = filtered.filter(l => getLeadDate(l) >= activeDateFrom);
+            }
+            if (activeDateTo) {
+                filtered = filtered.filter(l => getLeadDate(l) <= activeDateTo);
+            }
+
+            // Status filter
+            if (status) filtered = filtered.filter(l => l.status === status);
+
+            // Search filter
+            if (query) filtered = filtered.filter(l =>
+                (l.name || '').toLowerCase().includes(query) ||
+                (l.email || '').toLowerCase().includes(query) ||
+                (l.phone || '').includes(query)
+            );
+
+            return filtered;
+        }
+
+        function filterLeads() {
+            const filtered = getFilteredLeads();
+
+            // Update summary cards
+            const total = filtered.length;
+            const signed = filtered.filter(l => isSigned(l.status)).length;
+            const pending = filtered.filter(l => isPending(l.status)).length;
+            const rejected = filtered.filter(l => isRejected(l.status)).length;
+            document.getElementById('totalLeads').textContent = total;
+            document.getElementById('signedLeads').textContent = signed;
+            document.getElementById('pendingLeads').textContent = pending;
+            document.getElementById('rejectedLeads').textContent = rejected;
+
+            updateDateLabel();
+            renderLeads(filtered);
+        }
+
+        let sortCol = 'date';
+        let sortAsc = false;
+
+        function sortLeads(col) {
+            if (sortCol === col) sortAsc = !sortAsc;
+            else { sortCol = col; sortAsc = col !== 'date'; }
+
+            let filtered = getFilteredLeads();
+
+            filtered.sort((a, b) => {
+                const aV = (a[col] || '').toLowerCase();
+                const bV = (b[col] || '').toLowerCase();
+                return sortAsc ? aV.localeCompare(bV) : bV.localeCompare(aV);
+            });
+
+            renderLeads(filtered);
+        }
+    </script>
+</body>
+</html>
