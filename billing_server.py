@@ -1858,6 +1858,118 @@ def sales_snapshot_debug():
     return jsonify(result)
 
 
+# ── QuickBooks OAuth ──
+QB_CLIENT_ID = os.environ.get("QUICKBOOKS_CLIENT_ID", "")
+QB_CLIENT_SECRET = os.environ.get("QUICKBOOKS_CLIENT_SECRET", "")
+QB_REDIRECT_URI = os.environ.get("QUICKBOOKS_REDIRECT_URI", "")
+QB_TOKENS_FILE = CREDENTIALS_DIR / "quickbooks_tokens.json"
+
+
+def load_qb_tokens():
+    if QB_TOKENS_FILE.exists():
+        try:
+            return json.loads(QB_TOKENS_FILE.read_text())
+        except:
+            pass
+    return None
+
+
+def save_qb_tokens(tokens):
+    CREDENTIALS_DIR.mkdir(exist_ok=True)
+    QB_TOKENS_FILE.write_text(json.dumps(tokens, indent=2))
+
+
+def refresh_qb_token():
+    tokens = load_qb_tokens()
+    if not tokens or not tokens.get("refresh_token"):
+        return None
+    import requests as req
+    import base64
+    auth = base64.b64encode(f"{QB_CLIENT_ID}:{QB_CLIENT_SECRET}".encode()).decode()
+    resp = req.post("https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer",
+        headers={"Authorization": f"Basic {auth}", "Content-Type": "application/x-www-form-urlencoded"},
+        data={"grant_type": "refresh_token", "refresh_token": tokens["refresh_token"]},
+        timeout=15)
+    if resp.status_code == 200:
+        new_tokens = resp.json()
+        new_tokens["realm_id"] = tokens.get("realm_id", "")
+        new_tokens["updated_at"] = datetime.now().isoformat()
+        save_qb_tokens(new_tokens)
+        return new_tokens
+    return None
+
+
+@app.route("/quickbooks/connect")
+def qb_connect():
+    """Start QuickBooks OAuth flow."""
+    if not QB_CLIENT_ID:
+        return "QuickBooks Client ID not configured", 500
+    import urllib.parse
+    params = urllib.parse.urlencode({
+        "client_id": QB_CLIENT_ID,
+        "response_type": "code",
+        "scope": "com.intuit.quickbooks.accounting",
+        "redirect_uri": QB_REDIRECT_URI,
+        "state": hashlib.sha256(QB_CLIENT_ID.encode()).hexdigest()[:16],
+    })
+    return redirect(f"https://appcenter.intuit.com/connect/oauth2?{params}")
+
+
+@app.route("/quickbooks/callback")
+def qb_callback():
+    """Handle QuickBooks OAuth callback."""
+    import requests as req
+    import base64
+    code = request.args.get("code")
+    realm_id = request.args.get("realmId")
+    state = request.args.get("state")
+    error = request.args.get("error")
+
+    if error:
+        return f"QuickBooks authorization denied: {error}", 400
+    if not code:
+        return "Missing authorization code", 400
+
+    auth = base64.b64encode(f"{QB_CLIENT_ID}:{QB_CLIENT_SECRET}".encode()).decode()
+    resp = req.post("https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer",
+        headers={"Authorization": f"Basic {auth}", "Content-Type": "application/x-www-form-urlencoded"},
+        data={
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": QB_REDIRECT_URI,
+        },
+        timeout=15)
+
+    if resp.status_code != 200:
+        return f"Token exchange failed: {resp.status_code} — {resp.text}", 500
+
+    tokens = resp.json()
+    tokens["realm_id"] = realm_id or ""
+    tokens["connected_at"] = datetime.now().isoformat()
+    save_qb_tokens(tokens)
+
+    return f"""<html><body style="font-family:sans-serif;text-align:center;padding:60px;">
+    <h1 style="color:#059669;">QuickBooks Connected!</h1>
+    <p>Company ID: {realm_id}</p>
+    <p>Access token and refresh token saved. The dashboard will now pull Legal Leadz payment data automatically.</p>
+    <p><a href="/">Back to Dashboard</a></p>
+    </body></html>"""
+
+
+@app.route("/quickbooks/status")
+def qb_status():
+    """Check QuickBooks connection status."""
+    tokens = load_qb_tokens()
+    if not tokens:
+        return jsonify({"connected": False, "connect_url": "/quickbooks/connect"})
+    return jsonify({
+        "connected": True,
+        "realm_id": tokens.get("realm_id", ""),
+        "connected_at": tokens.get("connected_at", ""),
+        "has_refresh_token": bool(tokens.get("refresh_token")),
+    })
+
+
 # ── Main ──
 if __name__ == "__main__":
     if not SHARE_TOKENS_FILE.exists():
