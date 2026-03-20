@@ -1693,9 +1693,103 @@ def sales_snapshot(token):
     )
 
 
+def hubspot_get_signed_deals_for_firm(firm_name):
+    """Fast version: only fetch deals in signed stages for a firm.
+    Much faster than hubspot_get_leads_for_firm() which fetches ALL deals."""
+    import requests as req
+
+    if not HUBSPOT_API_KEY:
+        return []
+
+    headers = {
+        "Authorization": f"Bearer {HUBSPOT_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    # Signed deal stages
+    SIGNED_STAGES = ["closedwon", "closedlost", "3022527196", "3022527198"]
+
+    search_token = firm_name.split()[0]
+    deals = []
+    after = 0
+
+    for _ in range(10):  # max 1000 signed deals
+        body = {
+            "filterGroups": [{
+                "filters": [
+                    {
+                        "propertyName": "dealname",
+                        "operator": "CONTAINS_TOKEN",
+                        "value": search_token
+                    },
+                    {
+                        "propertyName": "dealstage",
+                        "operator": "IN",
+                        "values": SIGNED_STAGES
+                    }
+                ]
+            }],
+            "properties": ["dealname", "dealstage", "createdate"],
+            "limit": 100,
+        }
+        if after:
+            body["after"] = str(after)
+
+        for attempt in range(3):
+            resp = req.post(
+                "https://api.hubapi.com/crm/v3/objects/deals/search",
+                headers=headers, json=body
+            )
+            if resp.status_code == 429:
+                time.sleep(int(resp.headers.get("Retry-After", 2)) + 1)
+                continue
+            break
+
+        if resp.status_code != 200:
+            break
+
+        data = resp.json()
+        results = data.get("results", [])
+        if not results:
+            break
+        deals.extend(results)
+        after = data.get("paging", {}).get("next", {}).get("after")
+        if not after:
+            break
+
+    if not deals:
+        return []
+
+    # Build lead list from deal names (parse "Name / Case Type - Firm")
+    leads = []
+    for d in deals:
+        props = d.get("properties", {})
+        dealname = props.get("dealname", "")
+        stage_id = props.get("dealstage", "")
+        stage_label = DEAL_STAGE_LABELS.get(stage_id, stage_id)
+        date = props.get("createdate", "")[:10] if props.get("createdate") else ""
+
+        # Parse contact name and case type from dealname
+        contact_name = dealname.split("/")[0].strip() if "/" in dealname else dealname
+        case_type = ""
+        if "/" in dealname:
+            rest = dealname.split("/", 1)[1].strip()
+            # "Case Type - Firm Name" → extract case type
+            case_type = rest.split("-")[0].strip() if "-" in rest else rest
+
+        leads.append({
+            "name": contact_name,
+            "status": stage_label,
+            "date": date,
+            "case_type": case_type,
+        })
+
+    return leads
+
+
 @app.route("/api/sales-snapshot/leads/<token>/<firm_name>")
 def api_sales_snapshot_leads(token, firm_name):
-    """Get leads for a specific firm within a sales snapshot (used by the template JS)."""
+    """Get signed leads for a specific firm within a sales snapshot."""
     tokens = load_sales_snapshot_tokens()
     if token not in tokens:
         return jsonify({"error": "Invalid token"}), 404
@@ -1703,21 +1797,12 @@ def api_sales_snapshot_leads(token, firm_name):
     token_data = tokens[token]
     allowed_firms = token_data.get("firm_names", [])
 
-    # Verify the requested firm is in the snapshot
     if firm_name not in allowed_firms:
         return jsonify({"error": "Firm not in snapshot"}), 403
 
     try:
-        leads = hubspot_get_leads_for_firm(firm_name)
-        safe_leads = []
-        for lead in leads:
-            safe_leads.append({
-                "name": lead.get("name", ""),
-                "status": lead.get("status", "Unknown"),
-                "date": lead.get("date", ""),
-                "case_type": lead.get("case_type", ""),
-            })
-        return jsonify({"firm": firm_name, "leads": safe_leads, "count": len(safe_leads)})
+        leads = hubspot_get_signed_deals_for_firm(firm_name)
+        return jsonify({"firm": firm_name, "leads": leads, "count": len(leads)})
     except Exception as e:
         return jsonify({"error": str(e), "leads": [], "count": 0}), 500
 
