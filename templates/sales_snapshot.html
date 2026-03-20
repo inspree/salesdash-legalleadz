@@ -282,11 +282,11 @@
             </div>
             <div class="summary-card">
                 <div class="num num-primary">${{ "%.2f"|format(total_paid_legal_leadz) }}</div>
-                <div class="lbl">Paid to Legal Leadz AI</div>
+                <div class="lbl">Paid to HQ Intake</div>
             </div>
             <div class="summary-card">
-                <div class="num num-warning">${{ "%.2f"|format(total_paid_hq_intake) }}</div>
-                <div class="lbl">Paid to HQ Intake</div>
+                <div class="num num-warning">${{ "%.2f"|format(total_paid_legal_leadz_actual) }}</div>
+                <div class="lbl">Paid to Legal Leadz</div>
             </div>
         </div>
 
@@ -301,12 +301,12 @@
                         <div class="stat-lbl">Signed</div>
                     </div>
                     <div class="firm-stat">
-                        <div class="stat-num num-primary">${{ "%.2f"|format(firm_entry.paid_legal_leadz) }}</div>
-                        <div class="stat-lbl">Legal Leadz AI</div>
+                        <div class="stat-num num-primary">${{ "%.2f"|format(firm_entry.paid_hq_intake_fb) }}</div>
+                        <div class="stat-lbl">HQ Intake</div>
                     </div>
                     <div class="firm-stat">
-                        <div class="stat-num num-warning">${{ "%.2f"|format(firm_entry.paid_hq_intake) }}</div>
-                        <div class="stat-lbl">HQ Intake</div>
+                        <div class="stat-num num-warning">${{ "%.2f"|format(firm_entry.paid_legal_leadz) }}</div>
+                        <div class="stat-lbl">Legal Leadz</div>
                     </div>
                 </div>
             </div>
@@ -315,16 +315,16 @@
                 <h3>Invoice Summary</h3>
                 <div class="invoice-grid">
                     <div class="invoice-item">
-                        <div class="inv-label">Legal Leadz AI -- Total Paid</div>
-                        <div class="inv-value num-success">${{ "%.2f"|format(firm_entry.paid_legal_leadz) }}</div>
+                        <div class="inv-label">HQ Intake -- Total Paid</div>
+                        <div class="inv-value num-primary">${{ "%.2f"|format(firm_entry.paid_hq_intake_fb) }}</div>
                     </div>
                     <div class="invoice-item">
-                        <div class="inv-label">HQ Intake -- Total Paid</div>
-                        <div class="inv-value num-warning">${{ "%.2f"|format(firm_entry.paid_hq_intake) }}</div>
+                        <div class="inv-label">Legal Leadz -- Total Paid</div>
+                        <div class="inv-value num-warning">${{ "%.2f"|format(firm_entry.paid_legal_leadz) }}</div>
                     </div>
                     <div class="invoice-item">
                         <div class="inv-label">Combined Total</div>
-                        <div class="inv-value num-primary">${{ "%.2f"|format(firm_entry.paid_legal_leadz + firm_entry.paid_hq_intake) }}</div>
+                        <div class="inv-value num-success">${{ "%.2f"|format(firm_entry.paid_hq_intake_fb + firm_entry.paid_legal_leadz) }}</div>
                     </div>
                     {% if firm_entry.fb_invoice_count > 0 %}
                     <div class="invoice-item">

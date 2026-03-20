@@ -1660,23 +1660,23 @@ def sales_snapshot(token):
 
     # Build per-firm context for the template
     firms_context = []
-    total_paid_legal_leadz = 0.0
     total_paid_hq_intake = 0.0
+    total_paid_legal_leadz_actual = 0.0
 
     for name in firm_names:
         firm = firms_data.get(name, {})
-        # FreshBooks total = Legal Leadz AI payments
-        paid_ll = firm.get("fb_total_paid", 0.0) or 0.0
-        # Sheets total = HQ Intake payments (from Google Sheets invoicing)
-        paid_hq = firm.get("total_invoiced_sheets", 0.0) or 0.0
+        # FreshBooks total = HQ Intake payments (Forest confirmed)
+        paid_hq_fb = firm.get("fb_total_paid", 0.0) or 0.0
+        # Legal Leadz payments (will come from QuickBooks once connected)
+        paid_ll = 0.0
 
-        total_paid_legal_leadz += paid_ll
-        total_paid_hq_intake += paid_hq
+        total_paid_hq_intake += paid_hq_fb
+        total_paid_legal_leadz_actual += paid_ll
 
         firms_context.append({
             "firm_name": name,
+            "paid_hq_intake_fb": paid_hq_fb,
             "paid_legal_leadz": paid_ll,
-            "paid_hq_intake": paid_hq,
             "fb_invoice_count": firm.get("fb_invoice_count", 0) or 0,
             "total_signups": firm.get("hubspot_signups_since_dec20", 0) or firm.get("total_signups", 0) or 0,
         })
@@ -1687,8 +1687,8 @@ def sales_snapshot(token):
         token=token,
         firms=firms_context,
         firm_names_json=json.dumps(firm_names),
-        total_paid_legal_leadz=total_paid_legal_leadz,
-        total_paid_hq_intake=total_paid_hq_intake,
+        total_paid_legal_leadz=total_paid_hq_intake,
+        total_paid_legal_leadz_actual=total_paid_legal_leadz_actual,
         generated_at=generated_at,
     )
 
@@ -1709,30 +1709,29 @@ def hubspot_get_signed_deals_for_firm(firm_name):
     # Signed deal stages
     SIGNED_STAGES = ["closedwon", "closedlost", "3022527196", "3022527198"]
 
-    # Use the most distinguishing word from the firm name for searching
-    # Skip common legal words that would match too many deals
+    # Build search filters using ALL meaningful words from the firm name
+    # Each word becomes a separate CONTAINS_TOKEN filter (AND logic)
     SKIP_WORDS = {"the", "law", "office", "of", "a", "and", "llc", "pc", "pllc",
                   "group", "firm", "legal", "services", "injury", "attorneys", "associates"}
-    words = firm_name.split()
-    # Find most specific word — usually the attorney's surname (last non-common word)
-    search_token = words[0]  # fallback to first word
-    for w in reversed(words):
-        if w.lower().rstrip(".,") not in SKIP_WORDS and len(w) > 1:
-            search_token = w.rstrip(".,")
-            break
+    search_words = [w.rstrip(".,") for w in firm_name.split()
+                    if w.lower().rstrip(".,") not in SKIP_WORDS and len(w.rstrip(".,")) > 1]
+
+    # Fallback: use last word if all were filtered
+    if not search_words:
+        search_words = [firm_name.split()[-1]]
 
     deals = []
     after = 0
 
     for _ in range(10):  # max 1000 signed deals
+        # Build filters: one CONTAINS_TOKEN per search word + deal stage filter
+        name_filters = [
+            {"propertyName": "dealname", "operator": "CONTAINS_TOKEN", "value": w}
+            for w in search_words
+        ]
         body = {
             "filterGroups": [{
-                "filters": [
-                    {
-                        "propertyName": "dealname",
-                        "operator": "CONTAINS_TOKEN",
-                        "value": search_token
-                    },
+                "filters": name_filters + [
                     {
                         "propertyName": "dealstage",
                         "operator": "IN",
