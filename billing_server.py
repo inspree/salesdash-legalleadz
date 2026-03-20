@@ -1645,6 +1645,7 @@ def api_generate_sales_snapshot():
     return jsonify({"token": token, "url": share_url, "firms": valid_names})
 
 
+@app.route("/<token>")
 @app.route("/sales-snapshot/<token>")
 def sales_snapshot(token):
     """Sales snapshot page -- multi-client overview, token-based, no login required."""
