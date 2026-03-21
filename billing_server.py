@@ -2142,6 +2142,19 @@ def qb_callback():
     </body></html>"""
 
 
+@app.route("/quickbooks/export-tokens")
+def qb_export_tokens():
+    """Export QB tokens as JSON (admin only, protected by secret)."""
+    secret = request.args.get("secret", "")
+    admin_secret = os.environ.get("ADMIN_SECRET", "")
+    if not admin_secret or secret != admin_secret:
+        abort(403)
+    tokens = load_qb_tokens()
+    if not tokens:
+        return jsonify({"error": "No tokens"}), 404
+    return jsonify(tokens)
+
+
 @app.route("/quickbooks/status")
 def qb_status():
     """Check QuickBooks connection status."""
