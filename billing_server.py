@@ -1715,10 +1715,24 @@ def sales_snapshot(token):
 
     # Build per-firm QB payment lookup (fuzzy match on CustomerRef.name)
     def _match_firm(customer_name, firm_name):
-        """Case-insensitive substring match."""
-        cn = (customer_name or "").lower()
-        fn = (firm_name or "").lower()
-        return fn in cn or cn in fn
+        """Match QB customer name to firm name, handling middle initials."""
+        cn = (customer_name or "").lower().strip()
+        fn = (firm_name or "").lower().strip()
+        if not cn or not fn:
+            return False
+        # Direct substring match
+        if fn in cn or cn in fn:
+            return True
+        # Token-based: strip single-letter tokens (middle initials like "A." or "R.")
+        # and check if remaining customer tokens all appear in firm name
+        import re as _re
+        cn_tokens = [t.rstrip(".") for t in cn.split() if len(t.rstrip(".")) > 1]
+        fn_tokens = [t.rstrip(".") for t in fn.split() if len(t.rstrip(".")) > 1]
+        if cn_tokens and all(t in fn for t in cn_tokens):
+            return True
+        if fn_tokens and all(t in cn for t in fn_tokens):
+            return True
+        return False
 
     firm_qb_payments = {}
     for name in firm_names:
