@@ -1662,7 +1662,6 @@ def sales_snapshot(token):
     # Build per-firm context for the template
     firms_context = []
     total_paid_hq_intake = 0.0
-    total_paid_legal_leadz_actual = 0.0
     total_ad_spend = 0.0
     ad_spend_map = token_data.get("ad_spend", {})
 
@@ -1673,18 +1672,18 @@ def sales_snapshot(token):
     if qb_data and qb_data.get("summary"):
         qb_total_payments = qb_data["summary"].get("total_payments_received", 0.0)
         qb_payment_count = qb_data["summary"].get("payment_count", 0)
+    # "Paid to Legal Leadz" = QB total WITHOUT the 15% management fee
+    # Client pays ad_spend * 1.15, so strip the fee: total / 1.15
+    total_paid_legal_leadz_actual = round(qb_total_payments / 1.15, 2) if qb_total_payments else 0.0
 
     for name in firm_names:
         firm = firms_data.get(name, {})
         # FreshBooks total = HQ Intake payments (Forest confirmed)
         paid_hq_fb = firm.get("fb_total_paid", 0.0) or 0.0
-        # Legal Leadz payments from QuickBooks
-        paid_ll = 0.0
         # Ad spend from Google Sheets data (stored in token config)
         firm_ad_spend = ad_spend_map.get(name, 0.0)
 
         total_paid_hq_intake += paid_hq_fb
-        total_paid_legal_leadz_actual += paid_ll
         total_ad_spend += firm_ad_spend
 
         firms_context.append({
