@@ -1891,17 +1891,31 @@ qb_logger.addHandler(_qb_fh)
 
 
 def load_qb_tokens():
+    # Try file first, then fall back to env var (survives Railway redeploys)
     if QB_TOKENS_FILE.exists():
         try:
             return json.loads(QB_TOKENS_FILE.read_text())
         except Exception as e:
-            qb_logger.error(f"Failed to load QB tokens: {e}")
+            qb_logger.error(f"Failed to load QB tokens from file: {e}")
+    env_tokens = os.environ.get("QUICKBOOKS_TOKENS_JSON")
+    if env_tokens:
+        try:
+            tokens = json.loads(env_tokens)
+            # Restore to file for faster subsequent loads
+            CREDENTIALS_DIR.mkdir(exist_ok=True)
+            QB_TOKENS_FILE.write_text(json.dumps(tokens, indent=2))
+            qb_logger.info("Restored QB tokens from env var")
+            return tokens
+        except Exception as e:
+            qb_logger.error(f"Failed to load QB tokens from env: {e}")
     return None
 
 
 def save_qb_tokens(tokens):
     CREDENTIALS_DIR.mkdir(exist_ok=True)
     QB_TOKENS_FILE.write_text(json.dumps(tokens, indent=2))
+    # Also save to env var for persistence across Railway redeploys
+    os.environ["QUICKBOOKS_TOKENS_JSON"] = json.dumps(tokens)
     qb_logger.info("QuickBooks tokens saved successfully")
 
 
