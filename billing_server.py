@@ -1788,26 +1788,31 @@ def sales_snapshot(token):
 
 
 INJURY_SEVERITY_COLORS = {
-    1: "#4CAF50",   # Green — minor
-    2: "#8BC34A",   # Yellow-green — moderate soft tissue
-    3: "#FF9800",   # Orange — significant
-    4: "#FF5722",   # Red-orange — severe
-    5: "#D32F2F",   # Dark red — catastrophic
+    1: "#8BC34A",   # Yellow-green — soft tissue
+    2: "#FF9800",   # Orange — moderate (bruising, back issues)
+    3: "#FF5722",   # Red-orange — serious (fractures, surgery, TBI)
+    4: "#D32F2F",   # Dark red — death, loss of limb, coma
 }
 
+# 1-4 scale. Don't underestimate — injuries usually get worse before better.
 INJURY_KEYWORDS = {
-    5: ["death", "died", "fatal", "deceased", "paralysis", "paralyzed",
-        "quadriplegic", "paraplegic", "coma", "brain dead", "catastrophic"],
-    4: ["surgery", "surgical", "tbi", "traumatic brain", "spinal cord",
-        "amputat", "multiple fractures", "internal bleeding", "organ",
-        "ventilator", "icu", "life flight", "permanent"],
-    3: ["fracture", "broken", "break", "herniat", "concussion", "torn",
+    4: ["death", "died", "fatal", "deceased", "paralysis", "paralyzed",
+        "quadriplegic", "paraplegic", "coma", "brain dead", "catastrophic",
+        "amputat", "loss of limb", "lost limb", "lost leg", "lost arm",
+        "lost hand", "lost foot", "severed"],
+    3: ["surgery", "surgical", "tbi", "traumatic brain", "spinal cord",
+        "fracture", "broken", "break", "herniat", "concussion", "torn",
         "ligament", "acl", "mcl", "rotator cuff", "dislocation",
-        "multiple injuries", "stitches", "staples", "laceration"],
-    2: ["whiplash", "sprain", "strain", "contusion", "soreness",
-        "back pain", "neck pain", "shoulder pain", "knee pain",
-        "bruising", "swelling", "limited mobility"],
-    1: ["minor", "sore", "stiff", "tender", "ache", "discomfort", "mild"],
+        "multiple injuries", "stitches", "staples", "laceration",
+        "internal bleeding", "organ", "ventilator", "icu", "life flight",
+        "permanent", "serious", "significant", "hospitalized", "admitted"],
+    2: ["bruising", "bruise", "back pain", "back issue", "neck pain",
+        "shoulder pain", "knee pain", "whiplash", "sprain", "strain",
+        "contusion", "swelling", "limited mobility", "headache",
+        "chest pain", "hip pain", "numbness", "tingling", "sciatica",
+        "pinched nerve", "bulging disc", "muscle spasm"],
+    1: ["sore", "stiff", "tender", "ache", "discomfort", "mild",
+        "soft tissue", "minor"],
 }
 
 INJURY_PROPERTIES = [
@@ -1825,8 +1830,10 @@ INJURY_PROPERTIES = [
 
 
 def compute_injury_severity(contact_properties: dict) -> dict:
-    """Compute injury severity score (1-5) from HubSpot contact properties.
+    """Compute injury severity score (1-4) from HubSpot contact properties.
 
+    Scale: 1=Soft tissue, 2=Moderate (bruising/back), 3=Serious, 4=Death/limb loss/coma
+    Default to 2 when no data — injuries usually get worse before better.
     Returns {"score": int, "injuries_text": str, "color": str}.
     """
     # Collect all available injury text
@@ -1840,21 +1847,18 @@ def compute_injury_severity(contact_properties: dict) -> dict:
     combined = injuries_text.lower()
 
     if not combined:
-        # Default to 2 for auto accident cases with no injury text
+        # Default to 2 (Moderate) — don't underestimate, injuries get worse
         return {"score": 2, "injuries_text": "(no injury data)", "color": INJURY_SEVERITY_COLORS[2]}
 
-    # Find highest matching severity
-    best_score = 1
-    for score in (5, 4, 3, 2, 1):
+    # Find highest matching severity (check from most severe down)
+    best_score = 2  # default to Moderate, not 1 — be conservative
+    for score in (4, 3, 2, 1):
         for keyword in INJURY_KEYWORDS[score]:
             if keyword in combined:
                 best_score = max(best_score, score)
-                break  # found a match at this level, check higher
-        if best_score == score:
-            # Already found a match at this level; since we go high→low,
-            # if we matched 5 we can stop immediately
-            if score >= 4:
                 break
+        if best_score == score and score >= 3:
+            break  # found serious+, no need to keep checking
 
     return {
         "score": best_score,
@@ -2018,7 +2022,7 @@ def hubspot_get_signed_deals_for_firm(firm_name):
             case_type = rest.split("-")[0].strip() if "-" in rest else rest
 
         # Compute injury severity from associated contact
-        injury = {"score": 2, "injuries_text": "(no contact data)", "color": INJURY_SEVERITY_COLORS[2]}
+        injury = {"score": 2, "injuries_text": "(no contact data — default Moderate)", "color": INJURY_SEVERITY_COLORS[2]}
         cids = deal_contact_map.get(d["id"], [])
         if cids and cids[0] in contact_props:
             injury = compute_injury_severity(contact_props[cids[0]])

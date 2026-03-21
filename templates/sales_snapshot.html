@@ -651,7 +651,7 @@
                 var injBadge = document.createElement('span');
                 injBadge.className = 'injury-badge';
                 var score = l.injury_score || 2;
-                var colors = {1: '#4CAF50', 2: '#8BC34A', 3: '#FF9800', 4: '#FF5722', 5: '#D32F2F'};
+                var colors = {1: '#8BC34A', 2: '#FF9800', 3: '#FF5722', 4: '#D32F2F'};
                 injBadge.style.backgroundColor = l.injury_color || colors[score] || '#8BC34A';
                 injBadge.textContent = score;
                 injBadge.title = l.injuries_text || '';
