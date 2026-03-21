@@ -233,6 +233,33 @@
             margin-left: auto; font-size: 13px; color: var(--text-muted);
         }
 
+        /* Month Filter Buttons */
+        .month-filter {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 14px 24px; margin-bottom: 24px;
+            display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .month-filter .mf-label {
+            font-size: 13px; font-weight: 600; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-right: 6px;
+        }
+        .month-filter a.mf-btn {
+            display: inline-block; padding: 7px 18px; border-radius: 8px;
+            font-size: 13px; font-weight: 600; text-decoration: none;
+            border: 1px solid var(--border); color: var(--text-muted);
+            background: var(--surface-2); transition: all 0.15s ease;
+        }
+        .month-filter a.mf-btn:hover {
+            border-color: var(--primary); color: var(--primary);
+            background: var(--primary-bg);
+        }
+        .month-filter a.mf-btn.active {
+            border-color: var(--primary); color: #fff;
+            background: var(--primary); box-shadow: 0 2px 6px rgba(79,70,229,0.25);
+        }
+
         /* Campaign summary bar */
         .campaign-bar {
             display: flex; justify-content: space-between; align-items: center;
@@ -281,6 +308,18 @@
             <input type="date" id="dateEnd" title="End date">
             <button class="date-reset" id="dateReset" title="Clear date filter">Reset</button>
             <span class="date-range-info" id="dateRangeInfo">Showing all time</span>
+        </div>
+
+        <!-- Month Filter Buttons (QB data) -->
+        <div class="month-filter">
+            <span class="mf-label">QB Period</span>
+            <a class="mf-btn{{ ' active' if not month_filter }}" href="?">All Time</a>
+            <a class="mf-btn{{ ' active' if month_filter == 'current' }}" href="?month=current">Current Month</a>
+            <a class="mf-btn{{ ' active' if month_filter == 'last' }}" href="?month=last">Last Month</a>
+            <a class="mf-btn{{ ' active' if month_filter == '2ago' }}" href="?month=2ago">2 Months Ago</a>
+            {% if month_filter %}
+            <span class="date-range-info">Showing: {{ month_label }}</span>
+            {% endif %}
         </div>
 
         <!-- Aggregate Summary Cards -->

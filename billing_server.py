@@ -1667,14 +1667,64 @@ def sales_snapshot(token):
 
     # Load QuickBooks cached data for Legal Leadz payments
     qb_data = load_qb_data()
-    qb_total_payments = 0.0
-    qb_payment_count = 0
-    if qb_data and qb_data.get("summary"):
-        qb_total_payments = qb_data["summary"].get("total_payments_received", 0.0)
-        qb_payment_count = qb_data["summary"].get("payment_count", 0)
+
+    # ── Month filter: ?month=current|last|2ago ──
+    month_filter = request.args.get("month", "")
+    month_label = "All Time"
+    qb_date_start = None
+    qb_date_end = None
+    if month_filter in ("current", "last", "2ago"):
+        import calendar as _cal
+        today = datetime.now()
+        if month_filter == "current":
+            m, y = today.month, today.year
+        elif month_filter == "last":
+            m = today.month - 1 if today.month > 1 else 12
+            y = today.year if today.month > 1 else today.year - 1
+        else:  # 2ago
+            dt2 = today.replace(day=1) - timedelta(days=1)
+            dt2 = dt2.replace(day=1) - timedelta(days=1)
+            m, y = dt2.month, dt2.year
+        _, last_day = _cal.monthrange(y, m)
+        qb_date_start = f"{y:04d}-{m:02d}-01"
+        qb_date_end = f"{y:04d}-{m:02d}-{last_day:02d}"
+        month_label = datetime(y, m, 1).strftime("%B %Y")
+
+    def _in_date_range(txn_date_str):
+        """Return True if txn_date (YYYY-MM-DD) falls within the selected month."""
+        if not qb_date_start:
+            return True  # no filter = include all
+        if not txn_date_str:
+            return False
+        return qb_date_start <= txn_date_str[:10] <= qb_date_end
+
+    # Extract QB payments & invoices, optionally filtered by month
+    qb_payments_list = (qb_data.get("payments", []) if qb_data else [])
+    qb_invoices_list = (qb_data.get("invoices", []) if qb_data else [])
+    if qb_date_start:
+        qb_payments_list = [p for p in qb_payments_list if _in_date_range(p.get("TxnDate", ""))]
+        qb_invoices_list = [i for i in qb_invoices_list if _in_date_range(i.get("TxnDate", ""))]
+
+    # Compute totals from filtered data
+    qb_total_payments = sum(float(p.get("TotalAmt", 0)) for p in qb_payments_list)
+    qb_payment_count = len(qb_payments_list)
+
     # "Paid to Legal Leadz" = QB total WITHOUT the 15% management fee
     # Client pays ad_spend * 1.15, so strip the fee: total / 1.15
     total_paid_legal_leadz_actual = round(qb_total_payments / 1.15, 2) if qb_total_payments else 0.0
+
+    # Build per-firm QB payment lookup (fuzzy match on CustomerRef.name)
+    def _match_firm(customer_name, firm_name):
+        """Case-insensitive substring match."""
+        cn = (customer_name or "").lower()
+        fn = (firm_name or "").lower()
+        return fn in cn or cn in fn
+
+    firm_qb_payments = {}
+    for name in firm_names:
+        matched = [p for p in qb_payments_list
+                   if _match_firm(p.get("CustomerRef", {}).get("name", ""), name)]
+        firm_qb_payments[name] = sum(float(p.get("TotalAmt", 0)) for p in matched)
 
     for name in firm_names:
         firm = firms_data.get(name, {})
@@ -1682,6 +1732,9 @@ def sales_snapshot(token):
         paid_hq_fb = firm.get("fb_total_paid", 0.0) or 0.0
         # Ad spend from Google Sheets data (stored in token config)
         firm_ad_spend = ad_spend_map.get(name, 0.0)
+        # Per-client Legal Leadz = QB payments for this client / 1.15 (strip 15% fee)
+        raw_qb = firm_qb_payments.get(name, 0.0)
+        paid_ll = round(raw_qb / 1.15, 2) if raw_qb else 0.0
 
         total_paid_hq_intake += paid_hq_fb
         total_ad_spend += firm_ad_spend
@@ -1708,6 +1761,8 @@ def sales_snapshot(token):
         qb_total_payments=qb_total_payments,
         qb_payment_count=qb_payment_count,
         qb_data_fetched_at=qb_data.get("fetched_at", "") if qb_data else "",
+        month_filter=month_filter,
+        month_label=month_label,
     )
 
 
