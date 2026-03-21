@@ -1914,9 +1914,40 @@ def load_qb_tokens():
 def save_qb_tokens(tokens):
     CREDENTIALS_DIR.mkdir(exist_ok=True)
     QB_TOKENS_FILE.write_text(json.dumps(tokens, indent=2))
-    # Also save to env var for persistence across Railway redeploys
     os.environ["QUICKBOOKS_TOKENS_JSON"] = json.dumps(tokens)
+    # Persist to Railway env var so tokens survive redeploys
+    _persist_qb_tokens_to_railway(tokens)
     qb_logger.info("QuickBooks tokens saved successfully")
+
+
+def _persist_qb_tokens_to_railway(tokens):
+    """Save QB tokens as a Railway environment variable via the Railway API."""
+    import requests as req
+    rt = os.environ.get("RAILWAY_TOKEN")
+    pid = os.environ.get("RAILWAY_PROJECT_ID")
+    sid = os.environ.get("RAILWAY_SERVICE_ID")
+    eid = os.environ.get("RAILWAY_ENV_ID")
+    if not all([rt, pid, sid, eid]):
+        qb_logger.warning("Railway API vars not set, skipping token persistence")
+        return
+    try:
+        tokens_json = json.dumps(tokens).replace("\\", "\\\\").replace('"', '\\"')
+        query = (
+            'mutation { variableUpsert(input: { '
+            f'projectId: "{pid}", environmentId: "{eid}", '
+            f'serviceId: "{sid}", name: "QUICKBOOKS_TOKENS_JSON", '
+            f'value: "{tokens_json}" '
+            '}) }'
+        )
+        resp = req.post("https://backboard.railway.com/graphql/v2",
+            headers={"Authorization": f"Bearer {rt}", "Content-Type": "application/json"},
+            json={"query": query}, timeout=10)
+        if resp.status_code == 200 and resp.json().get("data", {}).get("variableUpsert"):
+            qb_logger.info("QB tokens persisted to Railway env var")
+        else:
+            qb_logger.error(f"Railway token persist failed: {resp.text[:200]}")
+    except Exception as e:
+        qb_logger.error(f"Railway token persist error: {e}")
 
 
 def _log_qb_response(resp, context=""):
