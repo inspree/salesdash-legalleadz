@@ -1666,11 +1666,19 @@ def sales_snapshot(token):
     total_ad_spend = 0.0
     ad_spend_map = token_data.get("ad_spend", {})
 
+    # Load QuickBooks cached data for Legal Leadz payments
+    qb_data = load_qb_data()
+    qb_total_payments = 0.0
+    qb_payment_count = 0
+    if qb_data and qb_data.get("summary"):
+        qb_total_payments = qb_data["summary"].get("total_payments_received", 0.0)
+        qb_payment_count = qb_data["summary"].get("payment_count", 0)
+
     for name in firm_names:
         firm = firms_data.get(name, {})
         # FreshBooks total = HQ Intake payments (Forest confirmed)
         paid_hq_fb = firm.get("fb_total_paid", 0.0) or 0.0
-        # Legal Leadz payments (will come from QuickBooks once connected)
+        # Legal Leadz payments from QuickBooks
         paid_ll = 0.0
         # Ad spend from Google Sheets data (stored in token config)
         firm_ad_spend = ad_spend_map.get(name, 0.0)
@@ -1698,6 +1706,9 @@ def sales_snapshot(token):
         total_paid_legal_leadz_actual=total_paid_legal_leadz_actual,
         total_ad_spend=total_ad_spend,
         generated_at=generated_at,
+        qb_total_payments=qb_total_payments,
+        qb_payment_count=qb_payment_count,
+        qb_data_fetched_at=qb_data.get("fetched_at", "") if qb_data else "",
     )
 
 
@@ -2134,6 +2145,154 @@ def qb_status():
         "has_refresh_token": bool(tokens.get("refresh_token")),
         "support": QB_SUPPORT_EMAIL,
     })
+
+
+# ── QuickBooks Data Routes ──
+QB_DATA_FILE = DASHBOARD_DIR / "quickbooks_data.json"
+
+
+def _qb_query(entity, max_results=1000):
+    """Run a QuickBooks query for a given entity type (Invoice, Payment, etc.).
+    Returns parsed JSON response or None on failure.
+    """
+    tokens = load_qb_tokens()
+    if not tokens or not tokens.get("realm_id"):
+        return None, "QuickBooks not connected"
+
+    realm_id = tokens["realm_id"]
+    import urllib.parse
+    query = f"SELECT * FROM {entity} MAXRESULTS {max_results}"
+    url = (
+        f"https://quickbooks.api.intuit.com/v3/company/{realm_id}/query"
+        f"?query={urllib.parse.quote(query)}"
+    )
+    resp, intuit_tid = qb_api_request("GET", url, context=f"query_{entity}")
+    if resp is None:
+        return None, f"QuickBooks API request failed (no response)"
+    if resp.status_code != 200:
+        return None, (
+            f"QuickBooks API error: status={resp.status_code} "
+            f"intuit_tid={intuit_tid}"
+        )
+    try:
+        return resp.json(), None
+    except Exception as e:
+        return None, f"Failed to parse QB response: {e}"
+
+
+@app.route("/quickbooks/invoices")
+def qb_invoices():
+    """Query QuickBooks for all invoices and return as JSON."""
+    data, error = _qb_query("Invoice")
+    if error:
+        return _qb_error_response(502, error, context="qb_invoices")
+    invoices = (
+        data.get("QueryResponse", {}).get("Invoice", [])
+        if data else []
+    )
+    return jsonify({
+        "count": len(invoices),
+        "invoices": invoices,
+        "fetched_at": datetime.now(timezone.utc).isoformat(),
+    })
+
+
+@app.route("/quickbooks/payments")
+def qb_payments():
+    """Query QuickBooks for all payments received and return as JSON."""
+    data, error = _qb_query("Payment")
+    if error:
+        return _qb_error_response(502, error, context="qb_payments")
+    payments = (
+        data.get("QueryResponse", {}).get("Payment", [])
+        if data else []
+    )
+    return jsonify({
+        "count": len(payments),
+        "payments": payments,
+        "fetched_at": datetime.now(timezone.utc).isoformat(),
+    })
+
+
+@app.route("/api/quickbooks/refresh-data", methods=["POST"])
+def qb_refresh_data():
+    """Pull all QB invoice + payment data and store in quickbooks_data.json."""
+    tokens = load_qb_tokens()
+    if not tokens or not tokens.get("realm_id"):
+        return _qb_error_response(400, "QuickBooks not connected", context="qb_refresh_data")
+
+    # Fetch invoices
+    inv_data, inv_err = _qb_query("Invoice")
+    invoices = []
+    if inv_data and not inv_err:
+        invoices = inv_data.get("QueryResponse", {}).get("Invoice", [])
+
+    # Fetch payments
+    pay_data, pay_err = _qb_query("Payment")
+    payments = []
+    if pay_data and not pay_err:
+        payments = pay_data.get("QueryResponse", {}).get("Payment", [])
+
+    # Compute summary metrics
+    total_invoiced = sum(float(inv.get("TotalAmt", 0)) for inv in invoices)
+    total_paid = sum(float(p.get("TotalAmt", 0)) for p in payments)
+    total_balance = sum(float(inv.get("Balance", 0)) for inv in invoices)
+    overdue_invoices = [
+        inv for inv in invoices
+        if float(inv.get("Balance", 0)) > 0
+        and inv.get("DueDate")
+        and inv["DueDate"] < datetime.now().strftime("%Y-%m-%d")
+    ]
+
+    result = {
+        "fetched_at": datetime.now(timezone.utc).isoformat(),
+        "realm_id": tokens.get("realm_id", ""),
+        "summary": {
+            "total_invoiced": round(total_invoiced, 2),
+            "total_payments_received": round(total_paid, 2),
+            "total_outstanding_balance": round(total_balance, 2),
+            "invoice_count": len(invoices),
+            "payment_count": len(payments),
+            "overdue_count": len(overdue_invoices),
+        },
+        "invoices": invoices,
+        "payments": payments,
+    }
+
+    # Save to file
+    try:
+        QB_DATA_FILE.write_text(json.dumps(result, indent=2))
+        qb_logger.info(
+            f"QuickBooks data refreshed: {len(invoices)} invoices, "
+            f"{len(payments)} payments, total_paid=${total_paid:.2f}"
+        )
+    except Exception as e:
+        qb_logger.error(f"Failed to save quickbooks_data.json: {e}")
+        return _qb_error_response(500, f"Data fetched but failed to save: {e}",
+                                  context="qb_refresh_data")
+
+    errors = []
+    if inv_err:
+        errors.append(f"Invoices: {inv_err}")
+    if pay_err:
+        errors.append(f"Payments: {pay_err}")
+
+    return jsonify({
+        "status": "ok" if not errors else "partial",
+        "summary": result["summary"],
+        "errors": errors if errors else None,
+        "fetched_at": result["fetched_at"],
+    })
+
+
+def load_qb_data():
+    """Load cached QuickBooks data from quickbooks_data.json."""
+    if QB_DATA_FILE.exists():
+        try:
+            return json.loads(QB_DATA_FILE.read_text())
+        except Exception:
+            pass
+    return None
 
 
 # ── Main ──
