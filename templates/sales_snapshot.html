@@ -179,6 +179,11 @@
         .badge-warning { background: var(--warning-bg); color: var(--warning); }
         .badge-danger { background: var(--danger-bg); color: var(--danger); }
         .badge-info { background: var(--info-bg); color: var(--info); }
+        .injury-badge {
+            display: inline-block; width: 28px; height: 28px; border-radius: 50%;
+            text-align: center; line-height: 28px; font-weight: bold;
+            font-size: 14px; color: white; cursor: help;
+        }
         .badge-muted { background: var(--surface-2); color: var(--text-muted); }
 
         .empty-cases {
@@ -609,7 +614,7 @@
             var table = document.createElement('table');
             var thead = document.createElement('thead');
             var headerRow = document.createElement('tr');
-            ['Client Name', 'Case Type', 'Status', 'Date Signed'].forEach(function(text) {
+            ['Client Name', 'Case Type', 'Status', 'Date Signed', 'Injury'].forEach(function(text) {
                 var th = document.createElement('th');
                 th.textContent = text;
                 headerRow.appendChild(th);
@@ -640,6 +645,18 @@
                 var tdDate = document.createElement('td');
                 tdDate.textContent = formatDate(l.date);
                 tr.appendChild(tdDate);
+
+                var tdInjury = document.createElement('td');
+                tdInjury.style.textAlign = 'center';
+                var injBadge = document.createElement('span');
+                injBadge.className = 'injury-badge';
+                var score = l.injury_score || 2;
+                var colors = {1: '#4CAF50', 2: '#8BC34A', 3: '#FF9800', 4: '#FF5722', 5: '#D32F2F'};
+                injBadge.style.backgroundColor = l.injury_color || colors[score] || '#8BC34A';
+                injBadge.textContent = score;
+                injBadge.title = l.injuries_text || '';
+                tdInjury.appendChild(injBadge);
+                tr.appendChild(tdInjury);
 
                 tbody.appendChild(tr);
             });

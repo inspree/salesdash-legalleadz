@@ -1787,6 +1787,82 @@ def sales_snapshot(token):
     )
 
 
+INJURY_SEVERITY_COLORS = {
+    1: "#4CAF50",   # Green — minor
+    2: "#8BC34A",   # Yellow-green — moderate soft tissue
+    3: "#FF9800",   # Orange — significant
+    4: "#FF5722",   # Red-orange — severe
+    5: "#D32F2F",   # Dark red — catastrophic
+}
+
+INJURY_KEYWORDS = {
+    5: ["death", "died", "fatal", "deceased", "paralysis", "paralyzed",
+        "quadriplegic", "paraplegic", "coma", "brain dead", "catastrophic"],
+    4: ["surgery", "surgical", "tbi", "traumatic brain", "spinal cord",
+        "amputat", "multiple fractures", "internal bleeding", "organ",
+        "ventilator", "icu", "life flight", "permanent"],
+    3: ["fracture", "broken", "break", "herniat", "concussion", "torn",
+        "ligament", "acl", "mcl", "rotator cuff", "dislocation",
+        "multiple injuries", "stitches", "staples", "laceration"],
+    2: ["whiplash", "sprain", "strain", "contusion", "soreness",
+        "back pain", "neck pain", "shoulder pain", "knee pain",
+        "bruising", "swelling", "limited mobility"],
+    1: ["minor", "sore", "stiff", "tender", "ache", "discomfort", "mild"],
+}
+
+INJURY_PROPERTIES = [
+    "what_are_your_injuries",
+    "what_are_your_injuries_due_to_this_incident",
+    "what_were_your_injuries",
+    "what_type_of_injuries_did_you_sustain_must_have_signifcant_injury",
+    "please_describe_your_injuries_if_no_breakfracture_stitches_or_surgery_decline",
+    "special_circumstances",
+    "case_description",
+    "did_you_go_to_the_hospital",
+    "were_you_transported_to_the_hospital_via_ambulance_ems",
+    "have_you_received_treatment_for_these_injuries_erhospital_urgent_care_pcp_chiro",
+]
+
+
+def compute_injury_severity(contact_properties: dict) -> dict:
+    """Compute injury severity score (1-5) from HubSpot contact properties.
+
+    Returns {"score": int, "injuries_text": str, "color": str}.
+    """
+    # Collect all available injury text
+    texts = []
+    for prop in INJURY_PROPERTIES:
+        val = (contact_properties.get(prop) or "").strip()
+        if val and val.lower() not in ("", "none", "n/a", "na", "no"):
+            texts.append(val)
+
+    injuries_text = " | ".join(texts)
+    combined = injuries_text.lower()
+
+    if not combined:
+        # Default to 2 for auto accident cases with no injury text
+        return {"score": 2, "injuries_text": "(no injury data)", "color": INJURY_SEVERITY_COLORS[2]}
+
+    # Find highest matching severity
+    best_score = 1
+    for score in (5, 4, 3, 2, 1):
+        for keyword in INJURY_KEYWORDS[score]:
+            if keyword in combined:
+                best_score = max(best_score, score)
+                break  # found a match at this level, check higher
+        if best_score == score:
+            # Already found a match at this level; since we go high→low,
+            # if we matched 5 we can stop immediately
+            if score >= 4:
+                break
+
+    return {
+        "score": best_score,
+        "injuries_text": injuries_text[:300],  # cap for tooltip
+        "color": INJURY_SEVERITY_COLORS[best_score],
+    }
+
+
 def hubspot_get_signed_deals_for_firm(firm_name):
     """Fast version: only fetch deals in signed stages for a firm.
     Much faster than hubspot_get_leads_for_firm() which fetches ALL deals."""
@@ -1869,6 +1945,61 @@ def hubspot_get_signed_deals_for_firm(firm_name):
     if not deals:
         return []
 
+    # ── Fetch contact associations & injury properties ──
+    deal_ids = [d["id"] for d in deals]
+    deal_contact_map = {}  # deal_id -> [contact_id, ...]
+
+    # Batch get associations (deal -> contacts)
+    for batch_start in range(0, len(deal_ids), 25):
+        batch = deal_ids[batch_start:batch_start + 25]
+        try:
+            assoc_resp = req.post(
+                "https://api.hubapi.com/crm/v4/associations/deals/contacts/batch/read",
+                headers=headers,
+                json={"inputs": [{"id": did} for did in batch]},
+                timeout=15,
+            )
+            if assoc_resp.status_code == 200:
+                for item in assoc_resp.json().get("results", []):
+                    did = item.get("from", {}).get("id", "")
+                    for to in item.get("to", []):
+                        cid = to.get("toObjectId", "")
+                        if cid and did:
+                            deal_contact_map.setdefault(did, []).append(str(cid))
+            elif assoc_resp.status_code == 429:
+                time.sleep(int(assoc_resp.headers.get("Retry-After", 2)) + 1)
+        except Exception:
+            pass
+        time.sleep(0.1)
+
+    # Batch read contact injury properties
+    all_cids = set()
+    for cids in deal_contact_map.values():
+        all_cids.update(cids)
+
+    contact_props = {}  # contact_id -> properties dict
+    cid_list = list(all_cids)
+    for batch_start in range(0, len(cid_list), 50):
+        batch = cid_list[batch_start:batch_start + 50]
+        try:
+            cresp = req.post(
+                "https://api.hubapi.com/crm/v3/objects/contacts/batch/read",
+                headers=headers,
+                json={
+                    "inputs": [{"id": cid} for cid in batch],
+                    "properties": INJURY_PROPERTIES,
+                },
+                timeout=15,
+            )
+            if cresp.status_code == 200:
+                for c in cresp.json().get("results", []):
+                    contact_props[c["id"]] = c.get("properties", {})
+            elif cresp.status_code == 429:
+                time.sleep(int(cresp.headers.get("Retry-After", 2)) + 1)
+        except Exception:
+            pass
+        time.sleep(0.1)
+
     # Build lead list from deal names (parse "Name / Case Type - Firm")
     leads = []
     for d in deals:
@@ -1886,11 +2017,20 @@ def hubspot_get_signed_deals_for_firm(firm_name):
             # "Case Type - Firm Name" → extract case type
             case_type = rest.split("-")[0].strip() if "-" in rest else rest
 
+        # Compute injury severity from associated contact
+        injury = {"score": 2, "injuries_text": "(no contact data)", "color": INJURY_SEVERITY_COLORS[2]}
+        cids = deal_contact_map.get(d["id"], [])
+        if cids and cids[0] in contact_props:
+            injury = compute_injury_severity(contact_props[cids[0]])
+
         leads.append({
             "name": contact_name,
             "status": stage_label,
             "date": date,
             "case_type": case_type,
+            "injury_score": injury["score"],
+            "injury_color": injury["color"],
+            "injuries_text": injury["injuries_text"],
         })
 
     return leads
