@@ -342,12 +342,6 @@
                 <div class="num num-warning">${{ "%.2f"|format(total_paid_legal_leadz_actual) }}</div>
                 <div class="lbl">Paid to Legal Leadz</div>
             </div>
-            {% if qb_total_payments %}
-            <div class="summary-card">
-                <div class="num num-success">${{ "%.2f"|format(qb_total_payments) }}</div>
-                <div class="lbl">QuickBooks Payments ({{ qb_payment_count }})</div>
-            </div>
-            {% endif %}
             <div class="summary-card">
                 <div class="num num-danger">${{ "%.2f"|format(total_ad_spend) }}</div>
                 <div class="lbl">Total Legal Leadz Ad Spend</div>

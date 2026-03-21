@@ -2327,7 +2327,7 @@ def qb_payments():
 
 
 # Clients to include in dashboard QB data
-QB_DASHBOARD_CLIENTS = ["KP Injury", "Daniel Brown", "Shane R. Kadlec"]
+QB_DASHBOARD_CLIENTS = ["Daniel Brown", "Shane Kadlec", "David Kwartler"]
 
 
 def _qb_matches_client(record, client_names):
