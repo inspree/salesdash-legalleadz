@@ -2241,24 +2241,41 @@ def qb_payments():
     })
 
 
+# Clients to include in dashboard QB data
+QB_DASHBOARD_CLIENTS = ["KP Injury", "Daniel Brown", "Shane R. Kadlec"]
+
+
+def _qb_matches_client(record, client_names):
+    """Check if a QB invoice/payment CustomerRef matches any dashboard client."""
+    cust_name = (record.get("CustomerRef", {}).get("name", "") or "").lower()
+    for name in client_names:
+        if name.lower() in cust_name or cust_name in name.lower():
+            return True
+    return False
+
+
 @app.route("/api/quickbooks/refresh-data", methods=["POST"])
 def qb_refresh_data():
-    """Pull all QB invoice + payment data and store in quickbooks_data.json."""
+    """Pull QB invoice + payment data filtered to dashboard clients only."""
     tokens = load_qb_tokens()
     if not tokens or not tokens.get("realm_id"):
         return _qb_error_response(400, "QuickBooks not connected", context="qb_refresh_data")
 
     # Fetch invoices
     inv_data, inv_err = _qb_query("Invoice")
-    invoices = []
+    all_invoices = []
     if inv_data and not inv_err:
-        invoices = inv_data.get("QueryResponse", {}).get("Invoice", [])
+        all_invoices = inv_data.get("QueryResponse", {}).get("Invoice", [])
 
     # Fetch payments
     pay_data, pay_err = _qb_query("Payment")
-    payments = []
+    all_payments = []
     if pay_data and not pay_err:
-        payments = pay_data.get("QueryResponse", {}).get("Payment", [])
+        all_payments = pay_data.get("QueryResponse", {}).get("Payment", [])
+
+    # Filter to dashboard clients only
+    invoices = [inv for inv in all_invoices if _qb_matches_client(inv, QB_DASHBOARD_CLIENTS)]
+    payments = [p for p in all_payments if _qb_matches_client(p, QB_DASHBOARD_CLIENTS)]
 
     # Compute summary metrics
     total_invoiced = sum(float(inv.get("TotalAmt", 0)) for inv in invoices)
@@ -2274,6 +2291,11 @@ def qb_refresh_data():
     result = {
         "fetched_at": datetime.now(timezone.utc).isoformat(),
         "realm_id": tokens.get("realm_id", ""),
+        "filtered_clients": QB_DASHBOARD_CLIENTS,
+        "unfiltered_totals": {
+            "invoice_count": len(all_invoices),
+            "payment_count": len(all_payments),
+        },
         "summary": {
             "total_invoiced": round(total_invoiced, 2),
             "total_payments_received": round(total_paid, 2),
