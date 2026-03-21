@@ -1714,18 +1714,25 @@ def sales_snapshot(token):
     total_paid_legal_leadz_actual = round(qb_total_payments / 1.15, 2) if qb_total_payments else 0.0
 
     # Build per-firm QB payment lookup (fuzzy match on CustomerRef.name)
+    # Explicit mapping for QB customer names that don't match firm names
+    QB_FIRM_MAP = {
+        "cory horne": "kp injury law",
+    }
+
     def _match_firm(customer_name, firm_name):
         """Match QB customer name to firm name, handling middle initials."""
         cn = (customer_name or "").lower().strip()
         fn = (firm_name or "").lower().strip()
         if not cn or not fn:
             return False
+        # Check explicit mapping first
+        if QB_FIRM_MAP.get(cn) == fn:
+            return True
         # Direct substring match
         if fn in cn or cn in fn:
             return True
         # Token-based: strip single-letter tokens (middle initials like "A." or "R.")
         # and check if remaining customer tokens all appear in firm name
-        import re as _re
         cn_tokens = [t.rstrip(".") for t in cn.split() if len(t.rstrip(".")) > 1]
         fn_tokens = [t.rstrip(".") for t in fn.split() if len(t.rstrip(".")) > 1]
         if cn_tokens and all(t in fn for t in cn_tokens):
@@ -2341,7 +2348,7 @@ def qb_payments():
 
 
 # Clients to include in dashboard QB data
-QB_DASHBOARD_CLIENTS = ["Daniel Brown", "Shane Kadlec", "David Kwartler"]
+QB_DASHBOARD_CLIENTS = ["Daniel Brown", "Shane Kadlec", "David Kwartler", "Cory Horne"]
 
 
 def _qb_matches_client(record, client_names):
