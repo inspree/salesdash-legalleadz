@@ -2610,6 +2610,63 @@ def load_qb_data():
     return None
 
 
+@app.route("/api/quickbooks/debug-customers")
+def api_qb_debug_customers():
+    """Debug: show QB payment customer names and matching results."""
+    qb_data = load_qb_data()
+    if not qb_data:
+        return jsonify({"error": "No QB data cached"})
+
+    payments = qb_data.get("payments", [])
+    data = load_billing_data()
+    firms_data = data.get("firms", {})
+    all_firm_names = sorted(firms_data.keys())
+
+    # Show each payment's customer and what it matches
+    results = []
+    for p in payments:
+        cref = p.get("CustomerRef", {})
+        cname = cref.get("name", "?")
+        amt = p.get("TotalAmt", 0)
+        # Find which firm name(s) it matches
+        matches = []
+        for fn in all_firm_names:
+            if _match_firm_global(cname, fn):
+                matches.append(fn)
+        results.append({
+            "customer": cname,
+            "amount": amt,
+            "matched_firms": matches
+        })
+
+    return jsonify({
+        "total_payments": len(payments),
+        "total_firms": len(all_firm_names),
+        "payments": results
+    })
+
+
+# Global version of _match_firm for the debug endpoint
+def _match_firm_global(customer_name, firm_name):
+    """Match QB customer name to firm name."""
+    QB_FIRM_MAP = {"cory horne": "kp injury law"}
+    cn = (customer_name or "").lower().strip()
+    fn = (firm_name or "").lower().strip()
+    if not cn or not fn:
+        return False
+    if QB_FIRM_MAP.get(cn) == fn:
+        return True
+    if fn in cn or cn in fn:
+        return True
+    cn_tokens = [t.rstrip(".") for t in cn.split() if len(t.rstrip(".")) > 1]
+    fn_tokens = [t.rstrip(".") for t in fn.split() if len(t.rstrip(".")) > 1]
+    if cn_tokens and all(t in fn for t in cn_tokens):
+        return True
+    if fn_tokens and all(t in cn for t in fn_tokens):
+        return True
+    return False
+
+
 # ── Main ──
 if __name__ == "__main__":
     if not SHARE_TOKENS_FILE.exists():
