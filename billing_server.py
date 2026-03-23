@@ -2491,12 +2491,15 @@ def qb_payments():
     })
 
 
-# Clients to include in dashboard QB data
-QB_DASHBOARD_CLIENTS = ["Daniel Brown", "Shane Kadlec", "David Kwartler", "Cory Horne"]
+# Clients to include in dashboard QB data (empty = include ALL)
+QB_DASHBOARD_CLIENTS = []
 
 
 def _qb_matches_client(record, client_names):
-    """Check if a QB invoice/payment CustomerRef matches any dashboard client."""
+    """Check if a QB invoice/payment CustomerRef matches any dashboard client.
+    If client_names is empty, include ALL records."""
+    if not client_names:
+        return True
     cust_name = (record.get("CustomerRef", {}).get("name", "") or "").lower()
     for name in client_names:
         if name.lower() in cust_name or cust_name in name.lower():
