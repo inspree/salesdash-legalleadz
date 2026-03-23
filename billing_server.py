@@ -1709,9 +1709,8 @@ def sales_snapshot(token):
     qb_total_payments = sum(float(p.get("TotalAmt", 0)) for p in qb_payments_list)
     qb_payment_count = len(qb_payments_list)
 
-    # "Paid to Legal Leadz" = QB total WITHOUT the 15% management fee
-    # Client pays ad_spend * 1.15, so strip the fee: total / 1.15
-    total_paid_legal_leadz_actual = round(qb_total_payments / 1.15, 2) if qb_total_payments else 0.0
+    # "Paid to Legal Leadz" = raw QB payment total (no 15% adjustment)
+    total_paid_legal_leadz_actual = round(qb_total_payments, 2) if qb_total_payments else 0.0
 
     # Build per-firm QB payment lookup (fuzzy match on CustomerRef.name)
     # Explicit mapping for QB customer names that don't match firm names
@@ -1754,11 +1753,11 @@ def sales_snapshot(token):
 
     # Recalculate total from per-firm matched amounts (consistent with breakdown)
     total_matched_qb = sum(firm_qb_payments.get(n, 0.0) for n in firm_names)
-    # If snapshot firms have no matches, use the global total so it's not misleading
+    # If snapshot firms have no matches, use the global total
     if total_matched_qb == 0 and qb_total_payments > 0:
-        total_paid_legal_leadz_actual = round(qb_total_payments / 1.15, 2)
+        total_paid_legal_leadz_actual = round(qb_total_payments, 2)
     else:
-        total_paid_legal_leadz_actual = round(total_matched_qb / 1.15, 2)
+        total_paid_legal_leadz_actual = round(total_matched_qb, 2)
 
     for name in firm_names:
         firm = firms_data.get(name, {})
@@ -1766,9 +1765,9 @@ def sales_snapshot(token):
         paid_hq_fb = firm.get("fb_total_paid", 0.0) or 0.0
         # Ad spend from Google Sheets data (stored in token config)
         firm_ad_spend = ad_spend_map.get(name, 0.0)
-        # Per-client Legal Leadz = QB payments for this client / 1.15 (strip 15% fee)
+        # Per-client Legal Leadz = raw QB payments for this client (no 15% adjustment)
         raw_qb = firm_qb_payments.get(name, 0.0)
-        paid_ll = round(raw_qb / 1.15, 2) if raw_qb else 0.0
+        paid_ll = round(raw_qb, 2) if raw_qb else 0.0
 
         total_paid_hq_intake += paid_hq_fb
         total_ad_spend += firm_ad_spend
