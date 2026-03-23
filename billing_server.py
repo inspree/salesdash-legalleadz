@@ -1741,11 +1741,24 @@ def sales_snapshot(token):
             return True
         return False
 
+    # Match QB payments to firms — try snapshot firm names first,
+    # then fall back to billing_data firm names for broader matching
+    all_billing_firms = list(firms_data.keys())
+    match_names = list(set(firm_names + all_billing_firms))
+
     firm_qb_payments = {}
-    for name in firm_names:
+    for name in match_names:
         matched = [p for p in qb_payments_list
                    if _match_firm(p.get("CustomerRef", {}).get("name", ""), name)]
         firm_qb_payments[name] = sum(float(p.get("TotalAmt", 0)) for p in matched)
+
+    # Recalculate total from per-firm matched amounts (consistent with breakdown)
+    total_matched_qb = sum(firm_qb_payments.get(n, 0.0) for n in firm_names)
+    # If snapshot firms have no matches, use the global total so it's not misleading
+    if total_matched_qb == 0 and qb_total_payments > 0:
+        total_paid_legal_leadz_actual = round(qb_total_payments / 1.15, 2)
+    else:
+        total_paid_legal_leadz_actual = round(total_matched_qb / 1.15, 2)
 
     for name in firm_names:
         firm = firms_data.get(name, {})
