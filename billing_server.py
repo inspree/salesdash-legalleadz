@@ -1709,8 +1709,9 @@ def sales_snapshot(token):
     qb_total_payments = sum(float(p.get("TotalAmt", 0)) for p in qb_payments_list)
     qb_payment_count = len(qb_payments_list)
 
-    # "Paid to Legal Leadz" = raw QB payment total (no 15% adjustment)
-    total_paid_legal_leadz_actual = round(qb_total_payments, 2) if qb_total_payments else 0.0
+    # "Paid to Legal Leadz" = QB total WITHOUT the 15% management fee
+    # Client pays ad_spend * 1.15, so strip the fee: total / 1.15
+    total_paid_legal_leadz_actual = round(qb_total_payments / 1.15, 2) if qb_total_payments else 0.0
 
     # Build per-firm QB payment lookup (fuzzy match on CustomerRef.name)
     # Explicit mapping for QB customer names that don't match firm names
@@ -1740,24 +1741,11 @@ def sales_snapshot(token):
             return True
         return False
 
-    # Match QB payments to firms — try snapshot firm names first,
-    # then fall back to billing_data firm names for broader matching
-    all_billing_firms = list(firms_data.keys())
-    match_names = list(set(firm_names + all_billing_firms))
-
     firm_qb_payments = {}
-    for name in match_names:
+    for name in firm_names:
         matched = [p for p in qb_payments_list
                    if _match_firm(p.get("CustomerRef", {}).get("name", ""), name)]
         firm_qb_payments[name] = sum(float(p.get("TotalAmt", 0)) for p in matched)
-
-    # Recalculate total from per-firm matched amounts (consistent with breakdown)
-    total_matched_qb = sum(firm_qb_payments.get(n, 0.0) for n in firm_names)
-    # If snapshot firms have no matches, use the global total
-    if total_matched_qb == 0 and qb_total_payments > 0:
-        total_paid_legal_leadz_actual = round(qb_total_payments, 2)
-    else:
-        total_paid_legal_leadz_actual = round(total_matched_qb, 2)
 
     for name in firm_names:
         firm = firms_data.get(name, {})
@@ -1765,9 +1753,9 @@ def sales_snapshot(token):
         paid_hq_fb = firm.get("fb_total_paid", 0.0) or 0.0
         # Ad spend from Google Sheets data (stored in token config)
         firm_ad_spend = ad_spend_map.get(name, 0.0)
-        # Per-client Legal Leadz = raw QB payments for this client (no 15% adjustment)
+        # Per-client Legal Leadz = QB payments for this client / 1.15 (strip 15% fee)
         raw_qb = firm_qb_payments.get(name, 0.0)
-        paid_ll = round(raw_qb, 2) if raw_qb else 0.0
+        paid_ll = round(raw_qb / 1.15, 2) if raw_qb else 0.0
 
         total_paid_hq_intake += paid_hq_fb
         total_ad_spend += firm_ad_spend
@@ -2503,15 +2491,12 @@ def qb_payments():
     })
 
 
-# Clients to include in dashboard QB data (empty = include ALL)
-QB_DASHBOARD_CLIENTS = []
+# Clients to include in dashboard QB data
+QB_DASHBOARD_CLIENTS = ["Daniel Brown", "Shane Kadlec", "David Kwartler", "Cory Horne"]
 
 
 def _qb_matches_client(record, client_names):
-    """Check if a QB invoice/payment CustomerRef matches any dashboard client.
-    If client_names is empty, include ALL records."""
-    if not client_names:
-        return True
+    """Check if a QB invoice/payment CustomerRef matches any dashboard client."""
     cust_name = (record.get("CustomerRef", {}).get("name", "") or "").lower()
     for name in client_names:
         if name.lower() in cust_name or cust_name in name.lower():
