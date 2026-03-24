@@ -1888,16 +1888,26 @@ def hubspot_get_signed_deals_for_firm(firm_name):
     # Signed deal stages
     SIGNED_STAGES = ["closedwon", "closedlost", "3022527196", "3022527198"]
 
-    # Build search filters using ALL meaningful words from the firm name
-    # Each word becomes a separate CONTAINS_TOKEN filter (AND logic)
-    SKIP_WORDS = {"the", "law", "office", "of", "a", "and", "llc", "pc", "pllc",
-                  "group", "firm", "legal", "services", "injury", "attorneys", "associates"}
-    search_words = [w.rstrip(".,") for w in firm_name.split()
-                    if w.lower().rstrip(".,") not in SKIP_WORDS and len(w.rstrip(".,")) > 1]
+    # Firm name aliases: when HubSpot deal names use abbreviations or different names
+    FIRM_SEARCH_ALIASES = {
+        "kansas city accident injury attorneys": ["KC", "Accident", "Injury", "Attorneys"],
+    }
 
-    # Fallback: use last word if all were filtered
-    if not search_words:
-        search_words = [firm_name.split()[-1]]
+    # Check for alias first (case-insensitive)
+    alias_words = FIRM_SEARCH_ALIASES.get(firm_name.lower())
+    if alias_words:
+        search_words = alias_words
+    else:
+        # Build search filters using ALL meaningful words from the firm name
+        # Each word becomes a separate CONTAINS_TOKEN filter (AND logic)
+        SKIP_WORDS = {"the", "law", "office", "of", "a", "and", "llc", "pc", "pllc",
+                      "group", "firm", "legal", "services", "injury", "attorneys", "associates"}
+        search_words = [w.rstrip(".,") for w in firm_name.split()
+                        if w.lower().rstrip(".,") not in SKIP_WORDS and len(w.rstrip(".,")) > 1]
+
+        # Fallback: use last word if all were filtered
+        if not search_words:
+            search_words = [firm_name.split()[-1]]
 
     deals = []
     after = 0
