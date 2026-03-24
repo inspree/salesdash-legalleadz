@@ -237,7 +237,7 @@
         </div>
 
         <!-- Summary Cards -->
-        <div class="summary-row">
+        <div class="summary-row" style="grid-template-columns: repeat(3, 1fr);">
             <div class="summary-card">
                 <div class="num num-primary" id="totalLeads">--</div>
                 <div class="lbl">Total Leads</div>
@@ -245,10 +245,6 @@
             <div class="summary-card">
                 <div class="num num-success" id="signedLeads">--</div>
                 <div class="lbl">Signed</div>
-            </div>
-            <div class="summary-card">
-                <div class="num num-warning" id="pendingLeads">--</div>
-                <div class="lbl">Pending</div>
             </div>
             <div class="summary-card">
                 <div class="num num-danger" id="rejectedLeads">--</div>
@@ -307,7 +303,7 @@
         let currentPage = 1;
         const PAGE_SIZE = 100;
 
-        document.addEventListener('DOMContentLoaded', loadLeads);
+        document.addEventListener('DOMContentLoaded', function() { loadLeads(90); });
 
         function toDateStr(date) {
             // Returns YYYY-MM-DD string from Date object
@@ -346,7 +342,8 @@
                 document.getElementById('dateTo').value = '';
             }
 
-            filterLeads();
+            // Refetch from server with correct date range
+            loadLeads(days);
         }
 
         function applyCustomDates() {
@@ -375,13 +372,34 @@
             }
         }
 
-        function loadLeads() {
-            fetch('/api/share/leads/' + token)
+        let isLoading = false;
+
+        function loadLeads(days) {
+            if (isLoading) return;
+            isLoading = true;
+            const daysParam = days || 90;
+
+            // Show loading state
+            const container = document.getElementById('leadsContainer');
+            container.textContent = '';
+            const loadDiv = document.createElement('div');
+            loadDiv.className = 'loading';
+            const spinner = document.createElement('div');
+            spinner.className = 'loading-spinner';
+            loadDiv.appendChild(spinner);
+            loadDiv.appendChild(document.createTextNode(' Loading leads...'));
+            container.appendChild(loadDiv);
+
+            fetch('/api/share/leads/' + token + '?days=' + daysParam)
                 .then(r => r.json())
                 .then(data => {
+                    isLoading = false;
                     if (data.error) {
-                        document.getElementById('leadsContainer').innerHTML =
-                            '<div class="empty-state">Unable to load leads. Please try again later.</div>';
+                        container.textContent = '';
+                        const errDiv = document.createElement('div');
+                        errDiv.className = 'empty-state';
+                        errDiv.textContent = 'Unable to load leads. Please try again later.';
+                        container.appendChild(errDiv);
                         return;
                     }
 
@@ -393,24 +411,40 @@
                     // Populate status filter with ALL leads (not filtered)
                     const statuses = [...new Set(allLeads.map(l => l.status).filter(Boolean))].sort();
                     const sel = document.getElementById('statusFilter');
-                    sel.innerHTML = '<option value="">All Statuses (' + allLeads.length + ')</option>';
+                    sel.textContent = '';
+                    const optAll = document.createElement('option');
+                    optAll.value = '';
+                    optAll.textContent = 'All Statuses (' + allLeads.length + ')';
+                    sel.appendChild(optAll);
                     statuses.forEach(s => {
                         const count = allLeads.filter(l => l.status === s).length;
-                        sel.innerHTML += '<option value="' + s + '">' + s + ' (' + count + ')</option>';
+                        const opt = document.createElement('option');
+                        opt.value = s;
+                        opt.textContent = s + ' (' + count + ')';
+                        sel.appendChild(opt);
                     });
 
                     if (allLeads.length === 0) {
-                        document.getElementById('leadsContainer').innerHTML =
-                            '<div class="empty-state">No leads found yet. Check back soon!</div>';
+                        container.textContent = '';
+                        const emptyDiv = document.createElement('div');
+                        emptyDiv.className = 'empty-state';
+                        emptyDiv.textContent = 'No leads found for this period.';
+                        container.appendChild(emptyDiv);
                         return;
                     }
 
-                    // Default: show last 90 days
-                    setRange(90);
+                    // No client-side date filtering needed — server already filtered
+                    currentPage = 1;
+                    updateDateLabel();
+                    filterLeads();
                 })
                 .catch(e => {
-                    document.getElementById('leadsContainer').innerHTML =
-                        '<div class="empty-state">Connection error. Please refresh the page.</div>';
+                    isLoading = false;
+                    container.textContent = '';
+                    const errDiv = document.createElement('div');
+                    errDiv.className = 'empty-state';
+                    errDiv.textContent = 'Connection error. Please refresh the page.';
+                    container.appendChild(errDiv);
                 });
         }
 
@@ -599,14 +633,6 @@
 
             let filtered = allLeads;
 
-            // Date filtering
-            if (activeDateFrom) {
-                filtered = filtered.filter(l => getLeadDate(l) >= activeDateFrom);
-            }
-            if (activeDateTo) {
-                filtered = filtered.filter(l => getLeadDate(l) <= activeDateTo);
-            }
-
             // Status filter
             if (status) filtered = filtered.filter(l => l.status === status);
 
@@ -628,10 +654,8 @@
             const total = filtered.length;
             const signed = filtered.filter(l => isSigned(l.status)).length;
             const rejected = filtered.filter(l => isRejected(l.status)).length;
-            const pending = total - signed - rejected;  // Everything else is pending/active
             document.getElementById('totalLeads').textContent = total;
             document.getElementById('signedLeads').textContent = signed;
-            document.getElementById('pendingLeads').textContent = pending;
             document.getElementById('rejectedLeads').textContent = rejected;
 
             updateDateLabel();

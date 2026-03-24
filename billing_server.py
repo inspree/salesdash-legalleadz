@@ -1367,11 +1367,14 @@ def api_share_leads(token):
         return jsonify({"error": "Firm not found"}), 404
 
     try:
+        # Accept days parameter from client (30, 60, or 90)
+        days = request.args.get('days', 90, type=int)
+        if days not in (30, 60, 90):
+            days = 90
         # Run with 60-second timeout to prevent Railway request timeout
-        # Share pages: fetch up to 2000 deals from last 90 days
         from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
         with ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(hubspot_get_leads_for_firm, name, 2000, 90)
+            future = executor.submit(hubspot_get_leads_for_firm, name, 2000, days)
             try:
                 leads = future.result(timeout=60)
             except FuturesTimeout:
