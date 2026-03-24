@@ -772,7 +772,9 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
                 contact_name = dealname
             deal_date = dp["date"]
             notes_date = ""
-            lead_date = deal_date if deal_date != IMPORT_DATE else deal_date
+            # For imported deals, we don't have contact_date here (no linked contact)
+            # so keep the import date — these will be filtered by the post-filter
+            lead_date = deal_date
             leads.append({
                 "name": contact_name,
                 "email": "",
@@ -795,13 +797,15 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
             notes_date = props.get("notes_last_updated", "")[:10] if props.get("notes_last_updated") else ""
             contact_date = props.get("createdate", "")[:10] if props.get("createdate") else ""
 
-            # Date logic: prefer deal date when not import date, then notes, then contact date
+            # Date logic: prefer deal date when not import date, then contact date, then notes
             if deal_date and deal_date != IMPORT_DATE:
                 lead_date = deal_date
+            elif contact_date and contact_date != IMPORT_DATE:
+                lead_date = contact_date
             elif notes_date:
                 lead_date = notes_date
             else:
-                lead_date = deal_date or contact_date
+                lead_date = contact_date or deal_date
 
             leads.append({
                 "name": contact_name or dp["dealname"].split("/")[0].strip(),
@@ -824,9 +828,12 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
         filtered_leads = []
         for lead in leads:
             ld = (lead.get("date") or "")[:10]
-            if not ld or (cutoff_date <= ld <= today_str):
+            if ld and (cutoff_date <= ld <= today_str):
                 filtered_leads.append(lead)
         leads = filtered_leads
+        # Use post-filtered count as the real total — HubSpot's total is based on
+        # deal createdate which doesn't reflect actual lead dates for imported data
+        hubspot_total = len(leads)
 
     return {"leads": leads, "hubspot_total": hubspot_total}
 
