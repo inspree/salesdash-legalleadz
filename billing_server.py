@@ -698,7 +698,63 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
             for c in cresp.json().get("results", []):
                 contact_data[c["id"]] = c.get("properties", {})
 
-    # Step 2b: For unlinked deals, just use deal name as contact name (no individual searches)
+    # Step 2b: For deals with no contact association, try to find contacts by name
+    unlinked_deal_ids = [did for did in deal_props if did not in deal_contact_ids]
+    linked_ratio = len(deal_contact_ids) / max(len(deal_props), 1)
+    if linked_ratio < 0.5:
+        # Most deals unlinked — skip individual lookups, use deal name as contact name
+        unlinked_deal_ids = []
+    else:
+        unlinked_deal_ids = unlinked_deal_ids[:20]
+    if unlinked_deal_ids:
+        names_to_search = {}
+        for did in unlinked_deal_ids:
+            dealname = deal_props[did]["dealname"]
+            contact_name = dealname.split("/")[0].strip() if "/" in dealname else dealname
+            parts = contact_name.split()
+            if len(parts) >= 2:
+                names_to_search[did] = {"first": parts[0], "last": " ".join(parts[1:])}
+
+        # Batch search by last name, then match first name
+        searched_lastnames = {}
+        for did, nm in names_to_search.items():
+            ln = nm["last"]
+            if ln in searched_lastnames:
+                continue
+            for attempt in range(3):
+                try:
+                    sresp = requests.post(
+                        "https://api.hubapi.com/crm/v3/objects/contacts/search",
+                        headers=headers,
+                        json={
+                            "filterGroups": [{"filters": [{"propertyName": "lastname", "operator": "EQ", "value": ln}]}],
+                            "properties": ["firstname", "lastname", "email", "phone", "lead_source", "rejection_reason"],
+                            "limit": 100
+                        }
+                    )
+                    if sresp.status_code == 429:
+                        time.sleep(int(sresp.headers.get("Retry-After", 1)) + 1)
+                        continue
+                    if sresp.status_code == 200:
+                        searched_lastnames[ln] = sresp.json().get("results", [])
+                    else:
+                        searched_lastnames[ln] = []
+                    break
+                except Exception:
+                    searched_lastnames[ln] = []
+                    break
+
+        # Match and populate contact_data + deal_contact_ids
+        for did, nm in names_to_search.items():
+            ln = nm["last"]
+            fn_lower = nm["first"].lower()
+            for c in searched_lastnames.get(ln, []):
+                cp = c.get("properties", {})
+                if (cp.get("firstname", "") or "").lower() == fn_lower:
+                    cid = c["id"]
+                    contact_data[cid] = cp
+                    deal_contact_ids.setdefault(did, []).append(cid)
+                    break
 
     # Step 3: Build final lead list from deals + contact info
     seen = set()  # Deduplicate by contact ID
@@ -1328,7 +1384,9 @@ def api_share_leads(token):
                 "phone": lead.get("phone", ""),
                 "status": lead.get("status", "Unknown"),
                 "date": lead.get("date", ""),
-                "lead_source": lead.get("lead_source", "")
+                "lead_source": lead.get("lead_source", ""),
+                "notes": lead.get("notes", ""),
+                "rejection_reason": lead.get("rejection_reason", "")
             })
         return jsonify({"firm": name, "leads": safe_leads, "count": len(safe_leads)})
     except Exception as e:

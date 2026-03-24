@@ -433,7 +433,7 @@
             const table = document.createElement('table');
             const thead = document.createElement('thead');
             const headerRow = document.createElement('tr');
-            ['name', 'phone', 'email', 'status', 'date'].forEach(col => {
+            ['name', 'phone', 'email', 'status', 'date', 'notes'].forEach(col => {
                 const th = document.createElement('th');
                 th.textContent = col.charAt(0).toUpperCase() + col.slice(1);
                 th.onclick = () => sortLeads(col);
@@ -446,7 +446,7 @@
             if (pageLeads.length === 0) {
                 const tr = document.createElement('tr');
                 const td = document.createElement('td');
-                td.colSpan = 5;
+                td.colSpan = 6;
                 td.style.cssText = 'text-align:center;padding:40px;color:var(--text-muted)';
                 td.textContent = 'No leads match your filters';
                 tr.appendChild(td);
@@ -477,6 +477,29 @@
                     const tdDate = document.createElement('td');
                     tdDate.textContent = formatDate(l.date);
                     tr.appendChild(tdDate);
+
+                    const tdNotes = document.createElement('td');
+                    const noteText = l.rejection_reason || l.notes || '';
+                    if (noteText) {
+                        const noteSpan = document.createElement('span');
+                        noteSpan.style.cssText = 'cursor:pointer;max-width:150px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;color:var(--text-muted);';
+                        noteSpan.textContent = noteText;
+                        noteSpan.title = noteText;
+                        noteSpan.onclick = function() {
+                            if (this.style.whiteSpace === 'nowrap') {
+                                this.style.whiteSpace = 'normal';
+                                this.style.maxWidth = '300px';
+                            } else {
+                                this.style.whiteSpace = 'nowrap';
+                                this.style.maxWidth = '150px';
+                            }
+                        };
+                        tdNotes.appendChild(noteSpan);
+                    } else {
+                        tdNotes.textContent = '-';
+                        tdNotes.style.color = 'var(--text-dim)';
+                    }
+                    tr.appendChild(tdNotes);
 
                     tbody.appendChild(tr);
                 });
