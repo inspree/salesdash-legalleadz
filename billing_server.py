@@ -539,10 +539,11 @@ def _get_deal_stages_by_name(firm_name, headers):
 
 
 # ── HubSpot Helpers ──
-def hubspot_get_leads_for_firm(firm_name, max_deals=200):
+def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
     """Get leads from HubSpot by searching deals for the firm, then fetching contact info.
     This approach uses deals as the source of truth for status and dates.
-    max_deals caps the number of deals fetched to prevent timeouts on large firms."""
+    max_deals caps the number of deals fetched to prevent timeouts on large firms.
+    since_days: if set, only return deals created in the last N days."""
     import requests
     import time
 
@@ -585,6 +586,16 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200):
             {"propertyName": "dealname", "operator": "CONTAINS_TOKEN", "value": w}
             for w in search_tokens
         ]
+        # Add date filter if since_days is specified
+        if since_days:
+            from datetime import datetime, timedelta
+            cutoff = datetime.utcnow() - timedelta(days=since_days)
+            cutoff_ms = int(cutoff.timestamp() * 1000)
+            name_filters.append({
+                "propertyName": "createdate",
+                "operator": "GTE",
+                "value": str(cutoff_ms)
+            })
         body = {
             "filterGroups": [{"filters": name_filters}],
             "properties": ["dealname", "dealstage", "createdate"],
@@ -1345,10 +1356,10 @@ def api_share_leads(token):
 
     try:
         # Run with 45-second timeout to prevent Railway request timeout
-        # Share pages get capped at 200 most recent deals for performance
+        # Share pages: fetch deals from last 90 days, cap at 500
         from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
         with ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(hubspot_get_leads_for_firm, name, 50)
+            future = executor.submit(hubspot_get_leads_for_firm, name, 500, 90)
             try:
                 leads = future.result(timeout=45)
             except FuturesTimeout:

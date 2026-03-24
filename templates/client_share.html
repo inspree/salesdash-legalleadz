@@ -501,8 +501,8 @@
             // Update summary cards
             const total = filtered.length;
             const signed = filtered.filter(l => isSigned(l.status)).length;
-            const pending = filtered.filter(l => isPending(l.status)).length;
             const rejected = filtered.filter(l => isRejected(l.status)).length;
+            const pending = total - signed - rejected;  // Everything else is pending/active
             document.getElementById('totalLeads').textContent = total;
             document.getElementById('signedLeads').textContent = signed;
             document.getElementById('pendingLeads').textContent = pending;
