@@ -564,7 +564,19 @@ def hubspot_get_leads_for_firm(firm_name):
     if alias_words:
         search_tokens = alias_words
     else:
-        search_tokens = [firm_name.split()[0]]
+        # Use multiple tokens from firm name for more precise matching
+        SKIP_WORDS = {"the", "law", "office", "of", "a", "and", "llc", "pc", "pllc",
+                      "group", "firm", "legal", "services", "associates", "&"}
+        words = [w.rstrip(".,") for w in firm_name.split()
+                 if w.lower().rstrip(".,") not in SKIP_WORDS and len(w.rstrip(".,")) > 1]
+        # Deduplicate while preserving order
+        seen_lower = set()
+        unique_words = []
+        for w in words:
+            if w.lower() not in seen_lower:
+                seen_lower.add(w.lower())
+                unique_words.append(w)
+        search_tokens = unique_words if unique_words else [firm_name.split()[0]]
 
     # Performance: only fetch deals from last 90 days to avoid timeout on large firms
     from datetime import datetime, timezone, timedelta
@@ -1332,7 +1344,14 @@ def api_share_leads(token):
         return jsonify({"error": "Firm not found"}), 404
 
     try:
-        leads = hubspot_get_leads_for_firm(name)
+        # Run with 45-second timeout to prevent Railway request timeout
+        from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(hubspot_get_leads_for_firm, name)
+            try:
+                leads = future.result(timeout=45)
+            except FuturesTimeout:
+                return jsonify({"error": "Request timed out — too many leads to load. Try a shorter date range.", "leads": [], "count": 0}), 504
         safe_leads = []
         for lead in leads:
             safe_leads.append({
