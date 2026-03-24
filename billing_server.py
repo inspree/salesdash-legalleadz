@@ -646,14 +646,19 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
             "date": props.get("createdate", "")[:10] if props.get("createdate") else "",
         }
 
-    # Batch get associations (deal -> contacts)
-    for batch_start in range(0, len(deal_ids), 25):
-        batch = deal_ids[batch_start:batch_start + 25]
-        assoc_resp = requests.post(
-            "https://api.hubapi.com/crm/v4/associations/deals/contacts/batch/read",
-            headers=headers,
-            json={"inputs": [{"id": did} for did in batch]}
-        )
+    # Batch get associations (deal -> contacts) — use larger batches, no sleep
+    for batch_start in range(0, len(deal_ids), 100):
+        batch = deal_ids[batch_start:batch_start + 100]
+        for attempt in range(3):
+            assoc_resp = requests.post(
+                "https://api.hubapi.com/crm/v4/associations/deals/contacts/batch/read",
+                headers=headers,
+                json={"inputs": [{"id": did} for did in batch]}
+            )
+            if assoc_resp.status_code == 429:
+                time.sleep(int(assoc_resp.headers.get("Retry-After", 1)) + 1)
+                continue
+            break
         if assoc_resp.status_code == 200:
             for item in assoc_resp.json().get("results", []):
                 did = item.get("from", {}).get("id", "")
@@ -661,88 +666,39 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
                     cid = to.get("toObjectId", "")
                     if cid and did:
                         deal_contact_ids.setdefault(did, []).append(str(cid))
-        time.sleep(0.1)  # Rate limit
 
     # Collect unique contact IDs
     all_cids = set()
     for cids in deal_contact_ids.values():
         all_cids.update(cids)
 
-    # Batch read contacts
+    # Batch read contacts — use larger batches, no sleep
     contact_data = {}
     cid_list = list(all_cids)
-    for batch_start in range(0, len(cid_list), 50):
-        batch = cid_list[batch_start:batch_start + 50]
-        cresp = requests.post(
-            "https://api.hubapi.com/crm/v3/objects/contacts/batch/read",
-            headers=headers,
-            json={
-                "inputs": [{"id": cid} for cid in batch],
-                "properties": [
-                    "firstname", "lastname", "email", "phone",
-                    "hs_lead_status", "createdate", "lead_source",
-                    "notes_last_updated", "rejection_reason"
-                ]
-            }
-        )
+    for batch_start in range(0, len(cid_list), 100):
+        batch = cid_list[batch_start:batch_start + 100]
+        for attempt in range(3):
+            cresp = requests.post(
+                "https://api.hubapi.com/crm/v3/objects/contacts/batch/read",
+                headers=headers,
+                json={
+                    "inputs": [{"id": cid} for cid in batch],
+                    "properties": [
+                        "firstname", "lastname", "email", "phone",
+                        "hs_lead_status", "createdate", "lead_source",
+                        "notes_last_updated", "rejection_reason"
+                    ]
+                }
+            )
+            if cresp.status_code == 429:
+                time.sleep(int(cresp.headers.get("Retry-After", 1)) + 1)
+                continue
+            break
         if cresp.status_code == 200:
             for c in cresp.json().get("results", []):
                 contact_data[c["id"]] = c.get("properties", {})
-        time.sleep(0.1)
 
-    # Step 2b: For deals with no contact association, try to find contacts by name
-    # Skip individual searches when most deals are unlinked (too expensive)
-    unlinked_deal_ids = [did for did in deal_props if did not in deal_contact_ids]
-    linked_ratio = len(deal_contact_ids) / max(len(deal_props), 1)
-    if linked_ratio < 0.5:
-        # Most deals unlinked — skip individual lookups, use deal name as contact name
-        unlinked_deal_ids = []
-    else:
-        unlinked_deal_ids = unlinked_deal_ids[:10]
-    if unlinked_deal_ids:
-        names_to_search = {}
-        for did in unlinked_deal_ids:
-            dealname = deal_props[did]["dealname"]
-            contact_name = dealname.split("/")[0].strip() if "/" in dealname else dealname
-            parts = contact_name.split()
-            if len(parts) >= 2:
-                names_to_search[did] = {"first": parts[0], "last": " ".join(parts[1:])}
-
-        # Batch search by last name, then match first name
-        searched_lastnames = {}
-        for did, nm in names_to_search.items():
-            ln = nm["last"]
-            if ln in searched_lastnames:
-                continue
-            try:
-                sresp = requests.post(
-                    "https://api.hubapi.com/crm/v3/objects/contacts/search",
-                    headers=headers,
-                    json={
-                        "filterGroups": [{"filters": [{"propertyName": "lastname", "operator": "EQ", "value": ln}]}],
-                        "properties": ["firstname", "lastname", "email", "phone", "lead_source", "rejection_reason"],
-                        "limit": 100
-                    }
-                )
-                if sresp.status_code == 200:
-                    searched_lastnames[ln] = sresp.json().get("results", [])
-                else:
-                    searched_lastnames[ln] = []
-                time.sleep(0.11)
-            except Exception:
-                searched_lastnames[ln] = []
-
-        # Match and populate contact_data + deal_contact_ids
-        for did, nm in names_to_search.items():
-            ln = nm["last"]
-            fn_lower = nm["first"].lower()
-            for c in searched_lastnames.get(ln, []):
-                cp = c.get("properties", {})
-                if (cp.get("firstname", "") or "").lower() == fn_lower:
-                    cid = c["id"]
-                    contact_data[cid] = cp
-                    deal_contact_ids.setdefault(did, []).append(cid)
-                    break
+    # Step 2b: For unlinked deals, just use deal name as contact name (no individual searches)
 
     # Step 3: Build final lead list from deals + contact info
     seen = set()  # Deduplicate by contact ID
