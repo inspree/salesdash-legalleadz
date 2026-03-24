@@ -557,7 +557,7 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
 
     IMPORT_DATE = "2026-02-28"
     # Millisecond timestamp for March 1 — everything before this for Chalik is imported data
-    IMPORT_CUTOFF_MS = 1740787200000  # 2026-03-01T00:00:00Z
+    IMPORT_CUTOFF_MS = 1772323200000  # 2026-03-01T00:00:00Z
 
     # Step 1: Get deals for this firm (paginated, capped at max_deals)
     # Firm name aliases for HubSpot deal name mismatches
