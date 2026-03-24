@@ -682,12 +682,14 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200):
         time.sleep(0.1)
 
     # Step 2b: For deals with no contact association, try to find contacts by name
-    # Skip entirely if we have many deals (expensive individual searches cause timeouts)
+    # Skip individual searches when most deals are unlinked (too expensive)
     unlinked_deal_ids = [did for did in deal_props if did not in deal_contact_ids]
-    if len(deals) > 100:
-        unlinked_deal_ids = []  # Skip individual searches for large firms
+    linked_ratio = len(deal_contact_ids) / max(len(deal_props), 1)
+    if linked_ratio < 0.5:
+        # Most deals unlinked — skip individual lookups, use deal name as contact name
+        unlinked_deal_ids = []
     else:
-        unlinked_deal_ids = unlinked_deal_ids[:20]
+        unlinked_deal_ids = unlinked_deal_ids[:10]
     if unlinked_deal_ids:
         names_to_search = {}
         for did in unlinked_deal_ids:
@@ -1345,7 +1347,7 @@ def api_share_leads(token):
         # Share pages get capped at 200 most recent deals for performance
         from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
         with ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(hubspot_get_leads_for_firm, name, 200)
+            future = executor.submit(hubspot_get_leads_for_firm, name, 50)
             try:
                 leads = future.result(timeout=45)
             except FuturesTimeout:
