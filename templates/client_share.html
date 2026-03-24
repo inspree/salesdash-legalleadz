@@ -261,8 +261,7 @@
             <span class="date-controls-label">Period:</span>
             <button class="range-btn" onclick="setRange(30)" id="btn30">30 Days</button>
             <button class="range-btn" onclick="setRange(60)" id="btn60">60 Days</button>
-            <button class="range-btn" onclick="setRange(90)" id="btn90">90 Days</button>
-            <button class="range-btn active" onclick="setRange(0)" id="btnAll">All Time</button>
+            <button class="range-btn active" onclick="setRange(90)" id="btn90">90 Days</button>
             <span class="date-sep">|</span>
             <input type="date" id="dateFrom" title="From date">
             <span class="date-sep">to</span>
@@ -329,7 +328,6 @@
             if (days === 30) document.getElementById('btn30').classList.add('active');
             else if (days === 60) document.getElementById('btn60').classList.add('active');
             else if (days === 90) document.getElementById('btn90').classList.add('active');
-            else if (days === 0) document.getElementById('btnAll').classList.add('active');
 
             if (days > 0) {
                 const now = new Date();
@@ -364,9 +362,7 @@
 
         function updateDateLabel() {
             const label = document.getElementById('dateRangeLabel');
-            if (activeRange === 0) {
-                label.textContent = 'Showing all time';
-            } else if (activeRange > 0) {
+            if (activeRange > 0) {
                 label.textContent = 'Last ' + activeRange + ' days';
             } else if (activeDateFrom || activeDateTo) {
                 const fromStr = activeDateFrom ? new Date(activeDateFrom + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Start';
@@ -407,8 +403,8 @@
                         return;
                     }
 
-                    // Default: show all time so numbers are accurate
-                    setRange(0);
+                    // Default: show last 90 days
+                    setRange(90);
                 })
                 .catch(e => {
                     document.getElementById('leadsContainer').innerHTML =
