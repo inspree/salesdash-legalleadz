@@ -1717,6 +1717,11 @@ def sales_snapshot(token):
     # Explicit mapping for QB customer names that don't match firm names
     QB_FIRM_MAP = {
         "cory horne": "kp injury law",
+        "james roswold": "kansas city accident injury attorneys",
+        "jermey schilling": "schilling & silvers personal injury & car accident lawyers",
+        "jeremy schilling": "schilling & silvers personal injury & car accident lawyers",
+        "fang law firm pc": "fang accident lawyers",
+        "fang law": "fang accident lawyers",
     }
 
     def _match_firm(customer_name, firm_name):
