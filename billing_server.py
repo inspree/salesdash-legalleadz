@@ -565,13 +565,24 @@ def hubspot_get_leads_for_firm(firm_name):
         search_tokens = alias_words
     else:
         search_tokens = [firm_name.split()[0]]
+
+    # Performance: only fetch deals from last 90 days to avoid timeout on large firms
+    from datetime import datetime, timezone, timedelta
+    cutoff_date = (datetime.now(timezone.utc) - timedelta(days=90)).strftime("%Y-%m-%d")
+
     deals = []
     after = 0
-    for _ in range(30):  # max 3000 deals
+    for _ in range(10):  # max 1000 deals (reduced from 3000 to prevent timeout)
         name_filters = [
             {"propertyName": "dealname", "operator": "CONTAINS_TOKEN", "value": w}
             for w in search_tokens
         ]
+        # Add date filter to limit result set
+        name_filters.append({
+            "propertyName": "createdate",
+            "operator": "GTE",
+            "value": cutoff_date
+        })
         body = {
             "filterGroups": [{"filters": name_filters}],
             "properties": ["dealname", "dealstage", "createdate"],
@@ -666,7 +677,8 @@ def hubspot_get_leads_for_firm(firm_name):
         time.sleep(0.1)
 
     # Step 2b: For deals with no contact association, try to find contacts by name
-    unlinked_deal_ids = [did for did in deal_props if did not in deal_contact_ids]
+    # Limit to 20 unlinked deals to prevent timeout on large result sets
+    unlinked_deal_ids = [did for did in deal_props if did not in deal_contact_ids][:20]
     if unlinked_deal_ids:
         names_to_search = {}
         for did in unlinked_deal_ids:
