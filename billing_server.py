@@ -556,6 +556,8 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
     }
 
     IMPORT_DATE = "2026-02-28"
+    # Millisecond timestamp for March 1 — everything before this for Chalik is imported data
+    IMPORT_CUTOFF_MS = 1740787200000  # 2026-03-01T00:00:00Z
 
     # Step 1: Get deals for this firm (paginated, capped at max_deals)
     # Firm name aliases for HubSpot deal name mismatches
@@ -588,14 +590,18 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
             for w in search_tokens
         ]
         # Add date filter if since_days is specified
+        # Use max(cutoff, IMPORT_CUTOFF) to exclude bulk-imported deals (createdate=Feb 28)
+        # whose real dates are months/years old. Only real deals (created Mar 1+) are recent.
         if since_days:
             from datetime import datetime, timedelta
             cutoff = datetime.utcnow() - timedelta(days=since_days)
             cutoff_ms = int(cutoff.timestamp() * 1000)
+            # Always use at least March 1 cutoff to skip 15,601 imported deals
+            effective_cutoff = max(cutoff_ms, IMPORT_CUTOFF_MS)
             name_filters.append({
                 "propertyName": "createdate",
                 "operator": "GTE",
-                "value": str(cutoff_ms)
+                "value": str(effective_cutoff)
             })
         body = {
             "filterGroups": [{"filters": name_filters}],
@@ -689,7 +695,8 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
                     "properties": [
                         "firstname", "lastname", "email", "phone",
                         "hs_lead_status", "createdate", "lead_source",
-                        "notes_last_updated", "rejection_reason"
+                        "notes_last_updated", "rejection_reason",
+                        "e_sign_signed_date"
                     ]
                 }
             )
@@ -794,18 +801,16 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
             props = contact_data.get(cid, {})
             contact_name = f"{props.get('firstname', '')} {props.get('lastname', '')}".strip()
             deal_date = dp["date"]
-            notes_date = props.get("notes_last_updated", "")[:10] if props.get("notes_last_updated") else ""
-            contact_date = props.get("createdate", "")[:10] if props.get("createdate") else ""
+            esign_date = props.get("e_sign_signed_date", "")[:10] if props.get("e_sign_signed_date") else ""
+            stage = dp["stage"]
+            is_signed = "sign" in stage.lower() if stage else False
 
-            # Date logic: prefer deal date when not import date, then contact date, then notes
-            if deal_date and deal_date != IMPORT_DATE:
-                lead_date = deal_date
-            elif contact_date and contact_date != IMPORT_DATE:
-                lead_date = contact_date
-            elif notes_date:
-                lead_date = notes_date
+            # Date logic: for signed cases use e-sign date (Forest directive),
+            # otherwise use deal createdate (accurate for non-imported deals)
+            if is_signed and esign_date:
+                lead_date = esign_date
             else:
-                lead_date = contact_date or deal_date
+                lead_date = deal_date
 
             leads.append({
                 "name": contact_name or dp["dealname"].split("/")[0].strip(),
@@ -818,9 +823,8 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
                 "rejection_reason": props.get("rejection_reason", "")
             })
 
-    # Post-filter: ensure displayed lead_date is within the requested date range.
-    # The HubSpot search filters by deal createdate, but displayed date may differ
-    # (e.g. imported deals fall back to notes_last_updated or contact createdate).
+    # Post-filter: for signed cases using e_sign_signed_date, ensure the date
+    # falls within the requested range (e-sign date may differ from deal createdate)
     if since_days and leads:
         from datetime import datetime, timedelta
         cutoff_date = (datetime.utcnow() - timedelta(days=since_days)).strftime("%Y-%m-%d")
@@ -828,11 +832,10 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
         filtered_leads = []
         for lead in leads:
             ld = (lead.get("date") or "")[:10]
-            if ld and (cutoff_date <= ld <= today_str):
+            if not ld or (cutoff_date <= ld <= today_str):
                 filtered_leads.append(lead)
+            # Skip leads whose e-sign date is outside the range
         leads = filtered_leads
-        # Use post-filtered count as the real total — HubSpot's total is based on
-        # deal createdate which doesn't reflect actual lead dates for imported data
         hubspot_total = len(leads)
 
     return {"leads": leads, "hubspot_total": hubspot_total}
