@@ -1307,6 +1307,9 @@ def api_leads(firm_id):
 @app.route("/api/share/leads/<token>")
 def api_share_leads(token):
     """Get leads for a share page (client-facing, limited data)."""
+    import sys
+    print(f"[SHARE] Request for token={token}", flush=True, file=sys.stderr)
+
     # Check vendor tokens first
     vendor_tokens = load_vendor_tokens()
     if token in vendor_tokens:
@@ -2115,8 +2118,9 @@ def api_sales_snapshot_leads(token, firm_name):
 
 
 @app.route("/sales-snapshot/health")
+@app.route("/health")
 def sales_snapshot_health():
-    return jsonify({"status": "ok"})
+    return jsonify({"status": "ok", "version": "2026-03-24-v5"})
 
 
 @app.route("/sales-snapshot/debug")
