@@ -304,6 +304,8 @@
         let activeDateFrom = '';
         let activeDateTo = '';
         let activeRange = 30;
+        let currentPage = 1;
+        const PAGE_SIZE = 100;
 
         document.addEventListener('DOMContentLoaded', loadLeads);
 
@@ -418,33 +420,133 @@
 
         function renderLeads(leads) {
             const container = document.getElementById('leadsContainer');
+            const totalFiltered = leads.length;
+            const totalPages = Math.max(1, Math.ceil(totalFiltered / PAGE_SIZE));
+            if (currentPage > totalPages) currentPage = totalPages;
+            const startIdx = (currentPage - 1) * PAGE_SIZE;
+            const endIdx = Math.min(startIdx + PAGE_SIZE, totalFiltered);
+            const pageLeads = leads.slice(startIdx, endIdx);
 
-            let html = '<table><thead><tr>';
-            html += '<th onclick="sortLeads(\'name\')">Name</th>';
-            html += '<th onclick="sortLeads(\'phone\')">Phone</th>';
-            html += '<th onclick="sortLeads(\'email\')">Email</th>';
-            html += '<th onclick="sortLeads(\'status\')">Status</th>';
-            html += '<th onclick="sortLeads(\'date\')">Date</th>';
-            html += '</tr></thead><tbody>';
+            // Build table using DOM methods for safety
+            container.textContent = '';
 
-            if (leads.length === 0) {
-                html += '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted);">No leads match your filters</td></tr>';
+            const table = document.createElement('table');
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            ['name', 'phone', 'email', 'status', 'date'].forEach(col => {
+                const th = document.createElement('th');
+                th.textContent = col.charAt(0).toUpperCase() + col.slice(1);
+                th.onclick = () => sortLeads(col);
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            if (pageLeads.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 5;
+                td.style.cssText = 'text-align:center;padding:40px;color:var(--text-muted)';
+                td.textContent = 'No leads match your filters';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
             } else {
-                leads.forEach(l => {
-                    html += '<tr>';
-                    html += '<td style="font-weight:500">' + esc(l.name || '-') + '</td>';
-                    html += '<td>' + esc(l.phone || '-') + '</td>';
-                    html += '<td>' + esc(l.email || '-') + '</td>';
-                    html += '<td><span class="badge ' + getStatusBadge(l.status) + '">' + esc(l.status || 'Unknown') + '</span></td>';
-                    html += '<td>' + formatDate(l.date) + '</td>';
-                    html += '</tr>';
+                pageLeads.forEach(l => {
+                    const tr = document.createElement('tr');
+                    const tdName = document.createElement('td');
+                    tdName.style.fontWeight = '500';
+                    tdName.textContent = l.name || '-';
+                    tr.appendChild(tdName);
+
+                    const tdPhone = document.createElement('td');
+                    tdPhone.textContent = l.phone || '-';
+                    tr.appendChild(tdPhone);
+
+                    const tdEmail = document.createElement('td');
+                    tdEmail.textContent = l.email || '-';
+                    tr.appendChild(tdEmail);
+
+                    const tdStatus = document.createElement('td');
+                    const badge = document.createElement('span');
+                    badge.className = 'badge ' + getStatusBadge(l.status);
+                    badge.textContent = l.status || 'Unknown';
+                    tdStatus.appendChild(badge);
+                    tr.appendChild(tdStatus);
+
+                    const tdDate = document.createElement('td');
+                    tdDate.textContent = formatDate(l.date);
+                    tr.appendChild(tdDate);
+
+                    tbody.appendChild(tr);
                 });
             }
+            table.appendChild(tbody);
+            container.appendChild(table);
 
-            html += '</tbody></table>';
-            html += '<div class="table-footer"><span>Showing ' + leads.length + ' of ' + allLeads.length + ' total leads</span>';
-            html += '<span>Last updated: ' + new Date().toLocaleString() + '</span></div>';
-            container.innerHTML = html;
+            // Pagination controls
+            if (totalPages > 1) {
+                const pagDiv = document.createElement('div');
+                pagDiv.style.cssText = 'display:flex;justify-content:center;align-items:center;gap:8px;padding:16px;flex-wrap:wrap;';
+
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'range-btn';
+                prevBtn.innerHTML = '&laquo; Prev';
+                if (currentPage === 1) { prevBtn.disabled = true; prevBtn.style.cssText = 'opacity:0.4;cursor:default'; }
+                else { prevBtn.onclick = () => goToPage(currentPage - 1); }
+                pagDiv.appendChild(prevBtn);
+
+                let pages = [];
+                if (totalPages <= 7) {
+                    for (let i = 1; i <= totalPages; i++) pages.push(i);
+                } else {
+                    pages.push(1);
+                    if (currentPage > 3) pages.push('...');
+                    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) pages.push(i);
+                    if (currentPage < totalPages - 2) pages.push('...');
+                    pages.push(totalPages);
+                }
+                pages.forEach(p => {
+                    if (p === '...') {
+                        const span = document.createElement('span');
+                        span.style.cssText = 'color:var(--text-dim);padding:0 4px;';
+                        span.textContent = '...';
+                        pagDiv.appendChild(span);
+                    } else {
+                        const btn = document.createElement('button');
+                        btn.className = 'range-btn' + (p === currentPage ? ' active' : '');
+                        btn.textContent = p;
+                        btn.onclick = () => goToPage(p);
+                        pagDiv.appendChild(btn);
+                    }
+                });
+
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'range-btn';
+                nextBtn.innerHTML = 'Next &raquo;';
+                if (currentPage === totalPages) { nextBtn.disabled = true; nextBtn.style.cssText = 'opacity:0.4;cursor:default'; }
+                else { nextBtn.onclick = () => goToPage(currentPage + 1); }
+                pagDiv.appendChild(nextBtn);
+
+                container.appendChild(pagDiv);
+            }
+
+            const footer = document.createElement('div');
+            footer.className = 'table-footer';
+            const showing = document.createElement('span');
+            showing.textContent = 'Showing ' + (startIdx + 1) + '\u2013' + endIdx + ' of ' + totalFiltered + ' leads';
+            const updated = document.createElement('span');
+            updated.textContent = 'Last updated: ' + new Date().toLocaleString();
+            footer.appendChild(showing);
+            footer.appendChild(updated);
+            container.appendChild(footer);
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            const filtered = getFilteredLeads();
+            renderLeads(filtered);
+            document.getElementById('leadsContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function esc(text) {
@@ -496,6 +598,7 @@
         }
 
         function filterLeads() {
+            currentPage = 1;
             const filtered = getFilteredLeads();
 
             // Update summary cards
