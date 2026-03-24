@@ -581,7 +581,8 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
     max_pages = max(1, max_deals // 100)
     deals = []
     after = 0
-    for _ in range(max_pages):
+    hubspot_total = 0
+    for page_num in range(max_pages):
         name_filters = [
             {"propertyName": "dealname", "operator": "CONTAINS_TOKEN", "value": w}
             for w in search_tokens
@@ -619,6 +620,8 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
             break
 
         data = resp.json()
+        if page_num == 0:
+            hubspot_total = data.get("total", 0)
         results = data.get("results", [])
         if not results:
             break
@@ -628,7 +631,7 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
             break
 
     if not deals:
-        return []
+        return {"leads": [], "hubspot_total": 0}
 
     # Step 2: Build lead list from deals, fetch contact info in batches
     # First collect deal_id -> {stage, date, contact_name_from_deal}
@@ -811,7 +814,7 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
                 "rejection_reason": props.get("rejection_reason", "")
             })
 
-    return leads
+    return {"leads": leads, "hubspot_total": hubspot_total}
 
 
 def hubspot_get_leads_from_deals(firm_name, headers):
@@ -1376,9 +1379,16 @@ def api_share_leads(token):
         with ThreadPoolExecutor(max_workers=1) as executor:
             future = executor.submit(hubspot_get_leads_for_firm, name, 2000, days)
             try:
-                leads = future.result(timeout=60)
+                result = future.result(timeout=60)
             except FuturesTimeout:
                 return jsonify({"error": "Request timed out — too many leads to load. Try a shorter date range.", "leads": [], "count": 0}), 504
+        # Handle both old list format and new dict format
+        if isinstance(result, dict):
+            leads = result.get("leads", [])
+            hubspot_total = result.get("hubspot_total", len(leads))
+        else:
+            leads = result
+            hubspot_total = len(leads)
         safe_leads = []
         for lead in leads:
             safe_leads.append({
@@ -1391,7 +1401,7 @@ def api_share_leads(token):
                 "notes": lead.get("notes", ""),
                 "rejection_reason": lead.get("rejection_reason", "")
             })
-        return jsonify({"firm": name, "leads": safe_leads, "count": len(safe_leads)})
+        return jsonify({"firm": name, "leads": safe_leads, "count": len(safe_leads), "hubspot_total": hubspot_total})
     except Exception as e:
         return jsonify({"error": str(e), "leads": [], "count": 0}), 500
 

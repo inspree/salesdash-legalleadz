@@ -297,6 +297,7 @@
     <script>
         const token = '{{ token }}';
         let allLeads = [];
+        let hubspotTotal = 0;
         let activeDateFrom = '';
         let activeDateTo = '';
         let activeRange = 30;
@@ -404,6 +405,7 @@
                     }
 
                     allLeads = data.leads || [];
+                    hubspotTotal = data.hubspot_total || allLeads.length;
 
                     // Sort by date DESC by default
                     allLeads.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
@@ -651,7 +653,11 @@
             const filtered = getFilteredLeads();
 
             // Update summary cards
-            const total = filtered.length;
+            const query = document.getElementById('searchInput').value;
+            const status = document.getElementById('statusFilter').value;
+            const hasFilters = query || status;
+            // Show HubSpot's real total when no search/status filters active
+            const total = hasFilters ? filtered.length : hubspotTotal;
             const signed = filtered.filter(l => isSigned(l.status)).length;
             const rejected = filtered.filter(l => isRejected(l.status)).length;
             document.getElementById('totalLeads').textContent = total;
