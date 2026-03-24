@@ -814,6 +814,20 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
                 "rejection_reason": props.get("rejection_reason", "")
             })
 
+    # Post-filter: ensure displayed lead_date is within the requested date range.
+    # The HubSpot search filters by deal createdate, but displayed date may differ
+    # (e.g. imported deals fall back to notes_last_updated or contact createdate).
+    if since_days and leads:
+        from datetime import datetime, timedelta
+        cutoff_date = (datetime.utcnow() - timedelta(days=since_days)).strftime("%Y-%m-%d")
+        today_str = datetime.utcnow().strftime("%Y-%m-%d")
+        filtered_leads = []
+        for lead in leads:
+            ld = (lead.get("date") or "")[:10]
+            if not ld or (cutoff_date <= ld <= today_str):
+                filtered_leads.append(lead)
+        leads = filtered_leads
+
     return {"leads": leads, "hubspot_total": hubspot_total}
 
 
