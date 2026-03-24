@@ -2717,4 +2717,4 @@ if __name__ == "__main__":
     print(f"[Billing Portal] Starting on port {port}...")
     print(f"[Billing Portal] Data file: {DATA_FILE}")
     print(f"[Billing Portal] Share tokens: {SHARE_TOKENS_FILE}")
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
