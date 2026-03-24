@@ -539,9 +539,10 @@ def _get_deal_stages_by_name(firm_name, headers):
 
 
 # ── HubSpot Helpers ──
-def hubspot_get_leads_for_firm(firm_name):
+def hubspot_get_leads_for_firm(firm_name, max_deals=200):
     """Get leads from HubSpot by searching deals for the firm, then fetching contact info.
-    This approach uses deals as the source of truth for status and dates."""
+    This approach uses deals as the source of truth for status and dates.
+    max_deals caps the number of deals fetched to prevent timeouts on large firms."""
     import requests
     import time
 
@@ -555,7 +556,7 @@ def hubspot_get_leads_for_firm(firm_name):
 
     IMPORT_DATE = "2026-02-28"
 
-    # Step 1: Get ALL deals for this firm (paginated)
+    # Step 1: Get deals for this firm (paginated, capped at max_deals)
     # Firm name aliases for HubSpot deal name mismatches
     FIRM_SEARCH_ALIASES = {
         "kansas city accident injury attorneys": ["KC", "Accident", "Injury", "Attorneys"],
@@ -578,26 +579,18 @@ def hubspot_get_leads_for_firm(firm_name):
                 unique_words.append(w)
         search_tokens = unique_words if unique_words else [firm_name.split()[0]]
 
-    # Performance: only fetch deals from last 90 days to avoid timeout on large firms
-    from datetime import datetime, timezone, timedelta
-    cutoff_date = (datetime.now(timezone.utc) - timedelta(days=90)).strftime("%Y-%m-%d")
-
+    max_pages = max(1, max_deals // 100)
     deals = []
     after = 0
-    for _ in range(10):  # max 1000 deals (reduced from 3000 to prevent timeout)
+    for _ in range(max_pages):
         name_filters = [
             {"propertyName": "dealname", "operator": "CONTAINS_TOKEN", "value": w}
             for w in search_tokens
         ]
-        # Add date filter to limit result set
-        name_filters.append({
-            "propertyName": "createdate",
-            "operator": "GTE",
-            "value": cutoff_date
-        })
         body = {
             "filterGroups": [{"filters": name_filters}],
             "properties": ["dealname", "dealstage", "createdate"],
+            "sorts": [{"propertyName": "createdate", "direction": "DESCENDING"}],
             "limit": 100,
         }
         if after:
@@ -689,8 +682,12 @@ def hubspot_get_leads_for_firm(firm_name):
         time.sleep(0.1)
 
     # Step 2b: For deals with no contact association, try to find contacts by name
-    # Limit to 20 unlinked deals to prevent timeout on large result sets
-    unlinked_deal_ids = [did for did in deal_props if did not in deal_contact_ids][:20]
+    # Skip entirely if we have many deals (expensive individual searches cause timeouts)
+    unlinked_deal_ids = [did for did in deal_props if did not in deal_contact_ids]
+    if len(deals) > 100:
+        unlinked_deal_ids = []  # Skip individual searches for large firms
+    else:
+        unlinked_deal_ids = unlinked_deal_ids[:20]
     if unlinked_deal_ids:
         names_to_search = {}
         for did in unlinked_deal_ids:
@@ -1345,9 +1342,10 @@ def api_share_leads(token):
 
     try:
         # Run with 45-second timeout to prevent Railway request timeout
+        # Share pages get capped at 200 most recent deals for performance
         from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
         with ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(hubspot_get_leads_for_firm, name)
+            future = executor.submit(hubspot_get_leads_for_firm, name, 200)
             try:
                 leads = future.result(timeout=45)
             except FuturesTimeout:
