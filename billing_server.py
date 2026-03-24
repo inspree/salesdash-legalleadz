@@ -2712,11 +2712,12 @@ def _match_firm_global(customer_name, firm_name):
     return False
 
 
+# ── Init ──
+if not SHARE_TOKENS_FILE.exists():
+    save_share_tokens({})
+
 # ── Main ──
 if __name__ == "__main__":
-    if not SHARE_TOKENS_FILE.exists():
-        save_share_tokens({})
-
     port = int(os.environ.get("PORT", 8090))
     print(f"[Billing Portal] Starting on port {port}...")
     print(f"[Billing Portal] Data file: {DATA_FILE}")
