@@ -556,16 +556,24 @@ def hubspot_get_leads_for_firm(firm_name):
     IMPORT_DATE = "2026-02-28"
 
     # Step 1: Get ALL deals for this firm (paginated)
-    search_token = firm_name.split()[0]
+    # Firm name aliases for HubSpot deal name mismatches
+    FIRM_SEARCH_ALIASES = {
+        "kansas city accident injury attorneys": ["KC", "Accident", "Injury", "Attorneys"],
+    }
+    alias_words = FIRM_SEARCH_ALIASES.get(firm_name.lower())
+    if alias_words:
+        search_tokens = alias_words
+    else:
+        search_tokens = [firm_name.split()[0]]
     deals = []
     after = 0
     for _ in range(30):  # max 3000 deals
+        name_filters = [
+            {"propertyName": "dealname", "operator": "CONTAINS_TOKEN", "value": w}
+            for w in search_tokens
+        ]
         body = {
-            "filterGroups": [{"filters": [{
-                "propertyName": "dealname",
-                "operator": "CONTAINS_TOKEN",
-                "value": search_token
-            }]}],
+            "filterGroups": [{"filters": name_filters}],
             "properties": ["dealname", "dealstage", "createdate"],
             "limit": 100,
         }
