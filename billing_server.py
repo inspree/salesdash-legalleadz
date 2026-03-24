@@ -565,19 +565,17 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200):
     if alias_words:
         search_tokens = alias_words
     else:
-        # Use multiple tokens from firm name for more precise matching
+        # Use first distinctive word from firm name — deal names only contain
+        # abbreviated firm name (e.g., "Schilling & Silvers" not full name)
         SKIP_WORDS = {"the", "law", "office", "of", "a", "and", "llc", "pc", "pllc",
-                      "group", "firm", "legal", "services", "associates", "&"}
+                      "group", "firm", "legal", "services", "associates", "&",
+                      "personal", "injury", "car", "accident", "lawyers", "attorney",
+                      "attorneys", "at"}
         words = [w.rstrip(".,") for w in firm_name.split()
                  if w.lower().rstrip(".,") not in SKIP_WORDS and len(w.rstrip(".,")) > 1]
-        # Deduplicate while preserving order
-        seen_lower = set()
-        unique_words = []
-        for w in words:
-            if w.lower() not in seen_lower:
-                seen_lower.add(w.lower())
-                unique_words.append(w)
-        search_tokens = unique_words if unique_words else [firm_name.split()[0]]
+        # Use first word only — more words = too restrictive since deal names
+        # use abbreviated firm names
+        search_tokens = [words[0]] if words else [firm_name.split()[0]]
 
     max_pages = max(1, max_deals // 100)
     deals = []
@@ -1940,16 +1938,16 @@ def hubspot_get_signed_deals_for_firm(firm_name):
     if alias_words:
         search_words = alias_words
     else:
-        # Build search filters using ALL meaningful words from the firm name
-        # Each word becomes a separate CONTAINS_TOKEN filter (AND logic)
+        # Use first distinctive word only — deal names use abbreviated firm names
+        # e.g., "Schilling & Silvers" not "Schilling & Silvers Personal Injury..."
         SKIP_WORDS = {"the", "law", "office", "of", "a", "and", "llc", "pc", "pllc",
-                      "group", "firm", "legal", "services", "injury", "attorneys", "associates"}
+                      "group", "firm", "legal", "services", "injury", "attorneys", "associates",
+                      "personal", "car", "accident", "lawyers", "attorney", "at", "&"}
         search_words = [w.rstrip(".,") for w in firm_name.split()
                         if w.lower().rstrip(".,") not in SKIP_WORDS and len(w.rstrip(".,")) > 1]
 
-        # Fallback: use last word if all were filtered
-        if not search_words:
-            search_words = [firm_name.split()[-1]]
+        # Use first word only for precision — too many AND conditions misses deals
+        search_words = [search_words[0]] if search_words else [firm_name.split()[-1]]
 
     deals = []
     after = 0
