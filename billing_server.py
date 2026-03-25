@@ -576,9 +576,10 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
                       "attorneys", "at"}
         words = [w.rstrip(".,") for w in firm_name.split()
                  if w.lower().rstrip(".,") not in SKIP_WORDS and len(w.rstrip(".,")) > 1]
-        # Use first word only — more words = too restrictive since deal names
-        # use abbreviated firm names
-        search_tokens = [words[0]] if words else [firm_name.split()[0]]
+        # Use ALL distinctive words with AND logic for precision
+        # Previously used first-word-only which caused false positives (e.g., "Daniel"
+        # from "Daniel A. Brown" matched every client named Daniel)
+        search_tokens = words if words else [firm_name.split()[0]]
 
     max_pages = max(1, max_deals // 100)
     deals = []
@@ -2008,8 +2009,12 @@ def hubspot_get_signed_deals_for_firm(firm_name):
         search_words = [w.rstrip(".,") for w in firm_name.split()
                         if w.lower().rstrip(".,") not in SKIP_WORDS and len(w.rstrip(".,")) > 1]
 
-        # Use first word only for precision — too many AND conditions misses deals
-        search_words = [search_words[0]] if search_words else [firm_name.split()[-1]]
+        # Use ALL distinctive words with AND logic for precision
+        # Previously used first-word-only which caused false positives (e.g., "Daniel"
+        # from "Daniel A. Brown" matched every client named Daniel)
+        # Aliases handle edge cases like KCAIA where abbreviated names differ
+        if not search_words:
+            search_words = [firm_name.split()[-1]]
 
     deals = []
     after = 0
