@@ -2777,6 +2777,329 @@ def _match_firm_global(customer_name, firm_name):
     return False
 
 
+# ── Vendor Dashboard (Shamsi-style, full deal view) ──
+
+VENDOR_DEAL_PROPERTIES = [
+    "dealname", "dealstage", "createdate", "closedate",
+    "case_type", "marketing_source",
+]
+VENDOR_CONTACT_PROPERTIES = [
+    "firstname", "lastname", "email", "phone",
+    "case_type", "marketing_source", "special_circumstances",
+    "hs_lead_status", "notes_last_updated",
+]
+VENDOR_DEAL_STAGE_MAP = {
+    "closedwon": "Signed",
+    "closedlost": "Signed e-Sign",
+    "3022527196": "Signed e-Sign Commercial",
+    "3022527198": "Signed - Commercial",
+    "appointmentscheduled": "New Lead",
+    "qualifiedtobuy": "Contacting",
+    "presentationscheduled": "Contacted",
+    "decisionmakerboughtin": "In Call Queue",
+    "contractsent": "Questionnaire Sent",
+    "57521917": "Rejected",
+    "57521918": "Cancelled/DNC",
+    "120301990": "Signed",
+    "120301991": "Dropped",
+}
+
+
+def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
+    """Fetch deals for firm(s) with full contact info — Shamsi-style dashboard data.
+    Returns list of deal dicts matching the vendor dashboard format."""
+    import requests as req
+
+    if not HUBSPOT_API_KEY:
+        return [], {}
+
+    headers = {
+        "Authorization": f"Bearer {HUBSPOT_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    # Calculate date range for month filter
+    from datetime import datetime, timedelta
+    now = datetime.utcnow()
+    target_month = now.month + month_offset
+    target_year = now.year
+    while target_month <= 0:
+        target_month += 12
+        target_year -= 1
+    while target_month > 12:
+        target_month -= 12
+        target_year += 1
+
+    # Start of target month
+    month_start = datetime(target_year, target_month, 1)
+    # Start of next month
+    if target_month == 12:
+        month_end = datetime(target_year + 1, 1, 1)
+    else:
+        month_end = datetime(target_year, target_month + 1, 1)
+
+    month_label = month_start.strftime("%B %Y")
+    start_ms = int(month_start.timestamp() * 1000)
+    end_ms = int(month_end.timestamp() * 1000)
+
+    # Firm name aliases
+    FIRM_SEARCH_ALIASES = {
+        "kansas city accident injury attorneys": ["KC", "Accident", "Injury", "Attorneys"],
+    }
+    SKIP_WORDS = {"the", "law", "office", "of", "a", "and", "llc", "pc", "pllc",
+                  "group", "firm", "legal", "services", "injury", "attorneys", "associates",
+                  "personal", "car", "accident", "lawyers", "attorney", "at", "&"}
+
+    # Build search words from ALL firm names (OR logic across firms)
+    filter_groups = []
+    for firm_name in firm_names:
+        alias = FIRM_SEARCH_ALIASES.get(firm_name.lower())
+        if alias:
+            words = alias
+        else:
+            words = [w.rstrip(".,") for w in firm_name.split()
+                     if w.lower().rstrip(".,") not in SKIP_WORDS and len(w.rstrip(".,")) > 1]
+            if not words:
+                words = [firm_name.split()[-1]]
+
+        name_filters = [
+            {"propertyName": "dealname", "operator": "CONTAINS_TOKEN", "value": w}
+            for w in words
+        ]
+        name_filters.append({
+            "propertyName": "createdate", "operator": "GTE", "value": str(start_ms)
+        })
+        name_filters.append({
+            "propertyName": "createdate", "operator": "LT", "value": str(end_ms)
+        })
+        filter_groups.append({"filters": name_filters})
+
+    # Fetch deals
+    deals = []
+    after = 0
+    max_pages = max(1, max_deals // 100)
+
+    for _ in range(max_pages):
+        body = {
+            "filterGroups": filter_groups,
+            "properties": VENDOR_DEAL_PROPERTIES,
+            "sorts": [{"propertyName": "createdate", "direction": "DESCENDING"}],
+            "limit": 100,
+        }
+        if after:
+            body["after"] = str(after)
+
+        for attempt in range(3):
+            try:
+                resp = req.post(
+                    "https://api.hubapi.com/crm/v3/objects/deals/search",
+                    headers=headers, json=body, timeout=20
+                )
+            except req.exceptions.Timeout:
+                break
+            if resp.status_code == 429:
+                time.sleep(int(resp.headers.get("Retry-After", 2)) + 1)
+                continue
+            break
+        else:
+            break
+
+        if resp.status_code != 200:
+            break
+
+        data = resp.json()
+        results = data.get("results", [])
+        if not results:
+            break
+        deals.extend(results)
+        after = data.get("paging", {}).get("next", {}).get("after")
+        if not after:
+            break
+
+    if not deals:
+        return [], {"total": 0, "by_source": {}, "by_stage": {}}, month_label
+
+    # Batch fetch contact associations
+    deal_ids = [d["id"] for d in deals]
+    deal_contact_map = {}
+
+    for batch_start in range(0, len(deal_ids), 25):
+        batch = deal_ids[batch_start:batch_start + 25]
+        try:
+            assoc_resp = req.post(
+                "https://api.hubapi.com/crm/v4/associations/deals/contacts/batch/read",
+                headers=headers,
+                json={"inputs": [{"id": did} for did in batch]},
+                timeout=15,
+            )
+            if assoc_resp.status_code == 200:
+                for item in assoc_resp.json().get("results", []):
+                    did = item.get("from", {}).get("id", "")
+                    for to in item.get("to", []):
+                        cid = to.get("toObjectId", "")
+                        if cid and did:
+                            deal_contact_map.setdefault(did, []).append(str(cid))
+            elif assoc_resp.status_code == 429:
+                time.sleep(int(assoc_resp.headers.get("Retry-After", 2)) + 1)
+        except Exception:
+            pass
+        time.sleep(0.15)
+
+    # Batch read contact properties
+    all_cids = set()
+    for cids in deal_contact_map.values():
+        all_cids.update(cids)
+
+    contact_props = {}
+    cid_list = list(all_cids)
+    for batch_start in range(0, len(cid_list), 50):
+        batch = cid_list[batch_start:batch_start + 50]
+        try:
+            cresp = req.post(
+                "https://api.hubapi.com/crm/v3/objects/contacts/batch/read",
+                headers=headers,
+                json={
+                    "inputs": [{"id": cid} for cid in batch],
+                    "properties": VENDOR_CONTACT_PROPERTIES,
+                },
+                timeout=15,
+            )
+            if cresp.status_code == 200:
+                for c in cresp.json().get("results", []):
+                    contact_props[c["id"]] = c.get("properties", {})
+            elif cresp.status_code == 429:
+                time.sleep(int(cresp.headers.get("Retry-After", 2)) + 1)
+        except Exception:
+            pass
+        time.sleep(0.15)
+
+    # Fetch engagement notes (last activity) for deals
+    deal_notes = {}
+    # Skip note fetching for large result sets to avoid timeout
+    if len(deals) <= 100:
+        for batch_start in range(0, len(deal_ids), 25):
+            batch = deal_ids[batch_start:batch_start + 25]
+            try:
+                note_resp = req.post(
+                    "https://api.hubapi.com/crm/v4/associations/deals/notes/batch/read",
+                    headers=headers,
+                    json={"inputs": [{"id": did} for did in batch]},
+                    timeout=15,
+                )
+                if note_resp.status_code == 200:
+                    for item in note_resp.json().get("results", []):
+                        did = item.get("from", {}).get("id", "")
+                        note_ids = [to.get("toObjectId", "") for to in item.get("to", [])]
+                        if note_ids and did:
+                            deal_notes[did] = note_ids[0]  # latest note
+            except Exception:
+                pass
+            time.sleep(0.15)
+
+    # Build output deals
+    output_deals = []
+    by_source = {}
+    by_stage = {}
+
+    for d in deals:
+        props = d.get("properties", {})
+        dealname = props.get("dealname", "")
+        stage_id = props.get("dealstage", "")
+        stage_label = VENDOR_DEAL_STAGE_MAP.get(stage_id, stage_id)
+
+        # Parse name from deal: "Name / Case Type - Firm"
+        intake_name = dealname.split("/")[0].strip() if "/" in dealname else dealname
+        case_type = ""
+        marketing_source = ""
+        if "/" in dealname:
+            rest = dealname.split("/", 1)[1].strip()
+            if " - " in rest:
+                parts = rest.split(" - ", 1)
+                case_type = parts[0].strip()
+                marketing_source = parts[1].strip() if len(parts) > 1 else ""
+            else:
+                case_type = rest
+
+        # Get contact info
+        cids = deal_contact_map.get(d["id"], [])
+        phone = ""
+        email = ""
+        special = ""
+        contact_note = ""
+        if cids and cids[0] in contact_props:
+            cp = contact_props[cids[0]]
+            phone = cp.get("phone", "") or ""
+            email = cp.get("email", "") or ""
+            special = cp.get("special_circumstances", "") or ""
+
+        output_deals.append({
+            "id": d["id"],
+            "intake_name": intake_name,
+            "phone": phone,
+            "contact_email": email,
+            "case_type": case_type,
+            "marketing_source": marketing_source,
+            "create_date": props.get("createdate", ""),
+            "stage": stage_label,
+            "special_circumstances": special,
+            "close_date": props.get("closedate", ""),
+            "contact_note": "",
+            "intake_note": "",
+        })
+
+        # Stats
+        src = marketing_source or "Unknown"
+        by_source[src] = by_source.get(src, 0) + 1
+        by_stage[stage_label] = by_stage.get(stage_label, 0) + 1
+
+    stats = {
+        "total": len(output_deals),
+        "by_source": by_source,
+        "by_stage": by_stage,
+    }
+
+    return output_deals, stats, month_label
+
+
+@app.route("/dashboard/<token>")
+def vendor_dashboard_page(token):
+    """Vendor-style dashboard page (Shamsi layout) for any firm token."""
+    tokens = load_sales_snapshot_tokens()
+    if token not in tokens:
+        abort(404)
+
+    token_data = tokens[token]
+    firm_names = token_data.get("firm_names", [])
+    display_name = firm_names[0] if len(firm_names) == 1 else ", ".join(firm_names)
+
+    return render_template("vendor_dashboard.html",
+                           firm_name=display_name,
+                           token=token)
+
+
+@app.route("/api/vendor/<token>")
+def vendor_dashboard_api(token):
+    """API endpoint for vendor dashboard — returns deals in Shamsi format."""
+    tokens = load_sales_snapshot_tokens()
+    if token not in tokens:
+        return jsonify({"error": "Invalid token"}), 404
+
+    token_data = tokens[token]
+    firm_names = token_data.get("firm_names", [])
+    month = int(request.args.get("month", 0))
+
+    try:
+        deals, stats, month_label = hubspot_get_vendor_deals(firm_names, month_offset=month)
+        return jsonify({
+            "deals": deals,
+            "stats": stats,
+            "month_label": month_label,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        })
+    except Exception as e:
+        return jsonify({"error": str(e), "deals": [], "stats": {"total": 0, "by_source": {}, "by_stage": {}}}), 500
+
+
 # ── Init ──
 if not SHARE_TOKENS_FILE.exists():
     save_share_tokens({})

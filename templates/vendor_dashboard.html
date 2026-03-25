@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ firm_name }} — Dashboard</title>
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d2e;
+            --surface-2: #232740;
+            --border: #2d3154;
+            --text: #e8eaf0;
+            --text-muted: #9ba1b8;
+            --text-dim: #6b7185;
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-bg: rgba(99,102,241,0.12);
+            --success: #10b981;
+            --success-bg: rgba(16,185,129,0.12);
+            --warning: #f59e0b;
+            --warning-bg: rgba(245,158,11,0.12);
+            --danger: #ef4444;
+            --danger-bg: rgba(239,68,68,0.12);
+            --info: #3b82f6;
+            --info-bg: rgba(59,130,246,0.12);
+            --cyan: #06b6d4;
+            --cyan-bg: rgba(6,182,212,0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg); color: var(--text); line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page-wrap { max-width: 1800px; margin: 0 auto; padding: 24px 32px; }
+        .note-col { max-width: 250px; font-size: 12px; color: var(--text-muted); white-space: pre-wrap; word-break: break-word; }
+
+        /* Header */
+        .header {
+            text-align: center; margin-bottom: 28px; padding: 32px 0 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .header .logo {
+            font-size: 11px; text-transform: uppercase; letter-spacing: 3px;
+            color: var(--text-dim); margin-bottom: 8px; font-weight: 600;
+        }
+        .header h1 {
+            font-size: 28px; font-weight: 700; color: var(--text);
+            letter-spacing: -0.5px;
+        }
+        .header h1 span { color: var(--primary-light); }
+        .header .subtitle {
+            color: var(--text-muted); font-size: 14px; margin-top: 6px;
+        }
+        .header .refresh-info {
+            color: var(--text-dim); font-size: 12px; margin-top: 4px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px; margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px;
+        }
+        .stat-card .label {
+            font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--text-dim); font-weight: 600; margin-bottom: 6px;
+        }
+        .stat-card .value {
+            font-size: 32px; font-weight: 700; letter-spacing: -1px;
+        }
+        .stat-card .sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .stat-card.primary .value { color: var(--primary-light); }
+        .stat-card.success .value { color: var(--success); }
+        .stat-card.danger .value { color: var(--danger); }
+        .stat-card.warning .value { color: var(--warning); }
+        .stat-card.info .value { color: var(--info); }
+        .stat-card.cyan .value { color: var(--cyan); }
+
+        /* Breakdown Sections */
+        .breakdowns {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 16px; margin-bottom: 24px;
+        }
+        @media (max-width: 768px) { .breakdowns { grid-template-columns: 1fr; } }
+        .breakdown-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 20px;
+        }
+        .breakdown-card h3 {
+            font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--text-dim); font-weight: 600; margin-bottom: 12px;
+        }
+        .breakdown-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 0; border-bottom: 1px solid var(--border);
+        }
+        .breakdown-row:last-child { border-bottom: none; }
+        .breakdown-row .name { color: var(--text-muted); font-size: 14px; }
+        .breakdown-row .count {
+            font-weight: 700; font-size: 15px; color: var(--text);
+            background: var(--surface-2); padding: 2px 10px; border-radius: 6px;
+        }
+
+        /* Table */
+        .table-wrap {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; overflow: hidden;
+        }
+        .table-header-bar {
+            padding: 16px 20px; border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .table-header-bar h2 { font-size: 16px; font-weight: 600; }
+        .count-badge {
+            background: var(--primary-bg); color: var(--primary-light);
+            padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;
+        }
+        table {
+            width: 100%; border-collapse: collapse; font-size: 13px;
+        }
+        thead th {
+            background: var(--surface-2); padding: 10px 14px; text-align: left;
+            font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+            color: var(--text-dim); font-weight: 600; white-space: nowrap;
+            position: sticky; top: 0;
+        }
+        tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+        tbody tr:hover { background: var(--surface-2); }
+        tbody tr:last-child { border-bottom: none; }
+        td { padding: 10px 14px; color: var(--text-muted); }
+        td.name-col { color: var(--text); font-weight: 500; }
+
+        /* Stage badges */
+        .badge {
+            display: inline-block; padding: 3px 10px; border-radius: 6px;
+            font-size: 11px; font-weight: 600; white-space: nowrap;
+        }
+        .badge-signed { background: var(--success-bg); color: var(--success); }
+        .badge-rejected { background: var(--danger-bg); color: var(--danger); }
+        .badge-pending { background: var(--warning-bg); color: var(--warning); }
+        .badge-other { background: var(--info-bg); color: var(--info); }
+
+        /* Filter bar */
+        .filter-bar {
+            display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+        }
+        .filter-bar select, .filter-bar input {
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--text); padding: 8px 14px; border-radius: 8px;
+            font-size: 13px; outline: none;
+        }
+        .filter-bar select:focus, .filter-bar input:focus {
+            border-color: var(--primary);
+        }
+
+        /* Loading spinner */
+        .loading {
+            text-align: center; padding: 60px; color: var(--text-dim);
+        }
+        .spinner {
+            width: 32px; height: 32px; border: 3px solid var(--border);
+            border-top-color: var(--primary); border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .error-msg {
+            text-align: center; padding: 40px; color: var(--danger);
+            background: var(--danger-bg); border-radius: 12px; margin: 20px 0;
+        }
+
+        /* Month selector */
+        .month-selector {
+            display: flex; gap: 8px; justify-content: center; margin-top: 16px;
+        }
+        .month-btn {
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--text-muted); padding: 8px 20px; border-radius: 8px;
+            font-size: 13px; font-weight: 500; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .month-btn:hover { border-color: var(--primary); color: var(--text); }
+        .month-btn.active {
+            background: var(--primary-bg); border-color: var(--primary);
+            color: var(--primary-light); font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+<div class="page-wrap">
+    <div class="header">
+        <div class="logo">HQ Intake Dashboard</div>
+        <h1><span>{{ firm_name }}</span> — <span id="month-label">Loading...</span></h1>
+        <div class="subtitle">All Sources &bull; Live Data from HubSpot</div>
+        <div class="month-selector" id="month-selector"></div>
+        <div class="refresh-info" id="refresh-info">Auto-refreshes every 5 minutes</div>
+    </div>
+
+    <div id="dashboard-content">
+        <div class="loading">
+            <div class="spinner"></div>
+            Loading deals from HubSpot...
+        </div>
+    </div>
+</div>
+
+<script>
+const BASE_API_URL = '/api/vendor/{{ token }}';
+let currentMonth = 0;  // 0=this month, -1=last, -2=two months ago
+
+function buildApiUrl(monthOffset) {
+    const params = new URLSearchParams(window.location.search);
+    params.set('month', monthOffset);
+    return BASE_API_URL + '?' + params.toString();
+}
+
+let API_URL = buildApiUrl(0);
+
+function badgeClass(stage) {
+    const s = (stage || '').toLowerCase();
+    if (s.includes('signed')) return 'badge-signed';
+    if (s.includes('rejected') || s.includes('cancelled') || s.includes('dnc') || s.includes('dropped')) return 'badge-rejected';
+    if (s.includes('contacting') || s.includes('contacted') || s.includes('in call') || s.includes('sent') || s.includes('scheduled') || s.includes('review') || s.includes('questionnaire')) return 'badge-pending';
+    return 'badge-other';
+}
+
+function esc(str) {
+    if (!str) return '';
+    const d = document.createElement('span');
+    d.textContent = str;
+    return d.textContent;
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return esc(dateStr);
+        return d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+            + ' ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    } catch(e) { return esc(dateStr); }
+}
+
+function formatCloseDate(dateStr) {
+    if (!dateStr) return '';
+    try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return esc(dateStr);
+        return d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+    } catch(e) { return esc(dateStr); }
+}
+
+let allDeals = [];
+
+function createEl(tag, attrs, children) {
+    const el = document.createElement(tag);
+    if (attrs) {
+        for (const [k, v] of Object.entries(attrs)) {
+            if (k === 'className') el.className = v;
+            else if (k === 'textContent') el.textContent = v;
+            else el.setAttribute(k, v);
+        }
+    }
+    if (children) {
+        if (typeof children === 'string') el.textContent = children;
+        else if (Array.isArray(children)) children.forEach(c => { if (c) el.appendChild(c); });
+    }
+    return el;
+}
+
+function buildStatCard(cls, label, value, sub) {
+    const card = createEl('div', {className: 'stat-card ' + cls});
+    card.appendChild(createEl('div', {className: 'label'}, label));
+    card.appendChild(createEl('div', {className: 'value'}, String(value)));
+    card.appendChild(createEl('div', {className: 'sub'}, sub));
+    return card;
+}
+
+function buildBreakdownCard(title, entries) {
+    const card = createEl('div', {className: 'breakdown-card'});
+    card.appendChild(createEl('h3', {}, title));
+    if (entries.length === 0) {
+        const row = createEl('div', {className: 'breakdown-row'});
+        row.appendChild(createEl('span', {className: 'name', style: 'color:var(--text-dim)'}, 'No data'));
+        card.appendChild(row);
+    } else {
+        for (const [name, count] of entries) {
+            const row = createEl('div', {className: 'breakdown-row'});
+            row.appendChild(createEl('span', {className: 'name'}, name || 'No Source'));
+            row.appendChild(createEl('span', {className: 'count'}, String(count)));
+            card.appendChild(row);
+        }
+    }
+    return card;
+}
+
+function buildTableRow(d) {
+    const tr = document.createElement('tr');
+    tr.dataset.source = d.marketing_source || 'No Source';
+    tr.dataset.stage = d.stage || 'Unknown';
+
+    const tdName = createEl('td', {className: 'name-col'}, d.intake_name);
+    const tdPhone = createEl('td', {}, d.phone);
+    const tdEmail = createEl('td', {}, d.contact_email || '');
+    const tdCase = createEl('td', {}, d.case_type);
+    const tdSource = createEl('td', {}, d.marketing_source);
+
+    const tdDate = createEl('td', {style: 'white-space:nowrap'});
+    tdDate.textContent = formatDate(d.create_date);
+
+    const tdStage = document.createElement('td');
+    const badge = createEl('span', {className: 'badge ' + badgeClass(d.stage)}, d.stage);
+    tdStage.appendChild(badge);
+
+    const tdSpecial = createEl('td', {}, d.special_circumstances);
+    const tdClose = createEl('td', {style: 'white-space:nowrap'});
+    tdClose.textContent = formatCloseDate(d.close_date);
+
+    const tdContactNote = createEl('td', {className: 'note-col'}, d.contact_note || '');
+    const tdIntakeNote = createEl('td', {className: 'note-col'}, d.intake_note || '');
+
+    tr.appendChild(tdName);
+    tr.appendChild(tdPhone);
+    tr.appendChild(tdEmail);
+    tr.appendChild(tdCase);
+    tr.appendChild(tdSource);
+    tr.appendChild(tdDate);
+    tr.appendChild(tdStage);
+    tr.appendChild(tdSpecial);
+    tr.appendChild(tdClose);
+    tr.appendChild(tdContactNote);
+    tr.appendChild(tdIntakeNote);
+    return tr;
+}
+
+function render(data) {
+    const deals = data.deals || [];
+    allDeals = deals;
+    const stats = data.stats || {};
+    const bySource = stats.by_source || {};
+    const byStage = stats.by_stage || {};
+    const total = stats.total || deals.length;
+
+    const signedCount = Object.entries(byStage)
+        .filter(([k]) => k.toLowerCase().includes('signed'))
+        .reduce((s, [, v]) => s + v, 0);
+    const rejectedCount = byStage['Rejected'] || 0;
+    const otherCount = total - signedCount - rejectedCount;
+
+    const container = document.getElementById('dashboard-content');
+    container.textContent = '';  // clear
+
+    // Stats cards
+    const statsGrid = createEl('div', {className: 'stats-grid'});
+    statsGrid.appendChild(buildStatCard('primary', 'Total Deals', total, data.month_label || 'This Month'));
+    statsGrid.appendChild(buildStatCard('success', 'Signed', signedCount,
+        (total > 0 ? Math.round(signedCount/total*100) : 0) + '% of total'));
+    statsGrid.appendChild(buildStatCard('danger', 'Rejected', rejectedCount,
+        (total > 0 ? Math.round(rejectedCount/total*100) : 0) + '% of total'));
+    statsGrid.appendChild(buildStatCard('warning', 'In Progress', otherCount,
+        (total > 0 ? Math.round(otherCount/total*100) : 0) + '% of total'));
+    statsGrid.appendChild(buildStatCard('cyan', 'Sources', Object.keys(bySource).length, 'Marketing sources'));
+    container.appendChild(statsGrid);
+
+    // Breakdowns
+    const breakdowns = createEl('div', {className: 'breakdowns'});
+    const sortedSources = Object.entries(bySource).sort((a, b) => b[1] - a[1]);
+    const sortedStages = Object.entries(byStage).sort((a, b) => b[1] - a[1]);
+    breakdowns.appendChild(buildBreakdownCard('By Marketing Source', sortedSources));
+    breakdowns.appendChild(buildBreakdownCard('By Intake Stage', sortedStages));
+    container.appendChild(breakdowns);
+
+    // Filters
+    const filterBar = createEl('div', {className: 'filter-bar'});
+
+    const selSource = document.createElement('select');
+    selSource.id = 'filter-source';
+    selSource.appendChild(createEl('option', {value: ''}, 'All Sources'));
+    const sources = [...new Set(deals.map(d => d.marketing_source || 'No Source'))].sort();
+    for (const s of sources) {
+        selSource.appendChild(createEl('option', {value: s}, s));
+    }
+
+    const selStage = document.createElement('select');
+    selStage.id = 'filter-stage';
+    selStage.appendChild(createEl('option', {value: ''}, 'All Stages'));
+    const stages = [...new Set(deals.map(d => d.stage || 'Unknown'))].sort();
+    for (const s of stages) {
+        selStage.appendChild(createEl('option', {value: s}, s));
+    }
+
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.id = 'filter-search';
+    searchInput.placeholder = 'Search name, case type...';
+
+    filterBar.appendChild(selSource);
+    filterBar.appendChild(selStage);
+    filterBar.appendChild(searchInput);
+    container.appendChild(filterBar);
+
+    // Table
+    const tableWrap = createEl('div', {className: 'table-wrap'});
+    const headerBar = createEl('div', {className: 'table-header-bar'});
+    headerBar.appendChild(createEl('h2', {}, 'All Deals'));
+    const countBadge = createEl('span', {className: 'count-badge', id: 'table-count'}, total + ' deals');
+    headerBar.appendChild(countBadge);
+    tableWrap.appendChild(headerBar);
+
+    const scrollDiv = createEl('div', {style: 'overflow-x:auto'});
+    const table = document.createElement('table');
+
+    const thead = document.createElement('thead');
+    const headRow = document.createElement('tr');
+    for (const h of ['Intake Name', 'Phone', 'Email', 'Case Type', 'Marketing Source', 'Lead Created Date', 'Intake Stage', 'Special Circumstances', 'Close Date', 'Contact Activity Note', 'Intake Activity Note']) {
+        headRow.appendChild(createEl('th', {}, h));
+    }
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    tbody.id = 'deals-tbody';
+    for (const d of deals) {
+        tbody.appendChild(buildTableRow(d));
+    }
+    table.appendChild(tbody);
+    scrollDiv.appendChild(table);
+    tableWrap.appendChild(scrollDiv);
+    container.appendChild(tableWrap);
+
+    // Attach filter listeners
+    selSource.addEventListener('change', filterTable);
+    selStage.addEventListener('change', filterTable);
+    searchInput.addEventListener('input', filterTable);
+}
+
+function filterTable() {
+    const source = document.getElementById('filter-source').value;
+    const stage = document.getElementById('filter-stage').value;
+    const search = document.getElementById('filter-search').value.toLowerCase();
+
+    const filtered = allDeals.filter(d => {
+        if (source && (d.marketing_source || 'No Source') !== source) return false;
+        if (stage && (d.stage || 'Unknown') !== stage) return false;
+        if (search) {
+            const haystack = [d.intake_name, d.case_type, d.phone, d.contact_email, d.marketing_source, d.special_circumstances, d.contact_note, d.intake_note]
+                .join(' ').toLowerCase();
+            if (!haystack.includes(search)) return false;
+        }
+        return true;
+    });
+
+    const tbody = document.getElementById('deals-tbody');
+    tbody.textContent = '';
+    for (const d of filtered) {
+        tbody.appendChild(buildTableRow(d));
+    }
+    document.getElementById('table-count').textContent = filtered.length + ' deals';
+}
+
+function showLoading(container) {
+    container.textContent = '';
+    const loadDiv = createEl('div', {className: 'loading'});
+    loadDiv.appendChild(createEl('div', {className: 'spinner'}));
+    loadDiv.appendChild(document.createTextNode('Loading deals from HubSpot...'));
+    container.appendChild(loadDiv);
+}
+
+function loadData() {
+    API_URL = buildApiUrl(currentMonth);
+    const container = document.getElementById('dashboard-content');
+    showLoading(container);
+    fetch(API_URL)
+        .then(r => {
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+        })
+        .then(data => {
+            render(data);
+            if (data.month_label) {
+                document.getElementById('month-label').textContent = data.month_label;
+                document.title = '{{ firm_name }} \u2014 ' + data.month_label + ' Dashboard';
+            }
+            document.getElementById('refresh-info').textContent =
+                'Last updated: ' + new Date().toLocaleTimeString() + ' \u2014 Auto-refreshes every 5 min';
+        })
+        .catch(err => {
+            container.textContent = '';
+            const errDiv = createEl('div', {className: 'error-msg'}, 'Failed to load data: ' + err.message);
+            container.appendChild(errDiv);
+        });
+}
+
+function switchMonth(offset) {
+    currentMonth = offset;
+    document.querySelectorAll('.month-btn').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.offset) === offset);
+    });
+    loadData();
+}
+
+function initMonthSelector() {
+    const now = new Date();
+    const selector = document.getElementById('month-selector');
+    [0, -1, -2].forEach(offset => {
+        const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+        const label = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        const btn = createEl('button', {className: 'month-btn' + (offset === 0 ? ' active' : '')}, label);
+        btn.dataset.offset = offset;
+        btn.addEventListener('click', () => switchMonth(offset));
+        selector.appendChild(btn);
+    });
+}
+
+// Initial load
+initMonthSelector();
+loadData();
+
+// Auto-refresh every 5 minutes
+setInterval(loadData, 5 * 60 * 1000);
+</script>
+</body>
+</html>
