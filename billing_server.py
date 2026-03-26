@@ -640,6 +640,60 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
     if not deals:
         return {"leads": [], "hubspot_total": 0}
 
+    # Post-filter: verify deals belong to this firm (check firm portion of dealname)
+    FIRM_SEARCH_TOKENS = {
+        "KP Injury Law": "KP",
+        "The Law Office of Daniel A. Brown": "Brown",
+        "Law Office of Shane R. Kadlec": "Kadlec",
+        "Law Office of David Kwartler": "Kwartler",
+        "AK Law Firm": "AK",
+        "Bernard Law Group": "Bernard",
+        "Boston Auto Law": "Boston",
+        "California Attorney Group": "California",
+        "Chalik & Chalik": "Chalik",
+        "Fang Accident Lawyers": "Fang",
+        "Gibbins Law": "Gibbins",
+        "Hollander Law Firm": "Hollander",
+        "JRE Injury Law": "JRE",
+        "KC Accident Injury Attorneys": "KC",
+        "Kansas City Accident Injury Attorneys": "KC",
+        "Kronos Law Firm": "Kronos",
+        "Larry H. Parker": "Parker",
+        "Larry H Parker": "Parker",
+        "Levine Law": "Levine",
+        "Loncar Lyon Jenkins": "Loncar",
+        "Major Law Firm": "Major",
+        "The Major Law Firm": "Major",
+        "Schilling & Silvers": "Schilling",
+        "Shamsi Law Firm": "Shamsi",
+        "The Shamsi Law Firm, APC.": "Shamsi",
+        "Titan Law Firm": "Titan",
+        "Hilley & Solis": "Hilley",
+        "Hilley & Solis Law": "Hilley",
+        "Pencheff & Fraley": "Pencheff",
+        "Klenofsky & Steward": "Klenofsky",
+        "Geoff McDonald & Associates": "McDonald",
+        "Astrix Law": "Astrix",
+        "Jacoby & Meyers": "Jacoby",
+        "Edward Law Group": "Edward",
+    }
+    firm_lower = firm_name.lower()
+    ft = FIRM_SEARCH_TOKENS.get(firm_name, "").lower()
+    filtered_deals = []
+    for d in deals:
+        dn = (d.get("properties", {}).get("dealname", "") or "")
+        if " - " in dn:
+            firm_portion = dn.split(" - ")[-1].strip().lower()
+        else:
+            firm_portion = dn.lower()
+        if firm_lower in firm_portion or (ft and ft in firm_portion):
+            filtered_deals.append(d)
+    deals = filtered_deals
+    hubspot_total = len(deals)
+
+    if not deals:
+        return {"leads": [], "hubspot_total": 0}
+
     # Step 2: Build lead list from deals, fetch contact info in batches
     # First collect deal_id -> {stage, date, contact_name_from_deal}
     deal_contact_ids = {}
@@ -2067,6 +2121,62 @@ def hubspot_get_signed_deals_for_firm(firm_name):
         after = data.get("paging", {}).get("next", {}).get("after")
         if not after:
             break
+
+    if not deals:
+        return []
+
+    # Post-filter: ensure the firm name actually appears in the FIRM portion of the dealname
+    # Dealnames follow "Client Name / Case Type - Firm Name" — only match after " - "
+    # This prevents false positives where client names match search tokens
+    # (e.g., "Daniel Brown / MVA - Chalik" would falsely match "Daniel A. Brown" firm)
+    FIRM_SEARCH_TOKENS = {
+        "KP Injury Law": "KP",
+        "The Law Office of Daniel A. Brown": "Brown",
+        "Law Office of Shane R. Kadlec": "Kadlec",
+        "Law Office of David Kwartler": "Kwartler",
+        "AK Law Firm": "AK",
+        "Bernard Law Group": "Bernard",
+        "Boston Auto Law": "Boston",
+        "California Attorney Group": "California",
+        "Chalik & Chalik": "Chalik",
+        "Fang Accident Lawyers": "Fang",
+        "Gibbins Law": "Gibbins",
+        "Hollander Law Firm": "Hollander",
+        "JRE Injury Law": "JRE",
+        "KC Accident Injury Attorneys": "KC",
+        "Kansas City Accident Injury Attorneys": "KC",
+        "Kronos Law Firm": "Kronos",
+        "Larry H. Parker": "Parker",
+        "Larry H Parker": "Parker",
+        "Levine Law": "Levine",
+        "Loncar Lyon Jenkins": "Loncar",
+        "Major Law Firm": "Major",
+        "The Major Law Firm": "Major",
+        "Schilling & Silvers": "Schilling",
+        "Shamsi Law Firm": "Shamsi",
+        "The Shamsi Law Firm, APC.": "Shamsi",
+        "Titan Law Firm": "Titan",
+        "Hilley & Solis": "Hilley",
+        "Hilley & Solis Law": "Hilley",
+        "Pencheff & Fraley": "Pencheff",
+        "Klenofsky & Steward": "Klenofsky",
+        "Geoff McDonald & Associates": "McDonald",
+        "Astrix Law": "Astrix",
+        "Jacoby & Meyers": "Jacoby",
+        "Edward Law Group": "Edward",
+    }
+    firm_lower = firm_name.lower()
+    ft = FIRM_SEARCH_TOKENS.get(firm_name, "").lower()
+    filtered_deals = []
+    for d in deals:
+        dn = (d.get("properties", {}).get("dealname", "") or "")
+        if " - " in dn:
+            firm_portion = dn.split(" - ")[-1].strip().lower()
+        else:
+            firm_portion = dn.lower()
+        if firm_lower in firm_portion or (ft and ft in firm_portion):
+            filtered_deals.append(d)
+    deals = filtered_deals
 
     if not deals:
         return []
