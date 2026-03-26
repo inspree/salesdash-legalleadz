@@ -2297,7 +2297,7 @@ def api_sales_snapshot_leads(token, firm_name):
 @app.route("/sales-snapshot/health")
 @app.route("/health")
 def sales_snapshot_health():
-    return jsonify({"status": "ok", "version": "2026-03-24-v5"})
+    return jsonify({"status": "ok", "version": "2026-03-26-v6"})
 
 
 @app.route("/sales-snapshot/debug")
