@@ -764,7 +764,7 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
                 time.sleep(int(assoc_resp.headers.get("Retry-After", 1)) + 1)
                 continue
             break
-        if assoc_resp.status_code == 200:
+        if assoc_resp.status_code in (200, 207):
             for item in assoc_resp.json().get("results", []):
                 did = item.get("from", {}).get("id", "")
                 for to in item.get("to", []):
@@ -800,7 +800,7 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
                 time.sleep(int(cresp.headers.get("Retry-After", 1)) + 1)
                 continue
             break
-        if cresp.status_code == 200:
+        if cresp.status_code in (200, 207):
             for c in cresp.json().get("results", []):
                 contact_data[c["id"]] = c.get("properties", {})
 
@@ -975,7 +975,7 @@ def hubspot_get_leads_from_deals(firm_name, headers):
                             "properties": "firstname,lastname,email,phone,hs_lead_status,createdate,lastmodifieddate,lead_source,rejection_reason"
                         }
                     )
-                    if cresp.status_code == 200:
+                    if cresp.status_code in (200, 207):
                         props = cresp.json().get("properties", {})
                         activity_date = props.get("lastmodifieddate", "")[:10] if props.get("lastmodifieddate") else ""
                         create_date = props.get("createdate", "")[:10] if props.get("createdate") else ""
@@ -2318,7 +2318,7 @@ def hubspot_get_signed_deals_for_firm(firm_name):
                 json={"inputs": [{"id": did} for did in batch]},
                 timeout=15,
             )
-            if assoc_resp.status_code == 200:
+            if assoc_resp.status_code in (200, 207):
                 for item in assoc_resp.json().get("results", []):
                     did = item.get("from", {}).get("id", "")
                     for to in item.get("to", []):
@@ -2350,7 +2350,7 @@ def hubspot_get_signed_deals_for_firm(firm_name):
                 },
                 timeout=15,
             )
-            if cresp.status_code == 200:
+            if cresp.status_code in (200, 207):
                 for c in cresp.json().get("results", []):
                     contact_props[c["id"]] = c.get("properties", {})
             elif cresp.status_code == 429:
@@ -3190,7 +3190,7 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
                     timeout=15,
                 )
                 _vlog.warning(f"Assoc batch {batch_num}: status={assoc_resp.status_code}, attempt={attempt+1}")
-                if assoc_resp.status_code == 200:
+                if assoc_resp.status_code in (200, 207):
                     batch_results = assoc_resp.json().get("results", [])
                     _vlog.warning(f"Assoc batch {batch_num}: got {len(batch_results)} results for {len(batch)} deals")
                     for item in batch_results:
@@ -3236,7 +3236,7 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
                     },
                     timeout=15,
                 )
-                if cresp.status_code == 200:
+                if cresp.status_code in (200, 207):
                     for c in cresp.json().get("results", []):
                         contact_props[c["id"]] = c.get("properties", {})
                     break
@@ -3265,7 +3265,7 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
                     json={"inputs": [{"id": did} for did in batch]},
                     timeout=15,
                 )
-                if note_resp.status_code == 200:
+                if note_resp.status_code in (200, 207):
                     for item in note_resp.json().get("results", []):
                         did = item.get("from", {}).get("id", "")
                         note_ids = [to.get("toObjectId", "") for to in item.get("to", [])]
@@ -3290,7 +3290,7 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
                 },
                 timeout=15,
             )
-            if nresp.status_code == 200:
+            if nresp.status_code in (200, 207):
                 for n in nresp.json().get("results", []):
                     body = n.get("properties", {}).get("hs_note_body", "") or ""
                     # Strip HTML tags from note body
