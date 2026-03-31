@@ -3328,7 +3328,74 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
         "by_stage": by_stage,
     }
 
-    return output_deals, stats, month_label
+    # Fetch contacts WITHOUT deals for this firm (by marketing_source)
+    dealless_contacts = []
+    try:
+        existing_cids = set(all_cids)  # contacts already associated with deals
+        contact_filter_groups = []
+        for firm_name in firm_names:
+            contact_filter_groups.append({
+                "filters": [
+                    {"propertyName": "marketing_source", "operator": "CONTAINS_TOKEN", "value": firm_name.split()[-1]},
+                    {"propertyName": "createdate", "operator": "GTE", "value": str(start_ms)},
+                    {"propertyName": "createdate", "operator": "LT", "value": str(end_ms)},
+                ]
+            })
+        c_after = 0
+        all_firm_contacts = []
+        for _ in range(5):  # max 500 contacts
+            cbody = {
+                "filterGroups": contact_filter_groups,
+                "properties": VENDOR_CONTACT_PROPERTIES + ["createdate", "lifecyclestage"],
+                "sorts": [{"propertyName": "createdate", "direction": "DESCENDING"}],
+                "limit": 100,
+            }
+            if c_after:
+                cbody["after"] = str(c_after)
+            try:
+                cresp2 = req.post(
+                    "https://api.hubapi.com/crm/v3/objects/contacts/search",
+                    headers=headers, json=cbody, timeout=20
+                )
+                if cresp2.status_code == 200:
+                    cdata = cresp2.json()
+                    all_firm_contacts.extend(cdata.get("results", []))
+                    c_after = cdata.get("paging", {}).get("next", {}).get("after")
+                    if not c_after:
+                        break
+                elif cresp2.status_code == 429:
+                    time.sleep(int(cresp2.headers.get("Retry-After", 2)) + 1)
+                else:
+                    break
+            except Exception:
+                break
+            time.sleep(0.15)
+
+        # Filter to only contacts NOT already in deals
+        for c in all_firm_contacts:
+            if c["id"] not in existing_cids:
+                cp = c.get("properties", {})
+                fname = cp.get("firstname", "") or ""
+                lname = cp.get("lastname", "") or ""
+                name = f"{fname} {lname}".strip() or "Unknown"
+                dealless_contacts.append({
+                    "id": c["id"],
+                    "intake_name": name,
+                    "phone": cp.get("phone", "") or "",
+                    "contact_email": cp.get("email", "") or "",
+                    "case_type": cp.get("case_type", "") or "",
+                    "marketing_source": cp.get("marketing_source", "") or "",
+                    "create_date": cp.get("createdate", ""),
+                    "stage": cp.get("lifecyclestage", "") or "",
+                    "special_circumstances": cp.get("special_circumstances", "") or "",
+                    "close_date": "",
+                    "contact_note": "",
+                    "intake_note": "",
+                })
+    except Exception:
+        pass
+
+    return output_deals, stats, month_label, dealless_contacts
 
 
 @app.route("/dashboard/<token>")
@@ -3359,9 +3426,10 @@ def vendor_dashboard_api(token):
     month = int(request.args.get("month", 0))
 
     try:
-        deals, stats, month_label = hubspot_get_vendor_deals(firm_names, month_offset=month)
+        deals, stats, month_label, dealless_contacts = hubspot_get_vendor_deals(firm_names, month_offset=month)
         return jsonify({
             "deals": deals,
+            "dealless_contacts": dealless_contacts,
             "stats": stats,
             "month_label": month_label,
             "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -3391,7 +3459,7 @@ def api_wommster():
         return jsonify({"error": "Invalid token"}), 403
     try:
         month = int(request.args.get("month", 0))
-        deals, stats, month_label = hubspot_get_vendor_deals(
+        deals, stats, month_label, _ = hubspot_get_vendor_deals(
             ["KJ Injury"],
             month_offset=month,
         )

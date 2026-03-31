@@ -435,6 +435,48 @@ function render(data) {
     tableWrap.appendChild(scrollDiv);
     container.appendChild(tableWrap);
 
+    // Dealless contacts table
+    const deallessContacts = data.dealless_contacts || [];
+    if (deallessContacts.length > 0) {
+        const dlWrap = createEl('div', {className: 'table-wrap'});
+        dlWrap.style.marginTop = '24px';
+        const dlHeader = createEl('div', {className: 'table-header-bar'});
+        dlHeader.appendChild(createEl('h2', {}, 'Contacts Without Deals'));
+        const dlBadge = createEl('span', {className: 'count-badge'}, deallessContacts.length + ' contacts');
+        dlBadge.style.background = '#f59e0b';
+        dlHeader.appendChild(dlBadge);
+        dlWrap.appendChild(dlHeader);
+
+        const dlScroll = createEl('div', {style: 'overflow-x:auto'});
+        const dlTable = document.createElement('table');
+        const dlThead = document.createElement('thead');
+        const dlHeadRow = document.createElement('tr');
+        for (const h of ['Name', 'Phone', 'Email', 'Case Type', 'Marketing Source', 'Created Date', 'Lifecycle Stage', 'Special Circumstances']) {
+            dlHeadRow.appendChild(createEl('th', {}, h));
+        }
+        dlThead.appendChild(dlHeadRow);
+        dlTable.appendChild(dlThead);
+
+        const dlTbody = document.createElement('tbody');
+        for (const c of deallessContacts) {
+            const tr = document.createElement('tr');
+            tr.appendChild(createEl('td', {}, c.intake_name || ''));
+            tr.appendChild(createEl('td', {}, c.phone || ''));
+            tr.appendChild(createEl('td', {}, c.contact_email || ''));
+            tr.appendChild(createEl('td', {}, c.case_type || ''));
+            tr.appendChild(createEl('td', {}, c.marketing_source || ''));
+            const cd = c.create_date ? new Date(c.create_date).toLocaleDateString() : '';
+            tr.appendChild(createEl('td', {}, cd));
+            tr.appendChild(createEl('td', {}, c.stage || ''));
+            tr.appendChild(createEl('td', {}, c.special_circumstances || ''));
+            dlTbody.appendChild(tr);
+        }
+        dlTable.appendChild(dlTbody);
+        dlScroll.appendChild(dlTable);
+        dlWrap.appendChild(dlScroll);
+        container.appendChild(dlWrap);
+    }
+
     // Attach filter listeners
     selSource.addEventListener('change', filterTable);
     selStage.addEventListener('change', filterTable);
