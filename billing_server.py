@@ -3234,6 +3234,35 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
                 pass
             time.sleep(0.15)
 
+    # Batch fetch actual note body text for deal notes
+    note_bodies = {}  # note_id -> body text
+    all_note_ids = list(set(str(nid) for nid in deal_notes.values() if nid))
+    for batch_start in range(0, len(all_note_ids), 50):
+        batch = all_note_ids[batch_start:batch_start + 50]
+        try:
+            nresp = req.post(
+                "https://api.hubapi.com/crm/v3/objects/notes/batch/read",
+                headers=headers,
+                json={
+                    "inputs": [{"id": nid} for nid in batch],
+                    "properties": ["hs_note_body", "hs_timestamp"],
+                },
+                timeout=15,
+            )
+            if nresp.status_code == 200:
+                for n in nresp.json().get("results", []):
+                    body = n.get("properties", {}).get("hs_note_body", "") or ""
+                    # Strip HTML tags from note body
+                    import re as _re
+                    body = _re.sub(r"<[^>]+>", "", body).strip()
+                    if body:
+                        note_bodies[n["id"]] = body
+            elif nresp.status_code == 429:
+                time.sleep(int(nresp.headers.get("Retry-After", 2)) + 1)
+        except Exception:
+            pass
+        time.sleep(0.15)
+
     # Build output deals
     output_deals = []
     by_source = {}
@@ -3262,19 +3291,16 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
         cids = deal_contact_map.get(d["id"], [])
         phone = ""
         email = ""
-        contact_note = ""
+        special = ""
         if cids and cids[0] in contact_props:
             cp = contact_props[cids[0]]
             phone = cp.get("phone", "") or ""
             email = cp.get("email", "") or ""
-            contact_note = cp.get("notes_last_updated", "") or ""
+            special = cp.get("special_circumstances", "") or ""
 
-        # Special circumstances + intake note from deal properties
-        special = props.get("special_circumstances", "") or ""
-        intake_note = props.get("notes_last_updated", "") or ""
-
-        # Get deal engagement note if available
-        deal_note_text = deal_notes.get(d["id"], "")
+        # Get deal engagement note body if available
+        deal_note_id = str(deal_notes.get(d["id"], "")) if deal_notes.get(d["id"]) else ""
+        deal_note_text = note_bodies.get(deal_note_id, "") if deal_note_id else ""
 
         output_deals.append({
             "id": d["id"],
@@ -3287,8 +3313,8 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
             "stage": stage_label,
             "special_circumstances": special,
             "close_date": props.get("closedate", ""),
-            "contact_note": contact_note,
-            "intake_note": intake_note or deal_note_text,
+            "contact_note": deal_note_text,
+            "intake_note": "",
         })
 
         # Stats
