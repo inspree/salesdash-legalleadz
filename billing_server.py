@@ -3018,7 +3018,8 @@ def _match_firm_global(customer_name, firm_name):
 
 VENDOR_DEAL_PROPERTIES = [
     "dealname", "dealstage", "createdate", "closedate",
-    "case_type", "marketing_source",
+    "case_type", "marketing_source", "special_circumstances",
+    "notes_last_updated",
 ]
 VENDOR_CONTACT_PROPERTIES = [
     "firstname", "lastname", "email", "phone",
@@ -3261,13 +3262,19 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
         cids = deal_contact_map.get(d["id"], [])
         phone = ""
         email = ""
-        special = ""
         contact_note = ""
         if cids and cids[0] in contact_props:
             cp = contact_props[cids[0]]
             phone = cp.get("phone", "") or ""
             email = cp.get("email", "") or ""
-            special = cp.get("special_circumstances", "") or ""
+            contact_note = cp.get("notes_last_updated", "") or ""
+
+        # Special circumstances + intake note from deal properties
+        special = props.get("special_circumstances", "") or ""
+        intake_note = props.get("notes_last_updated", "") or ""
+
+        # Get deal engagement note if available
+        deal_note_text = deal_notes.get(d["id"], "")
 
         output_deals.append({
             "id": d["id"],
@@ -3280,8 +3287,8 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
             "stage": stage_label,
             "special_circumstances": special,
             "close_date": props.get("closedate", ""),
-            "contact_note": "",
-            "intake_note": "",
+            "contact_note": contact_note,
+            "intake_note": intake_note or deal_note_text,
         })
 
         # Stats
