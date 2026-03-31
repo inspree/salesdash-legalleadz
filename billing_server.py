@@ -31,6 +31,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from threading import Thread
 
+from functools import wraps
 from flask import (Flask, render_template, jsonify, request, redirect,
                    url_for, abort, send_file, Response)
 
@@ -66,6 +67,45 @@ app = Flask(
     static_url_path="/static",
 )
 app.jinja_env.globals.update(max=max, min=min, abs=abs, int=int, round=round)
+
+# ── Password Protection ──
+DASHBOARD_USER = os.environ.get("DASHBOARD_USER", "admin")
+DASHBOARD_PASS = os.environ.get("DASHBOARD_PASS", "")
+
+# Routes that do NOT require auth (client-facing, token-based)
+PUBLIC_PREFIXES = (
+    "/static/", "/health", "/sales-snapshot/health", "/sales-snapshot/debug",
+    "/api/sales-snapshot/leads/", "/api/vendor/", "/api/share/leads/",
+    "/share/", "/dashboard/", "/sales-snapshot/",
+)
+
+def _is_public_route(path):
+    """Check if a path should be publicly accessible (no auth)."""
+    if any(path.startswith(p) for p in PUBLIC_PREFIXES):
+        return True
+    # Single-segment paths like /diamond are sales snapshot tokens — public
+    parts = path.strip("/").split("/")
+    if len(parts) == 1 and parts[0] and parts[0] not in (
+        "firm", "api", "static", "favicon.ico"
+    ):
+        return True
+    return False
+
+@app.before_request
+def require_auth():
+    """Require HTTP Basic Auth for admin routes when DASHBOARD_PASS is set."""
+    if not DASHBOARD_PASS:
+        return  # No password configured — skip auth
+    if _is_public_route(request.path):
+        return  # Public route — no auth needed
+    auth = request.authorization
+    if auth and auth.username == DASHBOARD_USER and auth.password == DASHBOARD_PASS:
+        return  # Auth OK
+    return Response(
+        "Login required", 401,
+        {"WWW-Authenticate": 'Basic realm="HQ Intake Dashboard"'})
+
+
 
 
 # ── Data Loading ──
