@@ -2124,12 +2124,23 @@ def hubspot_get_signed_deals_by_marketing_source(marketing_sources):
             results = data.get("results", [])
             for deal in results:
                 props = deal.get("properties", {})
+                dealname = props.get("dealname", "")
+                stage_id = props.get("dealstage", "")
+                stage_label = DEAL_STAGE_LABELS.get(stage_id, stage_id)
+                date = props.get("createdate", "")[:10] if props.get("createdate") else ""
+                contact_name = dealname.split("/")[0].strip() if "/" in dealname else dealname
+                case_type = ""
+                if "/" in dealname:
+                    rest = dealname.split("/", 1)[1].strip()
+                    case_type = rest.split("-")[0].strip() if "-" in rest else rest
                 all_deals.append({
-                    "id": deal["id"],
-                    "name": props.get("dealname", ""),
-                    "stage": props.get("dealstage", ""),
-                    "created": props.get("createdate", ""),
-                    "marketing_source": props.get("marketing_source", ""),
+                    "name": contact_name,
+                    "status": stage_label,
+                    "date": date,
+                    "case_type": case_type,
+                    "injury_score": 2,
+                    "injury_color": "#FF9800",
+                    "injuries_text": "(no injury data)",
                 })
 
             paging = data.get("paging", {}).get("next", {})
