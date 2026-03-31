@@ -3214,7 +3214,7 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
     # Fetch engagement notes (last activity) for deals
     deal_notes = {}
     # Skip note fetching for large result sets to avoid timeout
-    if len(deals) <= 100:
+    if len(deals) <= 500:
         for batch_start in range(0, len(deal_ids), 25):
             batch = deal_ids[batch_start:batch_start + 25]
             try:
