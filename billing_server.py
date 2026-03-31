@@ -3026,42 +3026,45 @@ VENDOR_CONTACT_PROPERTIES = [
     "case_type", "marketing_source", "special_circumstances",
     "hs_lead_status", "notes_last_updated",
 ]
-VENDOR_DEAL_STAGE_MAP = {
-    "3022527194": "Contacting",
-    "qualifiedtobuy": "CB",
-    "presentationscheduled": "Rejected",
-    "decisionmakerboughtin": "Decision Maker Bought-In",
-    "contractsent": "Contacted",
-    "closedwon": "Signed",
-    "closedlost": "Signed e-Sign",
-    "3022527195": "Scheduled Appointment",
-    "3022527196": "Signed e-Sign - Commercial",
-    "3022527197": "Sent e-Sign",
-    "3022527198": "Signed Commercial",
-    "3022527199": "HQ Credit",
-    "3022527200": "Send to Firm (Auto)",
-    "3022527201": "In Call",
-    "3022527202": "Dropped",
-    "3022527203": "Intake Under Review",
-    "3022527204": "DNC",
-    "3022527205": "DAIR",
-    "3022527206": "Intake Questionnaire Emailed",
-    "3022527207": "SC Credit",
-    "3022527208": "Temporary Rejection",
-    "3022527209": "Cancelled E-Sign",
-    "appointmentscheduled": "Rejected",
-    "3022527210": "Rejected - Retainer Not Returned",
-    "57521917": "Rejected",
-    "57521918": "Cancelled/DNC",
-    "120301990": "Signed",
-    "120301991": "Dropped",
-}
+VENDOR_DEAL_STAGE_MAP = {}  # Populated at startup from HubSpot pipeline API
+_stage_map_loaded = False
+
+
+def _load_stage_map_from_hubspot():
+    """Fetch deal stage labels directly from HubSpot pipeline API so labels match exactly."""
+    global VENDOR_DEAL_STAGE_MAP, _stage_map_loaded
+    if _stage_map_loaded and VENDOR_DEAL_STAGE_MAP:
+        return
+    try:
+        import requests as _req
+        resp = _req.get(
+            "https://api.hubapi.com/crm/v3/pipelines/deals",
+            headers={"Authorization": f"Bearer {HUBSPOT_API_KEY}"},
+            timeout=10,
+        )
+        if resp.status_code == 200:
+            for pipeline in resp.json().get("results", []):
+                for stage in pipeline.get("stages", []):
+                    VENDOR_DEAL_STAGE_MAP[stage["id"]] = stage["label"]
+            _stage_map_loaded = True
+            print(f"[Stage Map] Loaded {len(VENDOR_DEAL_STAGE_MAP)} stages from HubSpot")
+    except Exception as e:
+        print(f"[Stage Map] Error: {e} — using fallback")
+        VENDOR_DEAL_STAGE_MAP.update({
+            "3022527194": "Contacting", "qualifiedtobuy": "CB",
+            "presentationscheduled": "RJCTD", "contractsent": "CNTCT",
+            "closedwon": "SISIGN", "closedlost": "Signed e-Sign",
+            "3022527196": "Signed e-Sign - Commercial",
+            "appointmentscheduled": "Rejected",
+        })
 
 
 def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
     """Fetch deals for firm(s) with full contact info — Shamsi-style dashboard data.
     Returns list of deal dicts matching the vendor dashboard format."""
     import requests as req
+
+    _load_stage_map_from_hubspot()
 
     if not HUBSPOT_API_KEY:
         return [], {}
