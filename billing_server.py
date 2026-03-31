@@ -3176,8 +3176,11 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
     deal_ids = [d["id"] for d in deals]
     deal_contact_map = {}
 
+    import logging
+    _vlog = logging.getLogger('vendor_dash')
     for batch_start in range(0, len(deal_ids), 25):
         batch = deal_ids[batch_start:batch_start + 25]
+        batch_num = batch_start // 25 + 1
         for attempt in range(3):
             try:
                 assoc_resp = req.post(
@@ -3186,8 +3189,11 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
                     json={"inputs": [{"id": did} for did in batch]},
                     timeout=15,
                 )
+                _vlog.warning(f"Assoc batch {batch_num}: status={assoc_resp.status_code}, attempt={attempt+1}")
                 if assoc_resp.status_code == 200:
-                    for item in assoc_resp.json().get("results", []):
+                    batch_results = assoc_resp.json().get("results", [])
+                    _vlog.warning(f"Assoc batch {batch_num}: got {len(batch_results)} results for {len(batch)} deals")
+                    for item in batch_results:
                         did = item.get("from", {}).get("id", "")
                         for to in item.get("to", []):
                             cid = to.get("toObjectId", "")
@@ -3195,16 +3201,20 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
                                 deal_contact_map.setdefault(did, []).append(str(cid))
                     break  # success, move to next batch
                 elif assoc_resp.status_code == 429:
-                    time.sleep(int(assoc_resp.headers.get("Retry-After", 2)) + 1)
+                    wait = int(assoc_resp.headers.get("Retry-After", 2)) + 1
+                    _vlog.warning(f"Assoc batch {batch_num}: 429, waiting {wait}s")
+                    time.sleep(wait)
                     continue  # retry this batch
                 else:
+                    _vlog.warning(f"Assoc batch {batch_num}: unexpected status {assoc_resp.status_code}, body={assoc_resp.text[:200]}")
                     break
-            except Exception:
+            except Exception as e:
+                _vlog.warning(f"Assoc batch {batch_num}: exception {e}, attempt={attempt+1}")
                 if attempt < 2:
                     time.sleep(1)
                     continue
                 break
-        time.sleep(0.15)
+        time.sleep(0.5)
 
     # Batch read contact properties
     all_cids = set()
@@ -3240,7 +3250,7 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
                     time.sleep(1)
                     continue
                 break
-        time.sleep(0.15)
+        time.sleep(0.5)
 
     # Fetch engagement notes (last activity) for deals
     deal_notes = {}
