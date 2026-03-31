@@ -3155,7 +3155,7 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
             break
 
     if not deals:
-        return [], {"total": 0, "by_source": {}, "by_stage": {}}, month_label
+        return [], {"total": 0, "by_source": {}, "by_stage": {}}, month_label, []
 
     # Batch fetch contact associations
     deal_ids = [d["id"] for d in deals]
@@ -3163,24 +3163,32 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
 
     for batch_start in range(0, len(deal_ids), 25):
         batch = deal_ids[batch_start:batch_start + 25]
-        try:
-            assoc_resp = req.post(
-                "https://api.hubapi.com/crm/v4/associations/deals/contacts/batch/read",
-                headers=headers,
-                json={"inputs": [{"id": did} for did in batch]},
-                timeout=15,
-            )
-            if assoc_resp.status_code == 200:
-                for item in assoc_resp.json().get("results", []):
-                    did = item.get("from", {}).get("id", "")
-                    for to in item.get("to", []):
-                        cid = to.get("toObjectId", "")
-                        if cid and did:
-                            deal_contact_map.setdefault(did, []).append(str(cid))
-            elif assoc_resp.status_code == 429:
-                time.sleep(int(assoc_resp.headers.get("Retry-After", 2)) + 1)
-        except Exception:
-            pass
+        for attempt in range(3):
+            try:
+                assoc_resp = req.post(
+                    "https://api.hubapi.com/crm/v4/associations/deals/contacts/batch/read",
+                    headers=headers,
+                    json={"inputs": [{"id": did} for did in batch]},
+                    timeout=15,
+                )
+                if assoc_resp.status_code == 200:
+                    for item in assoc_resp.json().get("results", []):
+                        did = item.get("from", {}).get("id", "")
+                        for to in item.get("to", []):
+                            cid = to.get("toObjectId", "")
+                            if cid and did:
+                                deal_contact_map.setdefault(did, []).append(str(cid))
+                    break  # success, move to next batch
+                elif assoc_resp.status_code == 429:
+                    time.sleep(int(assoc_resp.headers.get("Retry-After", 2)) + 1)
+                    continue  # retry this batch
+                else:
+                    break
+            except Exception:
+                if attempt < 2:
+                    time.sleep(1)
+                    continue
+                break
         time.sleep(0.15)
 
     # Batch read contact properties
@@ -3192,23 +3200,31 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
     cid_list = list(all_cids)
     for batch_start in range(0, len(cid_list), 50):
         batch = cid_list[batch_start:batch_start + 50]
-        try:
-            cresp = req.post(
-                "https://api.hubapi.com/crm/v3/objects/contacts/batch/read",
-                headers=headers,
-                json={
-                    "inputs": [{"id": cid} for cid in batch],
-                    "properties": VENDOR_CONTACT_PROPERTIES,
-                },
-                timeout=15,
-            )
-            if cresp.status_code == 200:
-                for c in cresp.json().get("results", []):
-                    contact_props[c["id"]] = c.get("properties", {})
-            elif cresp.status_code == 429:
-                time.sleep(int(cresp.headers.get("Retry-After", 2)) + 1)
-        except Exception:
-            pass
+        for attempt in range(3):
+            try:
+                cresp = req.post(
+                    "https://api.hubapi.com/crm/v3/objects/contacts/batch/read",
+                    headers=headers,
+                    json={
+                        "inputs": [{"id": cid} for cid in batch],
+                        "properties": VENDOR_CONTACT_PROPERTIES,
+                    },
+                    timeout=15,
+                )
+                if cresp.status_code == 200:
+                    for c in cresp.json().get("results", []):
+                        contact_props[c["id"]] = c.get("properties", {})
+                    break
+                elif cresp.status_code == 429:
+                    time.sleep(int(cresp.headers.get("Retry-After", 2)) + 1)
+                    continue
+                else:
+                    break
+            except Exception:
+                if attempt < 2:
+                    time.sleep(1)
+                    continue
+                break
         time.sleep(0.15)
 
     # Fetch engagement notes (last activity) for deals
