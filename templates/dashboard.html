@@ -492,16 +492,16 @@
                                 {% if f.retainer_alert %}<span class="badge badge-warning">LOW RET</span>{% endif %}
                             </td>
                             <td class="text-end">{{ f.retainers_prepaid|int if f.retainers_prepaid else '-' }}</td>
-                            <td class="text-end {% if f.retainer_remaining_pct is not none and f.retainer_remaining_pct <= 20 %}text-danger fw-bold{% elif f.retainer_remaining_pct is not none and f.retainer_remaining_pct <= 40 %}text-warning{% endif %}">
-                                {% if f.retainer_remaining_pct is not none %}{{ f.retainer_remaining_pct|int }}%
+                            <td class="text-end {% if f.retainer_remaining_pct is defined and f.retainer_remaining_pct is not none and f.retainer_remaining_pct <= 20 %}text-danger fw-bold{% elif f.retainer_remaining_pct is defined and f.retainer_remaining_pct is not none and f.retainer_remaining_pct <= 40 %}text-warning{% endif %}">
+                                {% if f.retainer_remaining_pct is defined and f.retainer_remaining_pct is not none %}{{ f.retainer_remaining_pct|int }}%
                                 <span class="mini-progress"><span class="mini-progress-fill" style="width:{{ f.retainer_remaining_pct }}%; background:{% if f.retainer_remaining_pct > 50 %}var(--success){% elif f.retainer_remaining_pct > 20 %}var(--warning){% else %}var(--danger){% endif %};"></span></span>
                                 {% else %}-{% endif %}
                             </td>
                             <td class="text-end">
                                 {% if mins_prepaid %}{{ "{:,}".format(mins_prepaid) }} / {{ "{:,}".format(mins_used) }} / {{ "{:,}".format(mins_remaining) }}{% else %}-{% endif %}
                             </td>
-                            <td class="text-end {% if f.minutes_remaining_pct is not none and f.minutes_remaining_pct <= 20 %}text-danger fw-bold{% elif f.minutes_remaining_pct is not none and f.minutes_remaining_pct <= 40 %}text-warning{% endif %}">
-                                {% if f.minutes_remaining_pct is not none %}{{ f.minutes_remaining_pct|int }}%
+                            <td class="text-end {% if f.minutes_remaining_pct is defined and f.minutes_remaining_pct is not none and f.minutes_remaining_pct <= 20 %}text-danger fw-bold{% elif f.minutes_remaining_pct is defined and f.minutes_remaining_pct is not none and f.minutes_remaining_pct <= 40 %}text-warning{% endif %}">
+                                {% if f.minutes_remaining_pct is defined and f.minutes_remaining_pct is not none %}{{ f.minutes_remaining_pct|int }}%
                                 <span class="mini-progress"><span class="mini-progress-fill" style="width:{{ f.minutes_remaining_pct }}%; background:{% if f.minutes_remaining_pct > 50 %}var(--success){% elif f.minutes_remaining_pct > 20 %}var(--warning){% else %}var(--danger){% endif %};"></span></span>
                                 {% else %}-{% endif %}
                             </td>
