@@ -2070,6 +2070,76 @@ def compute_injury_severity(contact_properties: dict) -> dict:
     }
 
 
+
+def hubspot_get_signed_deals_by_marketing_source(marketing_sources):
+    """Get signed deals filtered by marketing_source values instead of dealname.
+    Used for agency tokens like Diamond where the dealname uses the law firm name
+    but marketing_source identifies the agency."""
+    import requests as req
+
+    if not HUBSPOT_API_KEY:
+        return []
+
+    headers = {
+        "Authorization": f"Bearer {HUBSPOT_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    SIGNED_STAGES = ["closedwon", "closedlost", "3022527196", "3022527198"]
+
+    all_deals = []
+    for source in marketing_sources:
+        after = 0
+        for _ in range(10):
+            body = {
+                "filterGroups": [{
+                    "filters": [
+                        {"propertyName": "marketing_source", "operator": "EQ", "value": source},
+                        {"propertyName": "dealstage", "operator": "IN", "values": SIGNED_STAGES}
+                    ]
+                }],
+                "properties": ["dealname", "dealstage", "createdate", "marketing_source"],
+                "limit": 100,
+            }
+            if after:
+                body["after"] = str(after)
+
+            for attempt in range(3):
+                try:
+                    resp = req.post(
+                        "https://api.hubapi.com/crm/v3/objects/deals/search",
+                        headers=headers, json=body, timeout=15
+                    )
+                except req.exceptions.Timeout:
+                    break
+                if resp.status_code == 429:
+                    time.sleep(int(resp.headers.get("Retry-After", 2)) + 1)
+                    continue
+                break
+
+            if resp.status_code != 200:
+                break
+
+            data = resp.json()
+            results = data.get("results", [])
+            for deal in results:
+                props = deal.get("properties", {})
+                all_deals.append({
+                    "id": deal["id"],
+                    "name": props.get("dealname", ""),
+                    "stage": props.get("dealstage", ""),
+                    "created": props.get("createdate", ""),
+                    "marketing_source": props.get("marketing_source", ""),
+                })
+
+            paging = data.get("paging", {}).get("next", {})
+            after = paging.get("after")
+            if not after:
+                break
+
+    return all_deals
+
+
 def hubspot_get_signed_deals_for_firm(firm_name):
     """Fast version: only fetch deals in signed stages for a firm.
     Much faster than hubspot_get_leads_for_firm() which fetches ALL deals."""
@@ -2328,7 +2398,11 @@ def api_sales_snapshot_leads(token, firm_name):
         return jsonify({"error": "Firm not in snapshot"}), 403
 
     try:
-        leads = hubspot_get_signed_deals_for_firm(firm_name)
+        marketing_sources = token_data.get("marketing_sources")
+        if marketing_sources:
+            leads = hubspot_get_signed_deals_by_marketing_source(marketing_sources)
+        else:
+            leads = hubspot_get_signed_deals_for_firm(firm_name)
         return jsonify({"firm": firm_name, "leads": leads, "count": len(leads)})
     except Exception as e:
         return jsonify({"error": str(e), "leads": [], "count": 0}), 500
