@@ -3252,6 +3252,53 @@ def vendor_dashboard_api(token):
         return jsonify({"error": str(e), "deals": [], "stats": {"total": 0, "by_source": {}, "by_stage": {}}}), 500
 
 
+# ── Wommster Dashboard (KJ Wommster + KJ Wommster SP) ──
+WOMMSTER_VIEW_TOKEN = "wm4tK9vB3hNc6jFs"
+
+@app.route("/wommster")
+def wommster_dashboard():
+    token = request.args.get("token", "")
+    if token and token != WOMMSTER_VIEW_TOKEN:
+        abort(403)
+    return render_template("vendor_dashboard.html",
+                           vendor_name="Wommster",
+                           subtitle="KJ Wommster + KJ Wommster SP Only",
+                           api_url="/api/wommster")
+
+
+@app.route("/api/wommster")
+def api_wommster():
+    token = request.args.get("token", "")
+    if token and token != WOMMSTER_VIEW_TOKEN:
+        return jsonify({"error": "Invalid token"}), 403
+    try:
+        month = int(request.args.get("month", 0))
+        deals, stats, month_label = hubspot_get_vendor_deals(
+            ["KJ Injury"],
+            month_offset=month,
+        )
+        # Filter to only Wommster sources
+        wommster_sources = {"kj injury law wommster", "kj injury law wommster sp"}
+        filtered = [d for d in deals if d.get("source", "").lower() in wommster_sources]
+        # Recalculate stats
+        by_source = {}
+        by_stage = {}
+        for d in filtered:
+            src = d.get("source", "Unknown")
+            by_source[src] = by_source.get(src, 0) + 1
+            stg = d.get("stage", "Unknown")
+            by_stage[stg] = by_stage.get(stg, 0) + 1
+        stats = {"total": len(filtered), "by_source": by_source, "by_stage": by_stage}
+        return jsonify({
+            "deals": filtered,
+            "stats": stats,
+            "month_label": month_label,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        })
+    except Exception as e:
+        return jsonify({"error": str(e), "deals": [], "stats": {"total": 0, "by_source": {}, "by_stage": {}}}), 500
+
+
 # ── Init ──
 if not SHARE_TOKENS_FILE.exists():
     save_share_tokens({})
