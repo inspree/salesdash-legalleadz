@@ -3556,6 +3556,47 @@ def jre_dashboard():
                            api_url="/api/jre")
 
 
+def _jre_all_time_sources():
+    """Fetch all unique marketing sources for JRE deals across all time."""
+    import requests as req
+    if not HUBSPOT_API_KEY:
+        return []
+    headers = {"Authorization": f"Bearer {HUBSPOT_API_KEY}", "Content-Type": "application/json"}
+    sources = set()
+    after = 0
+    for _ in range(10):
+        body = {
+            "filterGroups": [{"filters": [
+                {"propertyName": "dealname", "operator": "CONTAINS_TOKEN", "value": "JRE"}
+            ]}],
+            "properties": ["dealname", "marketing_source"],
+            "limit": 100,
+        }
+        if after:
+            body["after"] = str(after)
+        try:
+            resp = req.post("https://api.hubapi.com/crm/v3/objects/deals/search",
+                            headers=headers, json=body, timeout=20)
+            if resp.status_code != 200:
+                break
+            data = resp.json()
+            for d in data.get("results", []):
+                props = d.get("properties", {})
+                src = props.get("marketing_source") or ""
+                if src:
+                    sources.add(src)
+                else:
+                    name = props.get("dealname") or ""
+                    if " - " in name:
+                        sources.add(name.rsplit(" - ", 1)[-1].strip())
+            after = data.get("paging", {}).get("next", {}).get("after")
+            if not after:
+                break
+        except Exception:
+            break
+    return sorted(sources) if sources else []
+
+
 @app.route("/api/jre")
 def api_jre():
     token = request.args.get("token", "")
@@ -3566,17 +3607,21 @@ def api_jre():
         source_filter = request.args.get("source", "").strip()
         deals, stats, month_label, _dealless = hubspot_get_vendor_deals(["JRE Injury Law"], month_offset=month)
 
-        # Collect all unique marketing sources before any filtering
-        all_sources = sorted(set(d.get("marketing_source") or "Unknown" for d in deals))
+        # Get ALL-TIME sources so the dropdown always shows every source
+        all_sources = _jre_all_time_sources()
+        # Also include any sources from current month deals not caught by the all-time query
+        current_sources = set(d.get("marketing_source") or d.get("source") or "Unknown" for d in deals)
+        merged = sorted(set(all_sources) | current_sources)
+        if not merged:
+            merged = ["Unknown"]
 
         # Apply server-side source filter if requested
         if source_filter:
-            deals = [d for d in deals if (d.get("marketing_source") or "Unknown") == source_filter]
-            # Recalculate stats for filtered deals
+            deals = [d for d in deals if (d.get("marketing_source") or d.get("source") or "Unknown") == source_filter]
             by_source = {}
             by_stage = {}
             for d in deals:
-                src = d.get("marketing_source") or "Unknown"
+                src = d.get("marketing_source") or d.get("source") or "Unknown"
                 by_source[src] = by_source.get(src, 0) + 1
                 stg = d.get("stage") or "Unknown"
                 by_stage[stg] = by_stage.get(stg, 0) + 1
@@ -3585,7 +3630,7 @@ def api_jre():
         return jsonify({
             "deals": deals,
             "stats": stats,
-            "sources": all_sources,
+            "sources": merged,
             "month_label": month_label,
             "generated_at": datetime.now(timezone.utc).isoformat(),
         })
