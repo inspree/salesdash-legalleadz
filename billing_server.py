@@ -3598,7 +3598,7 @@ VENDOR_SLUGS = {
     "gibson-hill": {"name": "Gibson Hill", "firms": ["Gibson Hill"]},
     "pencheff": {"name": "Pencheff & Fraley", "firms": ["Pencheff"]},
     "geoff-mcdonald": {"name": "Geoff McDonald", "firms": ["Geoff McDonald"]},
-    "daniel-brown": {"name": "Daniel A. Brown", "firms": ["Daniel"], "source_filter": "Daniel Brown"},
+    "daniel-brown": {"name": "Daniel A. Brown", "firms": ["Daniel"], "source_filter": "LegalLeadz - The Law Office of Daniel A. Brown"},
     "larry-parker": {"name": "Larry H. Parker", "firms": ["Larry"]},
     "kadlec": {"name": "Shane Kadlec", "firms": ["Kadlec"]},
     "levine": {"name": "Levine Law", "firms": ["Levine"]},
