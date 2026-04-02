@@ -3068,7 +3068,7 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
     _load_stage_map_from_hubspot()
 
     if not HUBSPOT_API_KEY:
-        return [], {}
+        return [], {"total": 0, "by_source": {}, "by_stage": {}}, "N/A", []
 
     headers = {
         "Authorization": f"Bearer {HUBSPOT_API_KEY}",
@@ -3551,7 +3551,7 @@ def api_jre():
         return jsonify({"error": "Invalid token"}), 403
     try:
         month = int(request.args.get("month", 0))
-        deals, stats, month_label = hubspot_get_vendor_deals(["JRE Injury Law"], month_offset=month)
+        deals, stats, month_label, _dealless = hubspot_get_vendor_deals(["JRE Injury Law"], month_offset=month)
         return jsonify({
             "deals": deals,
             "stats": stats,
