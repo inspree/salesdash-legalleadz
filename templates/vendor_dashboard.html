@@ -216,9 +216,8 @@ const BASE_API_URL = '{{ api_url or ("/api/vendor/" + (token or "")) }}';
 let currentMonth = 0;  // 0=this month, -1=last, -2=two months ago
 
 function buildApiUrl(monthOffset) {
-    const params = new URLSearchParams(window.location.search);
-    params.set('month', monthOffset);
-    return BASE_API_URL + '?' + params.toString();
+    // Only pass month — never pass source to API so all deals always load
+    return BASE_API_URL + '?month=' + monthOffset;
 }
 
 let API_URL = buildApiUrl(0);
@@ -383,8 +382,11 @@ function render(data) {
     const selSource = document.createElement('select');
     selSource.id = 'filter-source';
     selSource.appendChild(createEl('option', {value: ''}, 'All Sources'));
-    const sources = [...new Set(deals.map(d => d.marketing_source || 'No Source'))].sort();
-    for (const s of sources) {
+    // Use all-time sources from API so dropdown is always populated
+    const allTimeSources = (data.sources && data.sources.length)
+        ? data.sources
+        : [...new Set(deals.map(d => d.marketing_source || 'No Source'))].sort();
+    for (const s of allTimeSources) {
         selSource.appendChild(createEl('option', {value: s}, s));
     }
 
