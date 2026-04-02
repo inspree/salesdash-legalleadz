@@ -517,7 +517,18 @@ function showLoading(container) {
     container.appendChild(loadDiv);
 }
 
-function loadData() {
+function applyData(data, autoFalledBack) {
+    render(data);
+    if (data.month_label) {
+        document.getElementById('month-label').textContent = data.month_label;
+        document.title = '{{ vendor_name or firm_name }} \u2014 ' + data.month_label + ' Dashboard';
+    }
+    let info = 'Last updated: ' + new Date().toLocaleTimeString() + ' \u2014 Auto-refreshes every 5 min';
+    if (autoFalledBack) info += ' \u2014 \u26A0\uFE0F No data yet this month, showing previous month';
+    document.getElementById('refresh-info').textContent = info;
+}
+
+function loadData(fallbackTried) {
     API_URL = buildApiUrl(currentMonth);
     const container = document.getElementById('dashboard-content');
     showLoading(container);
@@ -527,13 +538,27 @@ function loadData() {
             return r.json();
         })
         .then(data => {
-            render(data);
-            if (data.month_label) {
-                document.getElementById('month-label').textContent = data.month_label;
-                document.title = '{{ vendor_name or firm_name }} \u2014 ' + data.month_label + ' Dashboard';
+            const isEmpty = !data.deals || data.deals.length === 0;
+            // Auto-fallback: if current month is empty and we haven't fallen back yet,
+            // try previous month once (only on initial load, not manual month switch)
+            if (isEmpty && !fallbackTried && currentMonth === 0) {
+                fetch(buildApiUrl(-1))
+                    .then(r => r.json())
+                    .then(prevData => {
+                        if (prevData.deals && prevData.deals.length > 0) {
+                            currentMonth = -1;
+                            document.querySelectorAll('.month-btn').forEach(btn => {
+                                btn.classList.toggle('active', parseInt(btn.dataset.offset) === -1);
+                            });
+                            applyData(prevData, true);
+                        } else {
+                            applyData(data, false);
+                        }
+                    })
+                    .catch(() => applyData(data, false));
+            } else {
+                applyData(data, false);
             }
-            document.getElementById('refresh-info').textContent =
-                'Last updated: ' + new Date().toLocaleTimeString() + ' \u2014 Auto-refreshes every 5 min';
         })
         .catch(err => {
             container.textContent = '';
@@ -547,7 +572,7 @@ function switchMonth(offset) {
     document.querySelectorAll('.month-btn').forEach(btn => {
         btn.classList.toggle('active', parseInt(btn.dataset.offset) === offset);
     });
-    loadData();
+    loadData(true);  // manual switch — don't auto-fallback
 }
 
 function initMonthSelector() {
