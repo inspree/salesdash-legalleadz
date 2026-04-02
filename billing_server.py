@@ -3387,74 +3387,7 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
         "by_stage": by_stage,
     }
 
-    # Fetch contacts WITHOUT deals for this firm (by marketing_source)
-    dealless_contacts = []
-    try:
-        existing_cids = set(all_cids)  # contacts already associated with deals
-        contact_filter_groups = []
-        for firm_name in firm_names:
-            contact_filter_groups.append({
-                "filters": [
-                    {"propertyName": "marketing_source", "operator": "CONTAINS_TOKEN", "value": firm_name.split()[-1]},
-                    {"propertyName": "createdate", "operator": "GTE", "value": str(start_ms)},
-                    {"propertyName": "createdate", "operator": "LT", "value": str(end_ms)},
-                ]
-            })
-        c_after = 0
-        all_firm_contacts = []
-        for _ in range(5):  # max 500 contacts
-            cbody = {
-                "filterGroups": contact_filter_groups,
-                "properties": VENDOR_CONTACT_PROPERTIES + ["createdate", "lifecyclestage"],
-                "sorts": [{"propertyName": "createdate", "direction": "DESCENDING"}],
-                "limit": 100,
-            }
-            if c_after:
-                cbody["after"] = str(c_after)
-            try:
-                cresp2 = req.post(
-                    "https://api.hubapi.com/crm/v3/objects/contacts/search",
-                    headers=headers, json=cbody, timeout=20
-                )
-                if cresp2.status_code == 200:
-                    cdata = cresp2.json()
-                    all_firm_contacts.extend(cdata.get("results", []))
-                    c_after = cdata.get("paging", {}).get("next", {}).get("after")
-                    if not c_after:
-                        break
-                elif cresp2.status_code == 429:
-                    time.sleep(int(cresp2.headers.get("Retry-After", 2)) + 1)
-                else:
-                    break
-            except Exception:
-                break
-            time.sleep(0.15)
-
-        # Filter to only contacts NOT already in deals
-        for c in all_firm_contacts:
-            if c["id"] not in existing_cids:
-                cp = c.get("properties", {})
-                fname = cp.get("firstname", "") or ""
-                lname = cp.get("lastname", "") or ""
-                name = f"{fname} {lname}".strip() or "Unknown"
-                dealless_contacts.append({
-                    "id": c["id"],
-                    "intake_name": name,
-                    "phone": cp.get("phone", "") or "",
-                    "contact_email": cp.get("email", "") or "",
-                    "case_type": cp.get("case_type", "") or "",
-                    "marketing_source": cp.get("marketing_source", "") or "",
-                    "create_date": cp.get("createdate", ""),
-                    "stage": cp.get("lifecyclestage", "") or "",
-                    "special_circumstances": cp.get("special_circumstances", "") or "",
-                    "close_date": "",
-                    "contact_note": "",
-                    "intake_note": "",
-                })
-    except Exception:
-        pass
-
-    return output_deals, stats, month_label, dealless_contacts
+    return output_deals, stats, month_label, []
 
 
 @app.route("/dashboard/<token>")
@@ -3689,6 +3622,15 @@ VENDOR_SLUGS = {
 }
 
 
+_FIRM_SEARCH_ALIASES = {
+    "kansas city accident injury attorneys": ["KC", "Accident", "Injury", "Attorneys"],
+    "kcaia": ["KC", "Accident", "Injury"],
+}
+_SKIP_WORDS = {"the", "law", "office", "of", "a", "and", "llc", "pc", "pllc",
+               "group", "firm", "legal", "services", "injury", "attorneys", "associates",
+               "personal", "car", "accident", "lawyers", "attorney", "at", "&"}
+
+
 def _vendor_all_time_sources(firms):
     """Fetch all unique marketing sources for a vendor across all time."""
     import requests as req
@@ -3697,12 +3639,26 @@ def _vendor_all_time_sources(firms):
     headers = {"Authorization": f"Bearer {HUBSPOT_API_KEY}", "Content-Type": "application/json"}
     sources = set()
     for firm in firms:
+        alias = _FIRM_SEARCH_ALIASES.get(firm.lower())
+        if alias:
+            search_words = alias
+        else:
+            search_words = [w.rstrip(".,") for w in firm.split()
+                            if w.lower().rstrip(".,") not in _SKIP_WORDS and len(w.rstrip(".,")) > 1]
+            if not search_words:
+                search_words = [firm.split()[-1]]
+
+        # Build filter_groups: one group per word (OR between groups, AND within group is just 1 filter)
+        # Use a single filter group with all words as AND — same as hubspot_get_vendor_deals
+        filter_groups = [{"filters": [
+            {"propertyName": "dealname", "operator": "CONTAINS_TOKEN", "value": w}
+            for w in search_words
+        ]}]
+
         after = 0
         for _ in range(10):
             body = {
-                "filterGroups": [{"filters": [
-                    {"propertyName": "dealname", "operator": "CONTAINS_TOKEN", "value": firm}
-                ]}],
+                "filterGroups": filter_groups,
                 "properties": ["dealname", "marketing_source"],
                 "limit": 100,
             }
