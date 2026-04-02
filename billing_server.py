@@ -3322,26 +3322,37 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
         # Parse name from deal: "Name / Case Type - Firm"
         intake_name = dealname.split("/")[0].strip() if "/" in dealname else dealname
         case_type = ""
-        marketing_source = ""
+        parsed_source = ""
         if "/" in dealname:
             rest = dealname.split("/", 1)[1].strip()
             if " - " in rest:
                 parts = rest.split(" - ", 1)
                 case_type = parts[0].strip()
-                marketing_source = parts[1].strip() if len(parts) > 1 else ""
+                parsed_source = parts[1].strip() if len(parts) > 1 else ""
             else:
                 case_type = rest
+
+        # Use HubSpot deal marketing_source property if available,
+        # then fall back to contact marketing_source, then deal name parsing
+        deal_ms = (props.get("marketing_source") or "").strip()
+        marketing_source = deal_ms or parsed_source
 
         # Get contact info
         cids = deal_contact_map.get(d["id"], [])
         phone = ""
         email = ""
         special = ""
+        contact_ms = ""
         if cids and cids[0] in contact_props:
             cp = contact_props[cids[0]]
             phone = cp.get("phone", "") or ""
             email = cp.get("email", "") or ""
             special = cp.get("special_circumstances", "") or ""
+            contact_ms = (cp.get("marketing_source") or "").strip()
+
+        # If deal-level source is still empty, use contact-level source
+        if not marketing_source and contact_ms:
+            marketing_source = contact_ms
 
         # Get deal engagement note body if available
         deal_note_id = str(deal_notes.get(d["id"], "")) if deal_notes.get(d["id"]) else ""
@@ -3354,6 +3365,7 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
             "contact_email": email,
             "case_type": case_type,
             "marketing_source": marketing_source,
+            "source": marketing_source,  # alias for compatibility
             "create_date": props.get("createdate", ""),
             "stage": stage_label,
             "special_circumstances": special,
@@ -3551,15 +3563,34 @@ def api_jre():
         return jsonify({"error": "Invalid token"}), 403
     try:
         month = int(request.args.get("month", 0))
+        source_filter = request.args.get("source", "").strip()
         deals, stats, month_label, _dealless = hubspot_get_vendor_deals(["JRE Injury Law"], month_offset=month)
+
+        # Collect all unique marketing sources before any filtering
+        all_sources = sorted(set(d.get("marketing_source") or "Unknown" for d in deals))
+
+        # Apply server-side source filter if requested
+        if source_filter:
+            deals = [d for d in deals if (d.get("marketing_source") or "Unknown") == source_filter]
+            # Recalculate stats for filtered deals
+            by_source = {}
+            by_stage = {}
+            for d in deals:
+                src = d.get("marketing_source") or "Unknown"
+                by_source[src] = by_source.get(src, 0) + 1
+                stg = d.get("stage") or "Unknown"
+                by_stage[stg] = by_stage.get(stg, 0) + 1
+            stats = {"total": len(deals), "by_source": by_source, "by_stage": by_stage}
+
         return jsonify({
             "deals": deals,
             "stats": stats,
+            "sources": all_sources,
             "month_label": month_label,
             "generated_at": datetime.now(timezone.utc).isoformat(),
         })
     except Exception as e:
-        return jsonify({"error": str(e), "deals": [], "stats": {"total": 0, "by_source": {}, "by_stage": {}}}), 500
+        return jsonify({"error": str(e), "deals": [], "stats": {"total": 0, "by_source": {}, "by_stage": {}}, "sources": []}), 500
 
 
 # ── Init ──
