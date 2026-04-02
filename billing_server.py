@@ -3529,6 +3529,38 @@ def api_wommster():
         return jsonify({"error": str(e), "deals": [], "stats": {"total": 0, "by_source": {}, "by_stage": {}}}), 500
 
 
+# ── JRE Injury Law Dashboard ──
+JRE_VIEW_TOKEN = "jr3xN7kW9pLm2vQz"
+
+@app.route("/jre")
+def jre_dashboard():
+    token = request.args.get("token", "")
+    if token and token != JRE_VIEW_TOKEN:
+        abort(403)
+    return render_template("vendor_dashboard.html",
+                           vendor_name="JRE Injury Law",
+                           subtitle="All Sources",
+                           api_url="/api/jre")
+
+
+@app.route("/api/jre")
+def api_jre():
+    token = request.args.get("token", "")
+    if token and token != JRE_VIEW_TOKEN:
+        return jsonify({"error": "Invalid token"}), 403
+    try:
+        month = int(request.args.get("month", 0))
+        deals, stats, month_label = hubspot_get_vendor_deals(["JRE Injury Law"], month_offset=month)
+        return jsonify({
+            "deals": deals,
+            "stats": stats,
+            "month_label": month_label,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        })
+    except Exception as e:
+        return jsonify({"error": str(e), "deals": [], "stats": {"total": 0, "by_source": {}, "by_stage": {}}}), 500
+
+
 # ── Init ──
 if not SHARE_TOKENS_FILE.exists():
     save_share_tokens({})

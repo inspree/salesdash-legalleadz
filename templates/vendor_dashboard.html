@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ firm_name }} — Dashboard</title>
+    <title>{{ vendor_name or firm_name }} — Dashboard</title>
     <style>
         :root {
             --bg: #0f1117;
@@ -197,8 +197,8 @@
 <div class="page-wrap">
     <div class="header">
         <div class="logo">HQ Intake Dashboard</div>
-        <h1><span>{{ firm_name }}</span> — <span id="month-label">Loading...</span></h1>
-        <div class="subtitle">All Sources &bull; Live Data from HubSpot</div>
+        <h1><span>{{ vendor_name or firm_name }}</span> — <span id="month-label">Loading...</span></h1>
+        <div class="subtitle">{{ subtitle or 'All Sources' }} &bull; Live Data from HubSpot</div>
         <div class="month-selector" id="month-selector"></div>
         <div class="refresh-info" id="refresh-info">Auto-refreshes every 5 minutes</div>
     </div>
@@ -212,7 +212,7 @@
 </div>
 
 <script>
-const BASE_API_URL = '/api/vendor/{{ token }}';
+const BASE_API_URL = '{{ api_url or ("/api/vendor/" + (token or "")) }}';
 let currentMonth = 0;  // 0=this month, -1=last, -2=two months ago
 
 function buildApiUrl(monthOffset) {
@@ -528,7 +528,7 @@ function loadData() {
             render(data);
             if (data.month_label) {
                 document.getElementById('month-label').textContent = data.month_label;
-                document.title = '{{ firm_name }} \u2014 ' + data.month_label + ' Dashboard';
+                document.title = '{{ vendor_name or firm_name }} \u2014 ' + data.month_label + ' Dashboard';
             }
             document.getElementById('refresh-info').textContent =
                 'Last updated: ' + new Date().toLocaleTimeString() + ' \u2014 Auto-refreshes every 5 min';
