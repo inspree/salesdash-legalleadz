@@ -3103,6 +3103,7 @@ def hubspot_get_vendor_deals(firm_names, month_offset=0, max_deals=500):
     # Firm name aliases
     FIRM_SEARCH_ALIASES = {
         "kansas city accident injury attorneys": ["KC", "Accident", "Injury", "Attorneys"],
+        "kcaia": ["KC", "Accident", "Injury"],  # deal names: "KC Accident Injury Attorneys"
     }
     SKIP_WORDS = {"the", "law", "office", "of", "a", "and", "llc", "pc", "pllc",
                   "group", "firm", "legal", "services", "injury", "attorneys", "associates",
@@ -3679,7 +3680,7 @@ VENDOR_SLUGS = {
     "marker-law": {"name": "Marker Law", "firms": ["Marker"]},
     "abels-annes": {"name": "Abels & Annes", "firms": ["Abels"]},
     "lawyerup": {"name": "LawyerUp", "firms": ["LawyerUp"]},
-    "kcaia": {"name": "KCAIA", "firms": ["KCAIA"]},
+    "kcaia": {"name": "Kansas City Accident Injury Attorneys", "firms": ["KCAIA"]},
     "edward-law": {"name": "Edward Law Group", "firms": ["Edward Law"]},
     "brent-coon": {"name": "Brent Coon", "firms": ["Brent Coon"]},
     "richard-harris": {"name": "Richard Harris", "firms": ["Richard Harris"]},
