@@ -3639,6 +3639,159 @@ def api_jre():
         return jsonify({"error": str(e), "deals": [], "stats": {"total": 0, "by_source": {}, "by_stage": {}}, "sources": []}), 500
 
 
+# ── Generic Vendor Dashboard (/v/<slug> and dedicated short routes) ──
+
+# Slug → list of HubSpot firm name search terms
+VENDOR_SLUGS = {
+    "kj": {"name": "KJ Injury Law", "firms": ["KJ Injury"]},
+    "chalik": {"name": "Chalik & Chalik", "firms": ["Chalik"]},
+    "boston-auto-law": {"name": "Boston Auto Law", "firms": ["Boston Auto Law"]},
+    "klenofsky": {"name": "Klenofsky & Steward", "firms": ["Klenofsky"]},
+    "oakwood": {"name": "Oakwood Legal Group", "firms": ["Oakwood"]},
+    "shamsi": {"name": "The Shamsi Law Firm", "firms": ["Shamsi"]},
+    "diamondmajor": {"name": "The Major Law Firm", "firms": ["Diamond & Major", "Major Law"]},
+    "ypis": {"name": "YPIS - Edward Law Group", "firms": ["YPIS", "Edward Law"]},
+    "leading-response": {"name": "Leading Response (JRE)", "firms": ["Leading Response"]},
+    "loncar": {"name": "Loncar Lyon Jenkins", "firms": ["Loncar"]},
+    "ak-law": {"name": "AK Law Firm", "firms": ["AK Law"]},
+    "major-law": {"name": "The Major Law Firm", "firms": ["Major Law"]},
+    "astrix": {"name": "Astrix Law", "firms": ["Astrix"]},
+    "fang": {"name": "Fang Accident Lawyers", "firms": ["Fang"]},
+    "hollander": {"name": "Hollander Law Firm", "firms": ["Hollander"]},
+    "kp-law": {"name": "KP Injury Law", "firms": ["KP Injury"]},
+    "bernard": {"name": "Bernard Law Group", "firms": ["Bernard"]},
+    "sargon": {"name": "Sargon Law Group", "firms": ["Sargon"]},
+    "gibson-hill": {"name": "Gibson Hill", "firms": ["Gibson Hill"]},
+    "pencheff": {"name": "Pencheff & Fraley", "firms": ["Pencheff"]},
+    "geoff-mcdonald": {"name": "Geoff McDonald", "firms": ["Geoff McDonald"]},
+    "daniel-brown": {"name": "Daniel A. Brown", "firms": ["Daniel"]},
+    "larry-parker": {"name": "Larry H. Parker", "firms": ["Larry"]},
+    "kadlec": {"name": "Shane Kadlec", "firms": ["Kadlec"]},
+    "levine": {"name": "Levine Law", "firms": ["Levine"]},
+    "irons": {"name": "Irons & Irons", "firms": ["Irons"]},
+    "hilley": {"name": "Hilley & Solis", "firms": ["Hilley"]},
+    "sweet-law": {"name": "Sweet Law", "firms": ["Sweet"]},
+    "farah": {"name": "Farah Law Group", "firms": ["Farah"]},
+    "california-attorney": {"name": "California Attorney Group", "firms": ["California Attorney"]},
+    "kronos": {"name": "Kronos Law", "firms": ["Kronos"]},
+    "titan": {"name": "Titan Law Firm", "firms": ["Titan"]},
+    "luke-moreau": {"name": "Luke Moreau", "firms": ["Moreau"]},
+    "marker-law": {"name": "Marker Law", "firms": ["Marker"]},
+    "abels-annes": {"name": "Abels & Annes", "firms": ["Abels"]},
+    "lawyerup": {"name": "LawyerUp", "firms": ["LawyerUp"]},
+    "kcaia": {"name": "KCAIA", "firms": ["KCAIA"]},
+    "edward-law": {"name": "Edward Law Group", "firms": ["Edward Law"]},
+    "brent-coon": {"name": "Brent Coon", "firms": ["Brent Coon"]},
+    "richard-harris": {"name": "Richard Harris", "firms": ["Richard Harris"]},
+    "halvorsen": {"name": "Halvorsen Klote", "firms": ["Halvorsen"]},
+    "malik-law": {"name": "Malik Law", "firms": ["Malik"]},
+}
+
+
+def _vendor_all_time_sources(firms):
+    """Fetch all unique marketing sources for a vendor across all time."""
+    import requests as req
+    if not HUBSPOT_API_KEY:
+        return []
+    headers = {"Authorization": f"Bearer {HUBSPOT_API_KEY}", "Content-Type": "application/json"}
+    sources = set()
+    for firm in firms:
+        after = 0
+        for _ in range(10):
+            body = {
+                "filterGroups": [{"filters": [
+                    {"propertyName": "dealname", "operator": "CONTAINS_TOKEN", "value": firm}
+                ]}],
+                "properties": ["dealname", "marketing_source"],
+                "limit": 100,
+            }
+            if after:
+                body["after"] = str(after)
+            try:
+                resp = req.post("https://api.hubapi.com/crm/v3/objects/deals/search",
+                                headers=headers, json=body, timeout=20)
+                if resp.status_code != 200:
+                    break
+                data = resp.json()
+                for d in data.get("results", []):
+                    props = d.get("properties", {})
+                    src = props.get("marketing_source") or ""
+                    if src:
+                        sources.add(src)
+                    else:
+                        name = props.get("dealname") or ""
+                        if " - " in name:
+                            sources.add(name.rsplit(" - ", 1)[-1].strip())
+                after = data.get("paging", {}).get("next", {}).get("after")
+                if not after:
+                    break
+            except Exception:
+                break
+    return sorted(sources) if sources else []
+
+
+@app.route("/v/<slug>")
+def generic_vendor_dashboard(slug):
+    vendor = VENDOR_SLUGS.get(slug)
+    if not vendor:
+        abort(404)
+    return render_template("vendor_dashboard.html",
+                           vendor_name=vendor["name"],
+                           subtitle="All Sources",
+                           api_url=f"/api/v/{slug}")
+
+
+@app.route("/api/v/<slug>")
+def generic_vendor_api(slug):
+    vendor = VENDOR_SLUGS.get(slug)
+    if not vendor:
+        return jsonify({"error": "Unknown vendor"}), 404
+    try:
+        month = int(request.args.get("month", 0))
+        source_filter = request.args.get("source", "").strip()
+        deals, stats, month_label, _ = hubspot_get_vendor_deals(vendor["firms"], month_offset=month)
+
+        all_sources = _vendor_all_time_sources(vendor["firms"])
+        current_sources = set(d.get("marketing_source") or d.get("source") or "Unknown" for d in deals)
+        merged = sorted(set(all_sources) | current_sources)
+        if not merged:
+            merged = ["Unknown"]
+
+        if source_filter:
+            deals = [d for d in deals if (d.get("marketing_source") or d.get("source") or "Unknown") == source_filter]
+            by_source = {}
+            by_stage = {}
+            for d in deals:
+                src = d.get("marketing_source") or d.get("source") or "Unknown"
+                by_source[src] = by_source.get(src, 0) + 1
+                stg = d.get("stage") or "Unknown"
+                by_stage[stg] = by_stage.get(stg, 0) + 1
+            stats = {"total": len(deals), "by_source": by_source, "by_stage": by_stage}
+
+        return jsonify({
+            "deals": deals,
+            "stats": stats,
+            "sources": merged,
+            "month_label": month_label,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        })
+    except Exception as e:
+        return jsonify({"error": str(e), "deals": [], "stats": {"total": 0, "by_source": {}, "by_stage": {}}, "sources": []}), 500
+
+
+# Also add dedicated short routes for existing clients
+for _slug, _vendor in VENDOR_SLUGS.items():
+    def _make_page(v=_vendor, s=_slug):
+        return render_template("vendor_dashboard.html",
+                               vendor_name=v["name"],
+                               subtitle="All Sources",
+                               api_url=f"/api/v/{s}")
+    def _make_api(v=_vendor, s=_slug):
+        return generic_vendor_api(s)
+    # Register /<slug> as alias for /v/<slug>
+    app.add_url_rule(f"/{_slug}", endpoint=f"vendor_{_slug}", view_func=_make_page)
+
+
 # ── Init ──
 if not SHARE_TOKENS_FILE.exists():
     save_share_tokens({})
