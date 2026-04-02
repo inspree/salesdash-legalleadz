@@ -77,6 +77,7 @@ PUBLIC_PREFIXES = (
     "/static/", "/health", "/sales-snapshot/health", "/sales-snapshot/debug",
     "/api/sales-snapshot/leads/", "/api/vendor/", "/api/share/leads/",
     "/share/", "/dashboard/", "/sales-snapshot/",
+    "/jre", "/api/jre",
 )
 
 def _is_public_route(path):
