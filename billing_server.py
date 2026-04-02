@@ -3598,7 +3598,7 @@ VENDOR_SLUGS = {
     "gibson-hill": {"name": "Gibson Hill", "firms": ["Gibson Hill"]},
     "pencheff": {"name": "Pencheff & Fraley", "firms": ["Pencheff"]},
     "geoff-mcdonald": {"name": "Geoff McDonald", "firms": ["Geoff McDonald"]},
-    "daniel-brown": {"name": "Daniel A. Brown", "firms": ["Daniel"]},
+    "daniel-brown": {"name": "Daniel A. Brown", "firms": ["Daniel"], "source_filter": "Daniel Brown"},
     "larry-parker": {"name": "Larry H. Parker", "firms": ["Larry"]},
     "kadlec": {"name": "Shane Kadlec", "firms": ["Kadlec"]},
     "levine": {"name": "Levine Law", "firms": ["Levine"]},
@@ -3706,6 +3706,9 @@ def generic_vendor_api(slug):
     try:
         month = int(request.args.get("month", 0))
         source_filter = request.args.get("source", "").strip()
+        # Auto-apply vendor-specific source filter if defined
+        if not source_filter and vendor.get("source_filter"):
+            source_filter = vendor["source_filter"]
         deals, stats, month_label, _ = hubspot_get_vendor_deals(vendor["firms"], month_offset=month)
 
         all_sources = _vendor_all_time_sources(vendor["firms"])
