@@ -79,7 +79,6 @@ PUBLIC_PREFIXES = (
     "/share/", "/dashboard/", "/sales-snapshot/",
     "/jre", "/api/jre",
     "/v/", "/api/v/",
-    "/quickbooks/export-tokens",
 )
 
 def _is_public_route(path):
@@ -2759,11 +2758,8 @@ def qb_callback():
 def qb_export_tokens():
     """Export QB tokens as JSON (admin only, protected by secret)."""
     secret = request.args.get("secret", "")
-    one_time = "qb_sync_20260402"
     admin_secret = os.environ.get("ADMIN_SECRET", "")
-    if secret == one_time:
-        pass  # Temp one-time sync access
-    elif not admin_secret or secret != admin_secret:
+    if not admin_secret or secret != admin_secret:
         abort(403)
     tokens = load_qb_tokens()
     if not tokens:
