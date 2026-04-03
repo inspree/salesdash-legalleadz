@@ -79,6 +79,7 @@ PUBLIC_PREFIXES = (
     "/share/", "/dashboard/", "/sales-snapshot/",
     "/jre", "/api/jre",
     "/v/", "/api/v/",
+    "/quickbooks/export-tokens",
 )
 
 def _is_public_route(path):
