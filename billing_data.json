@@ -1,214 +1,142 @@
 {
-  "generated_at": "2026-03-26T15:49:12.029897-04:00",
+  "generated_at": "2026-04-12T13:00:00.103715-04:00",
   "data_range": {
     "start": "2025-12-20",
-    "end": "2026-03-26"
+    "end": "2026-04-12"
   },
   "data_sources": "FreshBooks + Convoso + HubSpot + Google Sheets",
   "summary": {
-    "total_firms": 111,
+    "total_firms": 128,
     "total_retainers_prepaid": 1579.0,
     "total_invoiced_sheets": 568140.0,
-    "total_fb_invoiced": 0.0,
-    "total_fb_paid": 0.0,
-    "total_fb_outstanding": 0.0,
+    "total_fb_invoiced": 963744.54,
+    "total_fb_paid": 895879.23,
+    "total_fb_outstanding": 67865.31,
     "total_signups": 1757,
     "total_signups_since_dec20": 0,
-    "hubspot_signups_since_dec20": 11585,
-    "firms_with_alerts": 0,
-    "convoso_total_calls_today": 2365,
-    "convoso_total_minutes_today": 2057.6
+    "hubspot_signups_since_dec20": 11375,
+    "active_firms": 123,
+    "firms_with_alerts": 13,
+    "convoso_total_calls_today": 305,
+    "convoso_total_minutes_today": 256.9
   },
   "convoso_summary": {
-    "total_lists": 24,
-    "total_calls": 2365,
-    "total_minutes": 2057.5833333333335,
+    "total_lists": 16,
+    "total_calls": 305,
+    "total_minutes": 256.8833333333333,
     "note": "Convoso API returns today's live autodialer data only (date filter limitation)",
     "firms": {
-      "Loncar Lyon Jenkins": {
-        "total_calls": 1175,
-        "total_minutes": 823.5,
+      "Loncar Lyon": {
+        "total_calls": 272,
+        "total_minutes": 220.17,
         "lists": [
-          "60139",
-          "59723"
+          "60139"
         ]
       },
-      "Chalik & Chalik": {
-        "total_calls": 425,
-        "total_minutes": 312.08,
+      "LawyerUp": {
+        "total_calls": 1,
+        "total_minutes": 0.0,
+        "lists": [
+          "59803"
+        ]
+      },
+      "Chalik Chalik": {
+        "total_calls": 5,
+        "total_minutes": 1.05,
         "lists": [
           "59707",
-          "60613",
-          "60577",
-          "60621",
-          "60341",
-          "60625",
-          "61337",
           "59829"
         ]
       },
-      "JRE Injury Law": {
-        "total_calls": 30,
-        "total_minutes": 10.75,
+      "JRE TX": {
+        "total_calls": 1,
+        "total_minutes": 0.25,
         "lists": [
-          "61227",
-          "60133",
-          "60135",
-          "59715"
+          "60135"
         ]
       },
-      "Geoff McDonald & Associates": {
-        "total_calls": 40,
-        "total_minutes": 20.42,
+      "KJ Injury Law Wommster": {
+        "total_calls": 5,
+        "total_minutes": 3.45,
         "lists": [
-          "61207"
+          "59677"
+        ]
+      },
+      "Sargon Law Group": {
+        "total_calls": 1,
+        "total_minutes": 0.25,
+        "lists": [
+          "59783"
+        ]
+      },
+      "JRE NM": {
+        "total_calls": 1,
+        "total_minutes": 0.53,
+        "lists": [
+          "60133"
         ]
       },
       "Fang Accident Lawyers": {
-        "total_calls": 25,
-        "total_minutes": 5.5,
+        "total_calls": 4,
+        "total_minutes": 12.52,
         "lists": [
-          "60117"
+          "59645"
         ]
       },
       "AK Law Firm": {
-        "total_calls": 70,
-        "total_minutes": 65.33,
+        "total_calls": 1,
+        "total_minutes": 1.18,
         "lists": [
           "59699"
         ]
       },
-      "Gibson Hill Personal Injury": {
-        "total_calls": 185,
-        "total_minutes": 301.5,
+      "Ohio": {
+        "total_calls": 4,
+        "total_minutes": 1.08,
         "lists": [
-          "61321"
+          "59739"
         ]
       },
-      "The Major Law Firm": {
-        "total_calls": 100,
-        "total_minutes": 204.42,
+      "Marker Law": {
+        "total_calls": 1,
+        "total_minutes": 0.0,
         "lists": [
-          "60155",
-          "60149",
-          "60151",
-          "60153"
+          "59777"
         ]
       },
-      "KJ Injury Law": {
-        "total_calls": 90,
-        "total_minutes": 109.17,
+      "Hilley Solis": {
+        "total_calls": 2,
+        "total_minutes": 0.0,
         "lists": [
-          "60897",
-          "59677",
-          "59673",
-          "59621"
+          "59749"
         ]
       },
-      "Law Offices of Luke T. Moreau": {
-        "total_calls": 10,
-        "total_minutes": 1.58,
-        "lists": [
-          "60137"
-        ]
-      },
-      "Oakwood Legal Group": {
-        "total_calls": 5,
-        "total_minutes": 0.33,
-        "lists": [
-          "60595"
-        ]
-      },
-      "Boston Auto Law": {
-        "total_calls": 60,
-        "total_minutes": 22.08,
-        "lists": [
-          "59705"
-        ]
-      },
-      "Sweet Lawyers": {
-        "total_calls": 15,
-        "total_minutes": 0.83,
-        "lists": [
-          "60561"
-        ]
-      },
-      "Abels & Annes": {
-        "total_calls": 15,
-        "total_minutes": 2.0,
-        "lists": [
-          "59765"
-        ]
-      },
-      "Bernard Law Group": {
-        "total_calls": 15,
-        "total_minutes": 1.67,
-        "lists": [
-          "59701"
-        ]
-      },
-      "Astrix Law": {
-        "total_calls": 30,
-        "total_minutes": 29.0,
-        "lists": [
-          "59977",
-          "59967"
-        ]
-      },
-      "LSA - Pencheff & Fraley - Florida": {
-        "total_calls": 15,
-        "total_minutes": 8.67,
+      "FL": {
+        "total_calls": 3,
+        "total_minutes": 15.33,
         "lists": [
           "59847"
         ]
       },
-      "Levine Law": {
-        "total_calls": 10,
-        "total_minutes": 1.0,
-        "lists": [
-          "59719"
-        ]
-      },
-      "Opus - Trust Guss-Rabicoff - TX - 1  (In Hubspot/Tick box not selected)": {
-        "total_calls": 15,
-        "total_minutes": 22.58,
-        "lists": [
-          "60861"
-        ]
-      },
-      "Hilley & Solis Law": {
-        "total_calls": 10,
-        "total_minutes": 62.75,
+      "CasesOnDemand Hilley": {
+        "total_calls": 1,
+        "total_minutes": 0.5,
         "lists": [
           "60069"
         ]
       },
-      "Larry H. Parker": {
-        "total_calls": 5,
-        "total_minutes": 1.0,
+      "Klenofsky Steward": {
+        "total_calls": 2,
+        "total_minutes": 0.37,
         "lists": [
-          "59717"
+          "59823"
         ]
       },
-      "Klenofsky & Steward": {
-        "total_calls": 5,
-        "total_minutes": 47.17,
+      "Geoff McDonald Assoc": {
+        "total_calls": 1,
+        "total_minutes": 0.2,
         "lists": [
-          "59763"
-        ]
-      },
-      "Richard Harris Law Firm": {
-        "total_calls": 5,
-        "total_minutes": 3.42,
-        "lists": [
-          "60145"
-        ]
-      },
-      "LSA - Pencheff & Fraley - Ohio": {
-        "total_calls": 10,
-        "total_minutes": 0.83,
-        "lists": [
-          "59739"
+          "59755"
         ]
       }
     }
@@ -236,10 +164,11 @@
         "Signed e-Sign": 2,
         "Signed e-Sign Commercial": 2
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 2380.0
     },
     "Cutler Hull Law": {
@@ -265,6 +194,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": false,
       "total_spend": 2380.0
     },
     "Orsatti Legal Group": {
@@ -288,10 +218,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 9
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 4080.0
     },
     "Ryan Hughes Law": {
@@ -316,10 +247,11 @@
         "Signed e-Sign": 16,
         "Signed e-Sign Commercial": 1
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 4420.0
     },
     "Boston Auto Law": {
@@ -330,28 +262,47 @@
       "total_signups": 20,
       "signups_since_dec20": 0,
       "paid_count": 24,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 60,
-      "convoso_total_minutes": 22.083333333333332,
-      "convoso_lists": [
-        "59705"
-      ],
+      "fb_total_invoiced": 30111.0,
+      "fb_total_paid": 11832.0,
+      "fb_total_outstanding": 18279.0,
+      "fb_invoice_count": 2,
+      "fb_prepaid_minutes": 2500,
+      "fb_minutes_used": 2679,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
       "hubspot_signups_since_dec20": 66,
       "hubspot_by_stage": {
         "SISIGN": 10,
         "Signed e-Sign": 51,
         "Signed e-Sign Commercial": 5
       },
-      "retainer_remaining_pct": 100.0,
+      "fb_invoices": [
+        {
+          "invoice_number": "0000544",
+          "date": "2026-04-09",
+          "amount": 18279.0,
+          "paid": 0.0,
+          "outstanding": 18279.0,
+          "status": "unpaid",
+          "description": "Starting Balance [01/02/2026]: 2500 prepaid minutes\nCurrent Balance [04/09/2026]: -3527 prepaid minutes [2,679 minutes used between 01/02/2026-04/09/2026]\nBalance after invoice is paid: 2500 prepaid m"
+        },
+        {
+          "invoice_number": "0000481",
+          "date": "2026-01-04",
+          "amount": 11832.0,
+          "paid": 11832.0,
+          "outstanding": 0.0,
+          "status": "paid",
+          "description": "Starting Balance [10/3/2025]: 2500 prepaid minutes\nCurrent Balance [01/01/2026]: -179 prepaid minutes [2,679 minutes used between 10/03/2025-01/01/2026]\nBalance after invoice is paid: 2500 prepaid min"
+        }
+      ],
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
-      "total_spend": 4080.0
+      "minutes_remaining_pct": 0,
+      "minutes_alert": true,
+      "is_active": true,
+      "total_spend": 34191.0
     },
     "Law Offices of Krystina T Tran": {
       "firm_name": "Law Offices of Krystina T Tran",
@@ -376,6 +327,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": false,
       "total_spend": 0.0
     },
     "Harlin Parker Attorneys": {
@@ -403,6 +355,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 2380.0
     },
     "Taylor Law Firm": {
@@ -427,10 +380,11 @@
         "Signed e-Sign": 8,
         "Signed e-Sign Commercial": 2
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 4760.0
     },
     "Tony S. Kalogerakos": {
@@ -447,21 +401,16 @@
       "fb_invoice_count": 0,
       "fb_prepaid_minutes": 0,
       "fb_minutes_used": 0,
-      "convoso_total_calls": 70,
-      "convoso_total_minutes": 65.33333333333333,
-      "convoso_lists": [
-        "59699"
-      ],
-      "hubspot_signups_since_dec20": 178,
-      "hubspot_by_stage": {
-        "SISIGN": 6,
-        "Signed e-Sign": 153,
-        "Signed e-Sign Commercial": 19
-      },
-      "retainer_remaining_pct": 100.0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": false,
       "total_spend": 2380.0
     },
     "Evans / Reilley": {
@@ -486,10 +435,11 @@
         "Signed e-Sign": 2,
         "Signed e-Sign Commercial": 1
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Bert Brock Law": {
@@ -513,10 +463,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 2
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 2380.0
     },
     "Ladah Law Firm": {
@@ -541,10 +492,11 @@
         "Signed e-Sign": 43,
         "Signed e-Sign Commercial": 5
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 25160.0
     },
     "Shield Law Group": {
@@ -569,10 +521,11 @@
         "Signed e-Sign": 15,
         "Signed e-Sign Commercial": 4
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 5100.0
     },
     "Starpoint Law": {
@@ -596,10 +549,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 7
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 2380.0
     },
     "Pinnacle LLP": {
@@ -623,10 +577,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 5
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 3060.0
     },
     "Rudin Law": {
@@ -655,6 +610,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 16660.0
     },
     "Titus Law Firm": {
@@ -682,6 +638,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 1700.0
     },
     "Alamo Law Center": {
@@ -705,10 +662,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 5
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 1700.0
     },
     "The Martin Law Firm": {
@@ -733,10 +691,11 @@
         "Signed e-Sign": 17,
         "Signed e-Sign Commercial": 1
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 8500.0
     },
     "Maison Law": {
@@ -761,10 +720,11 @@
         "Signed e-Sign": 174,
         "Signed e-Sign Commercial": 14
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 78200.0
     },
     "Ed Okuwenze": {
@@ -786,10 +746,11 @@
       "convoso_lists": [],
       "hubspot_signups_since_dec20": 0,
       "hubspot_by_stage": {},
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": false,
       "total_spend": 161500.0
     },
     "Kaufman & Lynd": {
@@ -813,10 +774,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 10
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 8500.0
     },
     "Duncan Law Firm": {
@@ -841,10 +803,11 @@
         "Signed e-Sign": 5,
         "Signed e-Sign Commercial": 4
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 5440.0
     },
     "Law Offices Of Eric R Bernstein": {
@@ -869,10 +832,11 @@
         "Signed e-Sign": 10,
         "Signed e-Sign Commercial": 1
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 6800.0
     },
     "Cameron Law": {
@@ -896,10 +860,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 21
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 7820.0
     },
     "Carr & Carr": {
@@ -923,10 +888,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 6
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 2380.0
     },
     "Law Offices of Marc J. Shefman": {
@@ -951,10 +917,11 @@
         "Signed e-Sign": 27,
         "Signed e-Sign Commercial": 2
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 16320.0
     },
     "Law Offices of David A. Kadzai": {
@@ -979,10 +946,11 @@
         "Signed e-Sign": 26,
         "Signed e-Sign Commercial": 2
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 15640.0
     },
     "Goldenzweig Law": {
@@ -1006,10 +974,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 23
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 9180.0
     },
     "Le Blanc Law Firm": {
@@ -1033,10 +1002,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 3
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 2380.0
     },
     "Big Auto Accident Attorneys": {
@@ -1064,6 +1034,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 10540.0
     },
     "J&Y Law": {
@@ -1088,10 +1059,11 @@
         "Signed e-Sign": 21,
         "Signed e-Sign Commercial": 1
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 7140.0
     },
     "McCarthy & Associates": {
@@ -1115,10 +1087,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 38
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 25500.0
     },
     "Sweet Law": {
@@ -1129,28 +1102,38 @@
       "total_signups": 4,
       "signups_since_dec20": 0,
       "paid_count": 3,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
+      "fb_total_invoiced": 9936.0,
+      "fb_total_paid": 9936.0,
       "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
+      "fb_invoice_count": 1,
       "fb_prepaid_minutes": 0,
       "fb_minutes_used": 0,
-      "convoso_total_calls": 15,
-      "convoso_total_minutes": 0.8333333333333334,
-      "convoso_lists": [
-        "60561"
-      ],
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
       "hubspot_signups_since_dec20": 205,
       "hubspot_by_stage": {
         "SISIGN": 4,
         "Signed e-Sign": 183,
         "Signed e-Sign Commercial": 18
       },
+      "fb_invoices": [
+        {
+          "invoice_number": "0000528",
+          "date": "2026-03-12",
+          "amount": 9936.0,
+          "paid": 9936.0,
+          "outstanding": 0.0,
+          "status": "paid",
+          "description": "Previous balance: 25 prepaid retainers\nBalance on 03/11/2026: 1 prepaid retainer (24 prepaid retainers used between 11/21/2025-03/11/2026)\nNew Balance: 25 prepaid retainers"
+        }
+      ],
       "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
-      "total_spend": 0.0
+      "is_active": true,
+      "total_spend": 9936.0
     },
     "Bennerotte & Associates": {
       "firm_name": "Bennerotte & Associates",
@@ -1173,10 +1156,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 5
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 3400.0
     },
     "Burrow & Associates": {
@@ -1200,10 +1184,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 15
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 8500.0
     },
     "Ladva Law Firm": {
@@ -1227,10 +1212,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 4
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 3400.0
     },
     "Wernik Law": {
@@ -1254,10 +1240,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 4
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 3400.0
     },
     "Oaks Law Firm": {
@@ -1274,21 +1261,18 @@
       "fb_invoice_count": 0,
       "fb_prepaid_minutes": 0,
       "fb_minutes_used": 0,
-      "convoso_total_calls": 70,
-      "convoso_total_minutes": 65.33333333333333,
-      "convoso_lists": [
-        "59699"
-      ],
-      "hubspot_signups_since_dec20": 182,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 4,
       "hubspot_by_stage": {
-        "SISIGN": 6,
-        "Signed e-Sign": 157,
-        "Signed e-Sign Commercial": 19
+        "Signed e-Sign": 4
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 3400.0
     },
     "Mott & Moffett": {
@@ -1312,10 +1296,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 19
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 3400.0
     },
     "Personal Injury Attorney Lawyer": {
@@ -1326,24 +1311,46 @@
       "total_signups": 16,
       "signups_since_dec20": 0,
       "paid_count": 24,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
+      "fb_total_invoiced": 11574.0,
+      "fb_total_paid": 11574.0,
       "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
+      "fb_invoice_count": 2,
+      "fb_prepaid_minutes": 1200,
+      "fb_minutes_used": 1599,
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 5,
+      "hubspot_signups_since_dec20": 28,
       "hubspot_by_stage": {
-        "Signed e-Sign": 5
+        "SISIGN": 3,
+        "Signed e-Sign": 25
       },
-      "retainer_remaining_pct": 100.0,
+      "fb_invoices": [
+        {
+          "invoice_number": "0000539",
+          "date": "2026-03-31",
+          "amount": 6186.0,
+          "paid": 6186.0,
+          "outstanding": 0.0,
+          "status": "paid",
+          "description": "Previous Balance: 1200 prepaid minutes\nBalance on 03/24/2026: -399 minutes (1,599 minutes used between 03/24/2026-03/31/2026)\nUpdated Balance (after invoice is paid): 1200 prepaid minutes"
+        },
+        {
+          "invoice_number": "0000527",
+          "date": "2026-03-11",
+          "amount": 5388.0,
+          "paid": 5388.0,
+          "outstanding": 0.0,
+          "status": "paid",
+          "description": "1200 prepaid minutes @ $2 / minute"
+        }
+      ],
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
-      "total_spend": 6800.0
+      "minutes_remaining_pct": 0,
+      "minutes_alert": true,
+      "is_active": true,
+      "total_spend": 18374.0
     },
     "James Perrin": {
       "firm_name": "James Perrin",
@@ -1366,10 +1373,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 1
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 3400.0
     },
     "AXON": {
@@ -1397,6 +1405,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 3400.0
     },
     "Brighter Day Law": {
@@ -1420,10 +1429,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 5
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 3400.0
     },
     "McCormick Law": {
@@ -1447,10 +1457,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 26
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 13600.0
     },
     "Bobby Garcia": {
@@ -1474,10 +1485,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 2
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 3400.0
     },
     "Adebayo Law": {
@@ -1501,10 +1513,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 2
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 3400.0
     },
     "Setareh Law": {
@@ -1528,10 +1541,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 15
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 6800.0
     },
     "Ibay Law Group": {
@@ -1555,10 +1569,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 8
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 3400.0
     },
     "Mendez & Sanchez": {
@@ -1586,6 +1601,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "David P. Kashani": {
@@ -1613,6 +1629,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Armada Law": {
@@ -1637,10 +1654,11 @@
         "Signed e-Sign": 87,
         "Signed e-Sign Commercial": 2
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 34000.0
     },
     "Pittman Dutton Hellums Bradley and Mann": {
@@ -1662,10 +1680,11 @@
       "convoso_lists": [],
       "hubspot_signups_since_dec20": 0,
       "hubspot_by_stage": {},
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": false,
       "total_spend": 3400.0
     },
     "Co & Co": {
@@ -1689,10 +1708,11 @@
       "hubspot_by_stage": {
         "Signed e-Sign": 7
       },
-      "retainer_remaining_pct": 100.0,
+      "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 3400.0
     },
     "Ace Lakhani": {
@@ -1709,124 +1729,562 @@
       "fb_invoice_count": 0,
       "fb_prepaid_minutes": 0,
       "fb_minutes_used": 0,
-      "convoso_total_calls": 70,
-      "convoso_total_minutes": 65.33333333333333,
-      "convoso_lists": [
-        "59699"
-      ],
-      "hubspot_signups_since_dec20": 183,
-      "hubspot_by_stage": {
-        "SISIGN": 6,
-        "Signed e-Sign": 158,
-        "Signed e-Sign Commercial": 19
-      },
-      "retainer_remaining_pct": 100.0,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
-      "total_spend": 3400.0
-    },
-    "Loncar Lyon Jenkins": {
-      "firm_name": "Loncar Lyon Jenkins",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 625,
+      "hubspot_signups_since_dec20": 5,
       "hubspot_by_stage": {
-        "SISIGN": 69,
-        "Signed e-Sign": 505,
-        "Signed e-Sign Commercial": 50,
-        "SSIGNC": 1
+        "Signed e-Sign": 5
       },
       "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
-      "total_spend": 0.0
+      "is_active": true,
+      "total_spend": 3400.0
     },
-    "Chalik & Chalik": {
-      "firm_name": "Chalik & Chalik",
-      "source": "hubspot",
+    "Law Office of Shane R. Kadlec": {
+      "firm_name": "Law Office of Shane R. Kadlec",
+      "source": "freshbooks",
       "retainers_prepaid": 0,
       "total_invoiced_sheets": 0,
       "total_signups": 0,
       "signups_since_dec20": 0,
       "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
+      "fb_total_invoiced": 12087.0,
+      "fb_total_paid": 5388.0,
+      "fb_total_outstanding": 6699.0,
+      "fb_invoice_count": 2,
+      "fb_prepaid_minutes": 1200,
+      "fb_minutes_used": 1800,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 0,
+      "minutes_alert": true,
+      "is_active": true,
+      "total_spend": 12087.0
+    },
+    "The Law Office of Daniel A. Brown": {
+      "firm_name": "The Law Office of Daniel A. Brown",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 11976.0,
+      "fb_total_paid": 5388.0,
+      "fb_total_outstanding": 6588.0,
+      "fb_invoice_count": 2,
+      "fb_prepaid_minutes": 1200,
+      "fb_minutes_used": 1800,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 0,
+      "minutes_alert": true,
+      "is_active": true,
+      "total_spend": 11976.0
+    },
+    "JRE Injury Law": {
+      "firm_name": "JRE Injury Law",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 33327.0,
+      "fb_total_paid": 18112.5,
+      "fb_total_outstanding": 15214.5,
+      "fb_invoice_count": 2,
       "fb_prepaid_minutes": 0,
       "fb_minutes_used": 0,
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 406,
+      "hubspot_signups_since_dec20": 115,
+      "hubspot_by_stage": {
+        "SISIGN": 21,
+        "Signed e-Sign": 81,
+        "Signed e-Sign Commercial": 13
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": null,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 33327.0
+    },
+    "Chalik & Chalik": {
+      "firm_name": "Chalik & Chalik",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 131098.28999999998,
+      "fb_total_paid": 115401.48,
+      "fb_total_outstanding": 15696.81,
+      "fb_invoice_count": 6,
+      "fb_prepaid_minutes": 2500,
+      "fb_minutes_used": 8462,
+      "convoso_total_calls": 5,
+      "convoso_total_minutes": 1.05,
+      "convoso_lists": [
+        "59707",
+        "59829"
+      ],
+      "hubspot_signups_since_dec20": 409,
       "hubspot_by_stage": {
         "SISIGN": 48,
         "Signed e-Sign": 320,
+        "Signed e-Sign Commercial": 41
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 0,
+      "minutes_alert": true,
+      "is_active": true,
+      "total_spend": 131098.28999999998
+    },
+    "Klenofsky & Steward, LLC": {
+      "firm_name": "Klenofsky & Steward, LLC",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 10419.0,
+      "fb_total_paid": 10419.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 2500,
+      "fb_minutes_used": 2595,
+      "convoso_total_calls": 2,
+      "convoso_total_minutes": 0.36666666666666664,
+      "convoso_lists": [
+        "59823"
+      ],
+      "hubspot_signups_since_dec20": 44,
+      "hubspot_by_stage": {
+        "SISIGN": 3,
+        "Signed e-Sign": 34,
+        "Signed e-Sign Commercial": 7
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 0,
+      "minutes_alert": true,
+      "is_active": true,
+      "total_spend": 10419.0
+    },
+    "Loncar Lyon Jenkins": {
+      "firm_name": "Loncar Lyon Jenkins",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 150711.25,
+      "fb_total_paid": 150711.25,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 6,
+      "fb_prepaid_minutes": 5000,
+      "fb_minutes_used": 8129,
+      "convoso_total_calls": 272,
+      "convoso_total_minutes": 220.16666666666666,
+      "convoso_lists": [
+        "60139"
+      ],
+      "hubspot_signups_since_dec20": 627,
+      "hubspot_by_stage": {
+        "SISIGN": 69,
+        "Signed e-Sign": 505,
+        "Signed e-Sign Commercial": 53
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 0,
+      "minutes_alert": true,
+      "is_active": true,
+      "total_spend": 150711.25
+    },
+    "Fang Accident Lawyers": {
+      "firm_name": "Fang Accident Lawyers",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 87884.92000000001,
+      "fb_total_paid": 87884.92000000001,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 7,
+      "fb_prepaid_minutes": 2500,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 4,
+      "convoso_total_minutes": 12.516666666666667,
+      "convoso_lists": [
+        "59645"
+      ],
+      "hubspot_signups_since_dec20": 354,
+      "hubspot_by_stage": {
+        "SISIGN": 62,
+        "Signed e-Sign": 253,
+        "Signed e-Sign Commercial": 39
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 87884.92000000001
+    },
+    "Dan Chiacchia Injury Attorneys": {
+      "firm_name": "Dan Chiacchia Injury Attorneys",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 5388.0,
+      "fb_total_paid": 0.0,
+      "fb_total_outstanding": 5388.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 1200,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 5388.0
+    },
+    "Marker Law": {
+      "firm_name": "Marker Law",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 9275.67,
+      "fb_total_paid": 9275.67,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 2500,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 1,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [
+        "59777"
+      ],
+      "hubspot_signups_since_dec20": 60,
+      "hubspot_by_stage": {
+        "SISIGN": 5,
+        "Signed e-Sign": 47,
+        "Signed e-Sign Commercial": 8
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 9275.67
+    },
+    "KJ Injury & Accident Lawyers, PC": {
+      "firm_name": "KJ Injury & Accident Lawyers, PC",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 125067.33000000002,
+      "fb_total_paid": 125067.33000000002,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 4,
+      "fb_prepaid_minutes": 2933,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 2236,
+      "hubspot_by_stage": {
+        "SISIGN": 88,
+        "Signed e-Sign": 1972,
+        "Signed e-Sign Commercial": 176
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 125067.33000000002
+    },
+    "Hilley & Solis Law": {
+      "firm_name": "Hilley & Solis Law",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 21478.0,
+      "fb_total_paid": 21478.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 2500,
+      "fb_minutes_used": 5239,
+      "convoso_total_calls": 2,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [
+        "59749"
+      ],
+      "hubspot_signups_since_dec20": 645,
+      "hubspot_by_stage": {
+        "SISIGN": 9,
+        "Signed e-Sign": 597,
+        "Signed e-Sign Commercial": 39
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 0,
+      "minutes_alert": true,
+      "is_active": true,
+      "total_spend": 21478.0
+    },
+    "Astrix Law": {
+      "firm_name": "Astrix Law",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 37502.0,
+      "fb_total_paid": 37502.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 4,
+      "fb_prepaid_minutes": 2500,
+      "fb_minutes_used": 2360,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 150,
+      "hubspot_by_stage": {
+        "SISIGN": 8,
+        "Signed e-Sign": 41,
+        "Signed e-Sign Commercial": 101
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 5.6,
+      "minutes_alert": true,
+      "is_active": true,
+      "total_spend": 37502.0
+    },
+    "Kansas City Accident Injury Attorneys": {
+      "firm_name": "Kansas City Accident Injury Attorneys",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 5388.0,
+      "fb_total_paid": 5388.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 1200,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 5388.0
+    },
+    "Edward Law Group": {
+      "firm_name": "Edward Law Group",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 9177.0,
+      "fb_total_paid": 9177.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 0,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 934,
+      "hubspot_by_stage": {
+        "SISIGN": 2,
+        "Signed e-Sign": 850,
+        "Signed e-Sign Commercial": 82
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": null,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 9177.0
+    },
+    "Pencheff and Fraley LPA (Ohio)": {
+      "firm_name": "Pencheff and Fraley LPA (Ohio)",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 19748.0,
+      "fb_total_paid": 19748.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 2,
+      "fb_prepaid_minutes": 738,
+      "fb_minutes_used": 1880,
+      "convoso_total_calls": 4,
+      "convoso_total_minutes": 1.0833333333333333,
+      "convoso_lists": [
+        "59739"
+      ],
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 0,
+      "minutes_alert": true,
+      "is_active": true,
+      "total_spend": 19748.0
+    },
+    "Gibbins Law, PLLC": {
+      "firm_name": "Gibbins Law, PLLC",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 11225.0,
+      "fb_total_paid": 11225.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 2500,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 137,
+      "hubspot_by_stage": {
+        "Signed e-Sign": 124,
+        "Signed e-Sign Commercial": 13
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 11225.0
+    },
+    "Campione Law P.A.": {
+      "firm_name": "Campione Law P.A.",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 5388.0,
+      "fb_total_paid": 5388.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 1200,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 5388.0
+    },
+    "Pencheff & Fraley Co., L.P.A.": {
+      "firm_name": "Pencheff & Fraley Co., L.P.A.",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 10598.0,
+      "fb_total_paid": 10598.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 2500,
+      "fb_minutes_used": 2311,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 305,
+      "hubspot_by_stage": {
+        "SISIGN": 21,
+        "Signed e-Sign": 246,
         "Signed e-Sign Commercial": 38
       },
       "retainer_remaining_pct": null,
       "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
-      "total_spend": 0.0
-    },
-    "Fang Accident Lawyers": {
-      "firm_name": "Fang Accident Lawyers",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 352,
-      "hubspot_by_stage": {
-        "SISIGN": 62,
-        "Signed e-Sign": 253,
-        "Signed e-Sign Commercial": 35,
-        "SSIGNC": 2
-      },
-      "retainer_remaining_pct": null,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
-      "total_spend": 0.0
+      "minutes_remaining_pct": 7.6,
+      "minutes_alert": true,
+      "is_active": true,
+      "total_spend": 10598.0
     },
     "Law Offices of Luke T. Moreau": {
       "firm_name": "Law Offices of Luke T. Moreau",
-      "source": "hubspot",
+      "source": "freshbooks",
       "retainers_prepaid": 0,
       "total_invoiced_sheets": 0,
       "total_signups": 0,
       "signups_since_dec20": 0,
       "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
+      "fb_total_invoiced": 10000.0,
+      "fb_total_paid": 10000.0,
       "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
+      "fb_invoice_count": 1,
       "fb_prepaid_minutes": 0,
       "fb_minutes_used": 0,
       "convoso_total_calls": 0,
@@ -1842,22 +2300,137 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
-      "total_spend": 0.0
+      "is_active": true,
+      "total_spend": 10000.0
     },
-    "Green Law Group": {
-      "firm_name": "Green Law Group",
-      "source": "hubspot",
+    "VanStone Injury Law": {
+      "firm_name": "VanStone Injury Law",
+      "source": "freshbooks",
       "retainers_prepaid": 0,
       "total_invoiced_sheets": 0,
       "total_signups": 0,
       "signups_since_dec20": 0,
       "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
+      "fb_total_invoiced": 5576.58,
+      "fb_total_paid": 5576.58,
       "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 1200,
       "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 5576.58
+    },
+    "United Portals": {
+      "firm_name": "United Portals",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 14763.0,
+      "fb_total_paid": 14763.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 2,
+      "fb_prepaid_minutes": 1200,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 14763.0
+    },
+    "Sargon Law Group": {
+      "firm_name": "Sargon Law Group",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 10730.88,
+      "fb_total_paid": 10730.88,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 2500,
+      "fb_minutes_used": 2445,
+      "convoso_total_calls": 1,
+      "convoso_total_minutes": 0.25,
+      "convoso_lists": [
+        "59783"
+      ],
+      "hubspot_signups_since_dec20": 27,
+      "hubspot_by_stage": {
+        "SISIGN": 1,
+        "Signed e-Sign": 24,
+        "Signed e-Sign Commercial": 2
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 2.2,
+      "minutes_alert": true,
+      "is_active": true,
+      "total_spend": 10730.88
+    },
+    "Oakwood Legal Group": {
+      "firm_name": "Oakwood Legal Group",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 12742.0,
+      "fb_total_paid": 12742.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 1200,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 21,
+      "hubspot_by_stage": {
+        "SISIGN": 9,
+        "Signed e-Sign": 11,
+        "Signed e-Sign Commercial": 1
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 12742.0
+    },
+    "Green Law Group, INC.": {
+      "firm_name": "Green Law Group, INC.",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 6197.58,
+      "fb_total_paid": 6197.58,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 0,
+      "fb_minutes_used": 1099,
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
@@ -1871,66 +2444,365 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
-      "total_spend": 0.0
+      "is_active": true,
+      "total_spend": 6197.58
     },
-    "Hilley & Solis": {
-      "firm_name": "Hilley & Solis",
-      "source": "hubspot",
+    "KP Injury Law": {
+      "firm_name": "KP Injury Law",
+      "source": "freshbooks",
       "retainers_prepaid": 0,
       "total_invoiced_sheets": 0,
       "total_signups": 0,
       "signups_since_dec20": 0,
       "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
+      "fb_total_invoiced": 5576.58,
+      "fb_total_paid": 5576.58,
       "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 1200,
       "fb_minutes_used": 0,
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 646,
-      "hubspot_by_stage": {
-        "SISIGN": 9,
-        "Signed e-Sign": 598,
-        "Signed e-Sign Commercial": 39
-      },
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
       "retainer_remaining_pct": null,
       "retainer_alert": false,
-      "minutes_remaining_pct": null,
+      "minutes_remaining_pct": 100.0,
       "minutes_alert": false,
-      "total_spend": 0.0
+      "is_active": true,
+      "total_spend": 5576.58
     },
-    "KJ Injury Law": {
-      "firm_name": "KJ Injury Law",
-      "source": "hubspot",
+    "Titan Law Firm, PC": {
+      "firm_name": "Titan Law Firm, PC",
+      "source": "freshbooks",
       "retainers_prepaid": 0,
       "total_invoiced_sheets": 0,
       "total_signups": 0,
       "signups_since_dec20": 0,
       "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
+      "fb_total_invoiced": 5388.0,
+      "fb_total_paid": 5388.0,
       "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 1200,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 5388.0
+    },
+    "The Shamsi Law Firm, APC.": {
+      "firm_name": "The Shamsi Law Firm, APC.",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 10667.0,
+      "fb_total_paid": 10667.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 1200,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 8,
+      "hubspot_by_stage": {
+        "Signed e-Sign": 8
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 10667.0
+    },
+    "LegalLeadz": {
+      "firm_name": "LegalLeadz",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 19875.0,
+      "fb_total_paid": 19875.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
       "fb_prepaid_minutes": 0,
       "fb_minutes_used": 0,
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 2235,
-      "hubspot_by_stage": {
-        "SISIGN": 88,
-        "Signed e-Sign": 1971,
-        "Signed e-Sign Commercial": 173,
-        "SSIGNC": 3
-      },
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
       "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
-      "total_spend": 0.0
+      "is_active": true,
+      "total_spend": 19875.0
+    },
+    "Hollander Law Firm, P.A.": {
+      "firm_name": "Hollander Law Firm, P.A.",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 5388.0,
+      "fb_total_paid": 5388.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 1200,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 5388.0
+    },
+    "Irons & Irons P.A.": {
+      "firm_name": "Irons & Irons P.A.",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 10611.0,
+      "fb_total_paid": 10611.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 2500,
+      "fb_minutes_used": 862,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 50,
+      "hubspot_by_stage": {
+        "SISIGN": 2,
+        "Signed e-Sign": 40,
+        "Signed e-Sign Commercial": 8
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 65.5,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 10611.0
+    },
+    "Farah Law Group": {
+      "firm_name": "Farah Law Group",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 9631.0,
+      "fb_total_paid": 9631.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 2500,
+      "fb_minutes_used": 1072,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 30,
+      "hubspot_by_stage": {
+        "Signed e-Sign": 29,
+        "Signed e-Sign Commercial": 1
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 57.1,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 9631.0
+    },
+    "Kronos Law": {
+      "firm_name": "Kronos Law",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 5388.0,
+      "fb_total_paid": 5388.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 1200,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 5388.0
+    },
+    "The Major Law Firm": {
+      "firm_name": "The Major Law Firm",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 53880.0,
+      "fb_total_paid": 53880.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 2500,
+      "fb_minutes_used": 2000,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 174,
+      "hubspot_by_stage": {
+        "SISIGN": 8,
+        "Signed e-Sign": 148,
+        "Signed e-Sign Commercial": 18
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 20.0,
+      "minutes_alert": true,
+      "is_active": true,
+      "total_spend": 53880.0
+    },
+    "AK Law Firm": {
+      "firm_name": "AK Law Firm",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 11617.88,
+      "fb_total_paid": 11617.88,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 2500,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 1,
+      "convoso_total_minutes": 1.1833333333333333,
+      "convoso_lists": [
+        "59699"
+      ],
+      "hubspot_signups_since_dec20": 178,
+      "hubspot_by_stage": {
+        "SISIGN": 6,
+        "Signed e-Sign": 153,
+        "Signed e-Sign Commercial": 19
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 11617.88
+    },
+    "Jura Hartley Law": {
+      "firm_name": "Jura Hartley Law",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 5388.0,
+      "fb_total_paid": 5388.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 1200,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 5388.0
+    },
+    "Belief Marketing Services": {
+      "firm_name": "Belief Marketing Services",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 5388.0,
+      "fb_total_paid": 5388.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 1200,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 5388.0
+    },
+    "California Attorney Group": {
+      "firm_name": "California Attorney Group",
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 5576.58,
+      "fb_total_paid": 5576.58,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 1,
+      "fb_prepaid_minutes": 1200,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 0,
+      "hubspot_by_stage": {},
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": 100.0,
+      "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 5576.58
     },
     "Larry H. Parker": {
       "firm_name": "Larry H. Parker",
@@ -1953,101 +2825,13 @@
       "hubspot_by_stage": {
         "SISIGN": 10,
         "Signed e-Sign": 16,
-        "SSIGNC": 1
+        "Signed e-Sign Commercial": 1
       },
       "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
-      "total_spend": 0.0
-    },
-    "Pencheff & Fraley": {
-      "firm_name": "Pencheff & Fraley",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 305,
-      "hubspot_by_stage": {
-        "SISIGN": 21,
-        "Signed e-Sign": 246,
-        "Signed e-Sign Commercial": 36,
-        "SSIGNC": 2
-      },
-      "retainer_remaining_pct": null,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
-      "total_spend": 0.0
-    },
-    "Klenofsky & Steward": {
-      "firm_name": "Klenofsky & Steward",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 43,
-      "hubspot_by_stage": {
-        "SISIGN": 3,
-        "Signed e-Sign": 34,
-        "Signed e-Sign Commercial": 6
-      },
-      "retainer_remaining_pct": null,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
-      "total_spend": 0.0
-    },
-    "JRE Injury Law": {
-      "firm_name": "JRE Injury Law",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 115,
-      "hubspot_by_stage": {
-        "SISIGN": 21,
-        "Signed e-Sign": 81,
-        "Signed e-Sign Commercial": 10,
-        "SSIGNC": 3
-      },
-      "retainer_remaining_pct": null,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Bernard Law Group": {
@@ -2077,35 +2861,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
-      "total_spend": 0.0
-    },
-    "Edward Law Group": {
-      "firm_name": "Edward Law Group",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 923,
-      "hubspot_by_stage": {
-        "SISIGN": 2,
-        "Signed e-Sign": 840,
-        "Signed e-Sign Commercial": 81
-      },
-      "retainer_remaining_pct": null,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "LawyerUp": {
@@ -2134,6 +2890,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Richard Harris Law Firm": {
@@ -2162,6 +2919,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "The Brown Firm": {
@@ -2191,121 +2949,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
-      "total_spend": 0.0
-    },
-    "Marker Law": {
-      "firm_name": "Marker Law",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 60,
-      "hubspot_by_stage": {
-        "SISIGN": 5,
-        "Signed e-Sign": 47,
-        "Signed e-Sign Commercial": 8
-      },
-      "retainer_remaining_pct": null,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
-      "total_spend": 0.0
-    },
-    "Oakwood Legal Group": {
-      "firm_name": "Oakwood Legal Group",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 21,
-      "hubspot_by_stage": {
-        "SISIGN": 9,
-        "Signed e-Sign": 11,
-        "Signed e-Sign Commercial": 1
-      },
-      "retainer_remaining_pct": null,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
-      "total_spend": 0.0
-    },
-    "Irons & Irons": {
-      "firm_name": "Irons & Irons",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 50,
-      "hubspot_by_stage": {
-        "SISIGN": 2,
-        "Signed e-Sign": 40,
-        "Signed e-Sign Commercial": 8
-      },
-      "retainer_remaining_pct": null,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
-      "total_spend": 0.0
-    },
-    "Gibson Hill Personal Injury": {
-      "firm_name": "Gibson Hill Personal Injury",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 23,
-      "hubspot_by_stage": {
-        "SISIGN": 3,
-        "Signed e-Sign": 20
-      },
-      "retainer_remaining_pct": null,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Geoff McDonald & Associates": {
@@ -2325,46 +2969,17 @@
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 36,
+      "hubspot_signups_since_dec20": 35,
       "hubspot_by_stage": {
         "SISIGN": 5,
         "Signed e-Sign": 27,
-        "Signed e-Sign Commercial": 4
+        "Signed e-Sign Commercial": 3
       },
       "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
-      "total_spend": 0.0
-    },
-    "Astrix Law": {
-      "firm_name": "Astrix Law",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 146,
-      "hubspot_by_stage": {
-        "SISIGN": 8,
-        "Signed e-Sign": 41,
-        "Signed e-Sign Commercial": 92,
-        "SSIGNC": 5
-      },
-      "retainer_remaining_pct": null,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Levine Law": {
@@ -2384,16 +2999,17 @@
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 103,
+      "hubspot_signups_since_dec20": 104,
       "hubspot_by_stage": {
         "SISIGN": 5,
         "Signed e-Sign": 90,
-        "Signed e-Sign Commercial": 8
+        "Signed e-Sign Commercial": 9
       },
       "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Brent Coon & Associates": {
@@ -2423,64 +3039,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
-      "total_spend": 0.0
-    },
-    "The Major Law Firm": {
-      "firm_name": "The Major Law Firm",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 174,
-      "hubspot_by_stage": {
-        "SISIGN": 8,
-        "Signed e-Sign": 148,
-        "Signed e-Sign Commercial": 18
-      },
-      "retainer_remaining_pct": null,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
-      "total_spend": 0.0
-    },
-    "Sargon Law Group": {
-      "firm_name": "Sargon Law Group",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 27,
-      "hubspot_by_stage": {
-        "SISIGN": 1,
-        "Signed e-Sign": 24,
-        "Signed e-Sign Commercial": 2
-      },
-      "retainer_remaining_pct": null,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Abels & Annes": {
@@ -2509,6 +3068,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Carabin Shaw": {
@@ -2537,6 +3097,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Innovate Legal Group": {
@@ -2565,6 +3126,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Jacoby & Meyers": {
@@ -2593,34 +3155,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
-      "total_spend": 0.0
-    },
-    "Farah Law Group": {
-      "firm_name": "Farah Law Group",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 30,
-      "hubspot_by_stage": {
-        "Signed e-Sign": 29,
-        "Signed e-Sign Commercial": 1
-      },
-      "retainer_remaining_pct": null,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Zanes Law Injury Lawyers": {
@@ -2649,6 +3184,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Shamieh Law": {
@@ -2677,6 +3213,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Stalwart Law": {
@@ -2705,6 +3242,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Dworkin & Maciariello": {
@@ -2733,6 +3271,36 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
+      "total_spend": 0.0
+    },
+    "Farah & Farah": {
+      "firm_name": "Farah & Farah",
+      "source": "hubspot",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
+      "signups_since_dec20": 0,
+      "paid_count": 0,
+      "fb_total_invoiced": 0.0,
+      "fb_total_paid": 0.0,
+      "fb_total_outstanding": 0.0,
+      "fb_invoice_count": 0,
+      "fb_prepaid_minutes": 0,
+      "fb_minutes_used": 0,
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 122,
+      "hubspot_by_stage": {
+        "Signed e-Sign": 112,
+        "Signed e-Sign Commercial": 10
+      },
+      "retainer_remaining_pct": null,
+      "retainer_alert": false,
+      "minutes_remaining_pct": null,
+      "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Viles & Beckman": {
@@ -2760,6 +3328,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Wilk Law": {
@@ -2788,33 +3357,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
-      "total_spend": 0.0
-    },
-    "The Shamsi Law Firm": {
-      "firm_name": "The Shamsi Law Firm",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 8,
-      "hubspot_by_stage": {
-        "Signed e-Sign": 8
-      },
-      "retainer_remaining_pct": null,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Raven Injury Law": {
@@ -2842,6 +3385,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Law Firm of Roberto L. Sanchez": {
@@ -2869,6 +3413,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Rivers Law Group": {
@@ -2897,34 +3442,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
-      "total_spend": 0.0
-    },
-    "Gibbins Law": {
-      "firm_name": "Gibbins Law",
-      "source": "hubspot",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 136,
-      "hubspot_by_stage": {
-        "Signed e-Sign": 124,
-        "Signed e-Sign Commercial": 12
-      },
-      "retainer_remaining_pct": null,
-      "retainer_alert": false,
-      "minutes_remaining_pct": null,
-      "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Maricic Law Firm": {
@@ -2953,6 +3471,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Pansini & Pizzica": {
@@ -2981,6 +3500,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Jalal Abdallah Law": {
@@ -3009,6 +3529,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Isaacs and Isaacs": {
@@ -3036,6 +3557,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Russo Firm": {
@@ -3063,6 +3585,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "MVP Accident Attorneys": {
@@ -3090,6 +3613,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Law Offices of Paul Levin": {
@@ -3117,6 +3641,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Durham Law Group": {
@@ -3144,6 +3669,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "High Stakes Injury Law": {
@@ -3171,6 +3697,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Whalen Injury Lawyers": {
@@ -3198,6 +3725,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Berman Law Group": {
@@ -3226,6 +3754,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Trust Guss Injury Lawyers": {
@@ -3253,6 +3782,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "D. Miller & Associates": {
@@ -3281,6 +3811,7 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
     },
     "Lowe Law Firm": {
@@ -3309,29 +3840,8 @@
       "retainer_alert": false,
       "minutes_remaining_pct": null,
       "minutes_alert": false,
+      "is_active": true,
       "total_spend": 0.0
-    },
-    "Schilling & Silvers Personal Injury & Car Accident Lawyers": {
-      "firm_name": "Schilling & Silvers Personal Injury & Car Accident Lawyers",
-      "source": "hubspot_only",
-      "retainers_prepaid": 0,
-      "total_invoiced_sheets": 0,
-      "total_signups": 0,
-      "signups_since_dec20": 0,
-      "paid_count": 0,
-      "fb_total_invoiced": 0.0,
-      "fb_total_paid": 0.0,
-      "fb_total_outstanding": 0.0,
-      "fb_invoice_count": 0,
-      "fb_prepaid_minutes": 0,
-      "fb_minutes_used": 0,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 6,
-      "hubspot_by_stage": {
-        "closedlost": 6
-      }
     }
   }
 }

@@ -245,7 +245,7 @@
         <div id="shareSection" style="display: {% if share_token %}block{% else %}none{% endif %};">
             <div class="share-box">
                 <span style="color: var(--text-dim); font-size: 12px;">Client Share Link:</span>
-                <input type="text" id="shareUrl" readonly value="{% if share_token %}{{ request.scheme }}://{{ host }}/share/{{ share_token }}{% endif %}">
+                <input type="text" id="shareUrl" readonly value="{% if share_token %}https://{{ host }}/share/{{ share_token }}{% endif %}">
                 <button class="btn btn-sm btn-outline" onclick="copyShareLink()">Copy</button>
                 <button class="btn btn-sm btn-outline" onclick="generateShareLink()">Regenerate</button>
             </div>

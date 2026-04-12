@@ -1545,7 +1545,7 @@ def api_generate_share(firm_id):
     }
     save_share_tokens(tokens)
 
-    share_url = f"{request.scheme}://{request.host}/share/{token}"
+    share_url = f"https://{request.host}/share/{token}"
     return jsonify({"token": token, "url": share_url, "firm": name})
 
 
@@ -1841,7 +1841,7 @@ def api_generate_sales_snapshot():
     }
     save_sales_snapshot_tokens(tokens)
 
-    share_url = f"{request.scheme}://{request.host}/sales-snapshot/{token}"
+    share_url = f"https://{request.host}/sales-snapshot/{token}"
     return jsonify({"token": token, "url": share_url, "firms": valid_names})
 
 
