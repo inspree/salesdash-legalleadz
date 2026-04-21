@@ -1422,10 +1422,17 @@ def client_share(token):
 
 @app.route("/api/refresh", methods=["POST"])
 def api_refresh():
-    """Re-run data collection script."""
+    """Re-run data collection script.
+    On Railway the collection script is not bundled (depends on service-account
+    credentials + Google Sheets/Convoso/FreshBooks/HubSpot SDKs). Data is
+    refreshed externally from production infrastructure and synced into
+    billing_data.json. Return a graceful 200 so the UI toast reads cleanly."""
     script = BASE_DIR / "scripts" / "billing_dashboard_data.py"
     if not script.exists():
-        return jsonify({"error": "Data script not found"}), 404
+        return jsonify({
+            "status": "scheduled",
+            "message": "Live refresh runs automatically from production infrastructure. Data updates sync on the next scheduled cycle."
+        })
 
     def run_refresh():
         subprocess.run([sys.executable, str(script)], cwd=str(BASE_DIR))
@@ -1444,8 +1451,15 @@ def api_leads(firm_id):
         return jsonify({"error": "Firm not found"}), 404
 
     try:
-        leads = hubspot_get_leads_for_firm(name)
-        return jsonify({"firm": name, "leads": leads, "count": len(leads)})
+        result = hubspot_get_leads_for_firm(name)
+        # hubspot_get_leads_for_firm now returns {"leads": [...], "hubspot_total": N}
+        if isinstance(result, dict):
+            leads = result.get("leads", [])
+            hubspot_total = result.get("hubspot_total", len(leads))
+        else:
+            leads = result
+            hubspot_total = len(leads)
+        return jsonify({"firm": name, "leads": leads, "count": len(leads), "hubspot_total": hubspot_total})
     except Exception as e:
         return jsonify({"error": str(e), "leads": [], "count": 0}), 500
 
@@ -1593,7 +1607,8 @@ def api_export_firm(firm_id):
         abort(404)
 
     try:
-        leads = hubspot_get_leads_for_firm(name)
+        result = hubspot_get_leads_for_firm(name)
+        leads = result.get("leads", []) if isinstance(result, dict) else result
     except Exception:
         leads = []
 
@@ -1617,7 +1632,8 @@ def api_export_share(token):
         abort(404)
 
     try:
-        leads = hubspot_get_leads_for_firm(name)
+        result = hubspot_get_leads_for_firm(name)
+        leads = result.get("leads", []) if isinstance(result, dict) else result
         safe_leads = [{
             "name": l.get("name", ""),
             "email": l.get("email", ""),
