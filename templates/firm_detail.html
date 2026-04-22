@@ -337,11 +337,14 @@
                                 </td>
                                 <td class="text-center">
                                     {% set st = inv.status|default('')|lower %}
-                                    {% if 'paid' in st %}<span class="badge badge-success">Paid</span>
-                                    {% elif 'partial' in st %}<span class="badge badge-warning">Partial</span>
-                                    {% elif 'sent' in st %}<span class="badge badge-info">Sent</span>
-                                    {% elif 'draft' in st %}<span class="badge badge-muted">Draft</span>
+                                    {% set amt = inv.amount or 0 %}
+                                    {% set pd = inv.paid or 0 %}
+                                    {% set out = inv.outstanding or 0 %}
+                                    {% if pd > 0 and out <= 0 %}<span class="badge badge-success">Paid</span>
+                                    {% elif pd > 0 and out > 0 %}<span class="badge badge-warning">Partial</span>
                                     {% elif 'overdue' in st %}<span class="badge badge-danger">Overdue</span>
+                                    {% elif 'draft' in st %}<span class="badge badge-muted">Draft</span>
+                                    {% elif st == 'sent' or 'unpaid' in st or (pd == 0 and out > 0) %}<span class="badge badge-info">Sent</span>
                                     {% else %}<span class="badge badge-muted">{{ inv.status or '-' }}</span>{% endif %}
                                 </td>
                             </tr>
