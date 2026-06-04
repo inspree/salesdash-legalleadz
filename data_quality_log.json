@@ -1,29 +1,26 @@
 {
-  "last_check": "2026-06-04T08:10:50.278440-04:00",
-  "total_issues": 51,
+  "last_check": "2026-06-04T12:11:40.999293-04:00",
+  "total_issues": 98,
   "by_type": {
     "source_mismatch": 47,
-    "missing_invoice": 4
+    "missing_invoice": 50,
+    "high_outstanding": 1
   },
   "by_severity": {
     "info": 47,
-    "warning": 4
+    "warning": 50,
+    "critical": 1
   },
   "issues": [
     {
       "type": "source_mismatch",
       "severity": "info",
-      "message": "Firm 'luke t moreau' exists in FreshBooks but not in Google Sheets"
+      "message": "Firm 'torgenson' exists in FreshBooks but not in Google Sheets"
     },
     {
       "type": "source_mismatch",
       "severity": "info",
-      "message": "Firm 'shamsi' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'sargon' exists in FreshBooks but not in Google Sheets"
+      "message": "Firm 'campione' exists in FreshBooks but not in Google Sheets"
     },
     {
       "type": "source_mismatch",
@@ -33,27 +30,7 @@
     {
       "type": "source_mismatch",
       "severity": "info",
-      "message": "Firm 'pencheff and fraley l ohio' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'pencheff fraley co l' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'marker' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'roth' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'titan pc' exists in FreshBooks but not in Google Sheets"
+      "message": "Firm 'loncar lyon jenkins' exists in FreshBooks but not in Google Sheets"
     },
     {
       "type": "source_mismatch",
@@ -63,7 +40,12 @@
     {
       "type": "source_mismatch",
       "severity": "info",
-      "message": "Firm 'jura hartley' exists in FreshBooks but not in Google Sheets"
+      "message": "Firm 'sargon' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'portner shure' exists in FreshBooks but not in Google Sheets"
     },
     {
       "type": "source_mismatch",
@@ -73,27 +55,7 @@
     {
       "type": "source_mismatch",
       "severity": "info",
-      "message": "Firm 'shane r kadlec' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'hilley solis' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'astrix' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'fang accident' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'dan chiacchia injury' exists in FreshBooks but not in Google Sheets"
+      "message": "Firm 'pencheff and fraley l ohio' exists in FreshBooks but not in Google Sheets"
     },
     {
       "type": "source_mismatch",
@@ -103,12 +65,52 @@
     {
       "type": "source_mismatch",
       "severity": "info",
-      "message": "Firm 'loncar lyon jenkins' exists in FreshBooks but not in Google Sheets"
+      "message": "Firm 'gibbins p' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'astrix' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'shamsi' exists in FreshBooks but not in Google Sheets"
     },
     {
       "type": "source_mismatch",
       "severity": "info",
       "message": "Firm 'ak' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'shane r kadlec' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'oakwood group' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'edward' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'kansas city accident injury' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'klenofsky steward' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'boston auto' exists in FreshBooks but not in Google Sheets"
     },
     {
       "type": "source_mismatch",
@@ -123,67 +125,7 @@
     {
       "type": "source_mismatch",
       "severity": "info",
-      "message": "Firm 'california group' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'torgenson' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'edward' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'law office of daniel a brown' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'kj injury accident pc' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'campione' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'kronos' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'sweet' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'kansas city accident injury' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'vanstone injury' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'kp injury' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'hollander' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'legalleadz' exists in FreshBooks but not in Google Sheets"
+      "message": "Firm 'fang accident' exists in FreshBooks but not in Google Sheets"
     },
     {
       "type": "source_mismatch",
@@ -193,17 +135,12 @@
     {
       "type": "source_mismatch",
       "severity": "info",
-      "message": "Firm 'portner shure' exists in FreshBooks but not in Google Sheets"
+      "message": "Firm 'united portals' exists in FreshBooks but not in Google Sheets"
     },
     {
       "type": "source_mismatch",
       "severity": "info",
-      "message": "Firm 'boston auto' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'chalik chalik' exists in FreshBooks but not in Google Sheets"
+      "message": "Firm 'dan chiacchia injury' exists in FreshBooks but not in Google Sheets"
     },
     {
       "type": "source_mismatch",
@@ -213,12 +150,7 @@
     {
       "type": "source_mismatch",
       "severity": "info",
-      "message": "Firm 'united portals' exists in FreshBooks but not in Google Sheets"
-    },
-    {
-      "type": "source_mismatch",
-      "severity": "info",
-      "message": "Firm 'apex injury' exists in FreshBooks but not in Google Sheets"
+      "message": "Firm 'marker' exists in FreshBooks but not in Google Sheets"
     },
     {
       "type": "source_mismatch",
@@ -228,17 +160,82 @@
     {
       "type": "source_mismatch",
       "severity": "info",
-      "message": "Firm 'klenofsky steward' exists in FreshBooks but not in Google Sheets"
+      "message": "Firm 'law office of daniel a brown' exists in FreshBooks but not in Google Sheets"
     },
     {
       "type": "source_mismatch",
       "severity": "info",
-      "message": "Firm 'oakwood group' exists in FreshBooks but not in Google Sheets"
+      "message": "Firm 'roth' exists in FreshBooks but not in Google Sheets"
     },
     {
       "type": "source_mismatch",
       "severity": "info",
-      "message": "Firm 'gibbins p' exists in FreshBooks but not in Google Sheets"
+      "message": "Firm 'hilley solis' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'kronos' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'titan pc' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'legalleadz' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'california group' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'kp injury' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'vanstone injury' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'sweet' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'hollander' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'apex injury' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'kj injury accident pc' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'chalik chalik' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'jura hartley' exists in FreshBooks but not in Google Sheets"
+    },
+    {
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'pencheff fraley co l' exists in FreshBooks but not in Google Sheets"
     },
     {
       "type": "source_mismatch",
@@ -246,24 +243,264 @@
       "message": "Firm 'disparti' exists in FreshBooks but not in Google Sheets"
     },
     {
-      "type": "missing_invoice",
-      "severity": "warning",
-      "message": "'Larry H. Parker' has 14 signups but no FreshBooks invoices"
+      "type": "source_mismatch",
+      "severity": "info",
+      "message": "Firm 'luke t moreau' exists in FreshBooks but not in Google Sheets"
     },
     {
       "type": "missing_invoice",
       "severity": "warning",
-      "message": "'Bernard Law Group' has 13 signups but no FreshBooks invoices"
+      "message": "'Richard Harris Law Firm' has 15 signups but no FreshBooks invoices"
     },
     {
       "type": "missing_invoice",
       "severity": "warning",
-      "message": "'KC Accident Injury Attorneys' has 18 signups but no FreshBooks invoices"
+      "message": "'Geoff McDonald & Associates' has 29 signups but no FreshBooks invoices"
     },
     {
       "type": "missing_invoice",
       "severity": "warning",
-      "message": "'Schilling & Silvers' has 11 signups but no FreshBooks invoices"
+      "message": "'Brent Coon & Associates' has 61 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Larry H. Parker' has 29 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Bernard Law Group' has 56 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Levine Law' has 82 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Gibson Hill Personal Injury' has 22 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'The Brown Firm' has 73 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'LawyerUp' has 23 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'KC Accident Injury Attorneys' has 39 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Abels & Annes' has 62 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Schilling & Silvers' has 32 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Isaacs and Isaacs' has 167 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Dworkin & Maciariello' has 428 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Wilk Law' has 694 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Russo Firm' has 112 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Mott & Moffett LLP' has 20 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Farah & Farah' has 125 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Maison Law' has 165 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Jacoby & Meyers' has 503 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Armada Law' has 106 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Big Auto Accident Attorneys' has 23 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'MVP Accident Attorneys' has 20 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Carabin Shaw' has 379 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'McCarthy and Associates' has 51 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'McCormick Law' has 24 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Setareh Law' has 13 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Jalal Abdallah Law' has 34 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'The Law Offices of David A. Kadzai' has 26 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Stalwart Law' has 94 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Rivers Law Group' has 88 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Kaufman & Lynd' has 14 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'J&Y Law' has 22 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Duncan Law Firm' has 12 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Law Offices Of Marc J. Shefman' has 24 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Burrow & Associates' has 13 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Shamieh Law' has 181 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Ryan Hughes Law' has 16 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Trust Guss Injury Lawyers' has 12 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Ladah Law Firm' has 59 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Cameron Law' has 14 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Goldenzweig Law Group' has 29 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Rudin Law' has 20 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'The Taylor Law Firm' has 19 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'The Martin Law Firm' has 13 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Zanes Law Injury Lawyers' has 51 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Innovate Legal Group' has 14 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Viles & Beckman' has 14 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'Shield Law Group' has 14 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "missing_invoice",
+      "severity": "warning",
+      "message": "'High Stakes Injury Law' has 13 signups but no FreshBooks invoices"
+    },
+    {
+      "type": "high_outstanding",
+      "severity": "critical",
+      "message": "'Portner & Shure, P.A.' has $11,580.00 outstanding"
     }
   ]
 }
