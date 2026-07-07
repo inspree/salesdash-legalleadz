@@ -29,7 +29,17 @@ import time
 import re
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from threading import Thread
+from threading import Thread, Lock
+
+# ── Short-TTL cache for client-facing share/leads (P0 2026-07-06) ──
+# The /api/share/leads endpoint does a live multi-phase HubSpot crawl of every deal
+# for a firm on EACH page load — ~13-21s for the two highest-volume firms (Loncar/Chalik),
+# which blew past the client fetch / Railway edge budget → perpetual "Loading leads...".
+# Cache the computed result per (token, days) for a few minutes so the slow crawl happens
+# at most once per TTL; the keep-warm cron holds the container alive so the cache persists.
+_LEADS_CACHE = {}          # key "token:days" -> (expires_epoch, payload_dict)
+_LEADS_CACHE_LOCK = Lock()
+_LEADS_CACHE_TTL = 600     # seconds (10 min) — client leads stay fresh enough, huge reliability win
 
 from functools import wraps
 from flask import (Flask, render_template, jsonify, request, redirect,
@@ -581,6 +591,39 @@ def _get_deal_stages_by_name(firm_name, headers):
 
 
 # ── HubSpot Helpers ──
+def _hs_post_parallel(url, headers, bodies, max_workers=5, retries=3):
+    """POST each body in `bodies` to `url` concurrently (bounded pool), with 429-aware retry.
+    Returns a list of parsed-JSON responses in the SAME ORDER as `bodies` (None for failures).
+    Used to collapse the independent per-batch HubSpot reads (associations, contacts, name-search)
+    from sequential to parallel — the big lever on high-volume firms (Loncar/Chalik). Batch-read
+    endpoints tolerate ~5 concurrent; keep search endpoints at ~4 workers for the ~4/s search limit."""
+    import requests as _rq
+    import time as _t
+    from concurrent.futures import ThreadPoolExecutor
+
+    def _one(body):
+        for _ in range(retries):
+            try:
+                r = _rq.post(url, headers=headers, json=body, timeout=25)
+            except Exception:
+                return None
+            if r.status_code == 429:
+                _t.sleep(int(r.headers.get("Retry-After", 1)) + 1)
+                continue
+            if r.status_code in (200, 207):
+                try:
+                    return r.json()
+                except Exception:
+                    return None
+            return None
+        return None
+
+    if not bodies:
+        return []
+    with ThreadPoolExecutor(max_workers=min(max_workers, len(bodies))) as ex:
+        return list(ex.map(_one, bodies))
+
+
 def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
     """Get leads from HubSpot by searching deals for the firm, then fetching contact info.
     This approach uses deals as the source of truth for status and dates.
@@ -753,58 +796,48 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
             "date": props.get("createdate", "")[:10] if props.get("createdate") else "",
         }
 
-    # Batch get associations (deal -> contacts) — use larger batches, no sleep
-    for batch_start in range(0, len(deal_ids), 100):
-        batch = deal_ids[batch_start:batch_start + 100]
-        for attempt in range(3):
-            assoc_resp = requests.post(
-                "https://api.hubapi.com/crm/v4/associations/deals/contacts/batch/read",
-                headers=headers,
-                json={"inputs": [{"id": did} for did in batch]}
-            )
-            if assoc_resp.status_code == 429:
-                time.sleep(int(assoc_resp.headers.get("Retry-After", 1)) + 1)
-                continue
-            break
-        if assoc_resp.status_code in (200, 207):
-            for item in assoc_resp.json().get("results", []):
-                did = item.get("from", {}).get("id", "")
-                for to in item.get("to", []):
-                    cid = to.get("toObjectId", "")
-                    if cid and did:
-                        deal_contact_ids.setdefault(did, []).append(str(cid))
+    # Batch get associations (deal -> contacts) — batches run in PARALLEL (independent reads).
+    assoc_bodies = [
+        {"inputs": [{"id": did} for did in deal_ids[i:i + 100]]}
+        for i in range(0, len(deal_ids), 100)
+    ]
+    for aj in _hs_post_parallel(
+        "https://api.hubapi.com/crm/v4/associations/deals/contacts/batch/read",
+        headers, assoc_bodies, max_workers=5):
+        if not aj:
+            continue
+        for item in aj.get("results", []):
+            did = item.get("from", {}).get("id", "")
+            for to in item.get("to", []):
+                cid = to.get("toObjectId", "")
+                if cid and did:
+                    deal_contact_ids.setdefault(did, []).append(str(cid))
 
     # Collect unique contact IDs
     all_cids = set()
     for cids in deal_contact_ids.values():
         all_cids.update(cids)
 
-    # Batch read contacts — use larger batches, no sleep
+    # Batch read contacts — batches run in PARALLEL (independent reads).
     contact_data = {}
     cid_list = list(all_cids)
-    for batch_start in range(0, len(cid_list), 100):
-        batch = cid_list[batch_start:batch_start + 100]
-        for attempt in range(3):
-            cresp = requests.post(
-                "https://api.hubapi.com/crm/v3/objects/contacts/batch/read",
-                headers=headers,
-                json={
-                    "inputs": [{"id": cid} for cid in batch],
-                    "properties": [
-                        "firstname", "lastname", "email", "phone",
-                        "hs_lead_status", "createdate", "lead_source",
-                        "notes_last_updated", "rejection_reason",
-                        "e_sign_signed_date"
-                    ]
-                }
-            )
-            if cresp.status_code == 429:
-                time.sleep(int(cresp.headers.get("Retry-After", 1)) + 1)
-                continue
-            break
-        if cresp.status_code in (200, 207):
-            for c in cresp.json().get("results", []):
-                contact_data[c["id"]] = c.get("properties", {})
+    _contact_props = [
+        "firstname", "lastname", "email", "phone",
+        "hs_lead_status", "createdate", "lead_source",
+        "notes_last_updated", "rejection_reason",
+        "e_sign_signed_date"
+    ]
+    contact_bodies = [
+        {"inputs": [{"id": cid} for cid in cid_list[i:i + 100]], "properties": _contact_props}
+        for i in range(0, len(cid_list), 100)
+    ]
+    for cj in _hs_post_parallel(
+        "https://api.hubapi.com/crm/v3/objects/contacts/batch/read",
+        headers, contact_bodies, max_workers=5):
+        if not cj:
+            continue
+        for c in cj.get("results", []):
+            contact_data[c["id"]] = c.get("properties", {})
 
     # Step 2b: For deals with no contact association, try to find contacts by name
     unlinked_deal_ids = [did for did in deal_props if did not in deal_contact_ids]
@@ -823,34 +856,24 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
             if len(parts) >= 2:
                 names_to_search[did] = {"first": parts[0], "last": " ".join(parts[1:])}
 
-        # Batch search by last name, then match first name
-        searched_lastnames = {}
-        for did, nm in names_to_search.items():
-            ln = nm["last"]
-            if ln in searched_lastnames:
-                continue
-            for attempt in range(3):
-                try:
-                    sresp = requests.post(
-                        "https://api.hubapi.com/crm/v3/objects/contacts/search",
-                        headers=headers,
-                        json={
-                            "filterGroups": [{"filters": [{"propertyName": "lastname", "operator": "EQ", "value": ln}]}],
-                            "properties": ["firstname", "lastname", "email", "phone", "lead_source", "rejection_reason"],
-                            "limit": 100
-                        }
-                    )
-                    if sresp.status_code == 429:
-                        time.sleep(int(sresp.headers.get("Retry-After", 1)) + 1)
-                        continue
-                    if sresp.status_code == 200:
-                        searched_lastnames[ln] = sresp.json().get("results", [])
-                    else:
-                        searched_lastnames[ln] = []
-                    break
-                except Exception:
-                    searched_lastnames[ln] = []
-                    break
+        # Search by last name (unique), IN PARALLEL, then match first name.
+        # Search API is ~4/s so cap workers at 4; retry handles the occasional 429.
+        unique_lastnames = list({nm["last"] for nm in names_to_search.values()})
+        search_bodies = [
+            {
+                "filterGroups": [{"filters": [{"propertyName": "lastname", "operator": "EQ", "value": ln}]}],
+                "properties": ["firstname", "lastname", "email", "phone", "lead_source", "rejection_reason"],
+                "limit": 100
+            }
+            for ln in unique_lastnames
+        ]
+        search_results = _hs_post_parallel(
+            "https://api.hubapi.com/crm/v3/objects/contacts/search",
+            headers, search_bodies, max_workers=3)
+        searched_lastnames = {
+            ln: (sj.get("results", []) if sj else [])
+            for ln, sj in zip(unique_lastnames, search_results)
+        }
 
         # Match and populate contact_data + deal_contact_ids
         for did, nm in names_to_search.items():
@@ -1510,6 +1533,13 @@ def api_share_leads(token):
         days = request.args.get('days', 90, type=int)
         if days not in (30, 60, 90):
             days = 90
+        # Serve from short-TTL cache if warm (P0 fix — avoids re-crawling HubSpot every load)
+        cache_key = f"{token}:{days}"
+        now_ts = time.time()
+        with _LEADS_CACHE_LOCK:
+            cached = _LEADS_CACHE.get(cache_key)
+            if cached and cached[0] > now_ts:
+                return jsonify(cached[1])
         # Run with 60-second timeout to prevent Railway request timeout
         from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
         with ThreadPoolExecutor(max_workers=1) as executor:
@@ -1537,7 +1567,12 @@ def api_share_leads(token):
                 "notes": lead.get("notes", ""),
                 "rejection_reason": lead.get("rejection_reason", "")
             })
-        return jsonify({"firm": name, "leads": safe_leads, "count": len(safe_leads), "hubspot_total": hubspot_total})
+        payload = {"firm": name, "leads": safe_leads, "count": len(safe_leads), "hubspot_total": hubspot_total}
+        # Cache the successful result for the TTL (only cache non-empty to avoid pinning a transient miss)
+        if safe_leads:
+            with _LEADS_CACHE_LOCK:
+                _LEADS_CACHE[cache_key] = (now_ts + _LEADS_CACHE_TTL, payload)
+        return jsonify(payload)
     except Exception as e:
         return jsonify({"error": str(e), "leads": [], "count": 0}), 500
 
