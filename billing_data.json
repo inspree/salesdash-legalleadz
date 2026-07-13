@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-12T19:11:51.937695-04:00",
-  "last_refresh": "2026-07-12T19:11:51.937702-04:00",
+  "generated_at": "2026-07-12T23:12:08.008838-04:00",
+  "last_refresh": "2026-07-12T23:12:08.008852-04:00",
   "data_range": {
     "start": "2025-12-20",
     "end": "2026-07-12"
@@ -8,152 +8,175 @@
   "data_sources": "FreshBooks + Convoso + HubSpot + Google Sheets",
   "summary": {
     "total_firms": 156,
-    "total_retainers_prepaid": 1579.0,
-    "total_invoiced_sheets": 568140.0,
+    "total_retainers_prepaid": 1567.0,
+    "total_invoiced_sheets": 564060.0,
     "total_fb_invoiced": 1780233.4,
     "total_fb_paid": 1706515.4,
     "total_fb_outstanding": 73718.0,
-    "total_signups": 1757,
+    "total_signups": 1733,
     "total_signups_since_dec20": 0,
-    "hubspot_signups_since_dec20": 1517,
+    "hubspot_signups_since_dec20": 1394,
     "active_firms": 108,
     "firms_with_alerts": 14,
-    "convoso_total_calls_today": 1035,
-    "convoso_total_minutes_today": 301.7
+    "convoso_total_calls_today": 1290,
+    "convoso_total_minutes_today": 325.8
   },
   "convoso_summary": {
-    "total_lists": 18,
-    "total_calls": 1035,
-    "total_minutes": 301.68333333333334,
+    "total_lists": 21,
+    "total_calls": 1290,
+    "total_minutes": 325.8333333333333,
     "note": "Convoso API returns today's live autodialer data only (date filter limitation)",
     "firms": {
-      "AK Law Firm": {
-        "total_calls": 156,
-        "total_minutes": 43.4,
+      "Loncar Lyon Jenkins": {
+        "total_calls": 455,
+        "total_minutes": 102.0,
         "lists": [
-          "59699"
-        ]
-      },
-      "Loncar Lyon": {
-        "total_calls": 172,
-        "total_minutes": 47.67,
-        "lists": [
-          "60139"
+          "59723"
         ]
       },
       "Sweet Lawyers Associates": {
-        "total_calls": 12,
-        "total_minutes": 2.67,
+        "total_calls": 35,
+        "total_minutes": 5.92,
         "lists": [
           "59807"
         ]
       },
       "JRE Injury Law": {
-        "total_calls": 40,
-        "total_minutes": 7.47,
+        "total_calls": 20,
+        "total_minutes": 5.0,
         "lists": [
-          "59715"
+          "59715",
+          "59663"
         ]
       },
       "Chalik Chalik": {
-        "total_calls": 184,
-        "total_minutes": 77.13,
+        "total_calls": 235,
+        "total_minutes": 46.25,
         "lists": [
           "59707",
           "59829",
           "59635"
         ]
       },
-      "Loncar Lyon Jenkins": {
-        "total_calls": 311,
-        "total_minutes": 87.68,
+      "AK Law Firm": {
+        "total_calls": 165,
+        "total_minutes": 76.25,
         "lists": [
-          "59723"
-        ]
-      },
-      "KJ Injury Law Wommster": {
-        "total_calls": 28,
-        "total_minutes": 5.67,
-        "lists": [
-          "59677"
-        ]
-      },
-      "Law Offices of Luke T Moreau": {
-        "total_calls": 4,
-        "total_minutes": 1.0,
-        "lists": [
-          "59685"
+          "59699"
         ]
       },
       "FL": {
-        "total_calls": 12,
-        "total_minutes": 2.4,
+        "total_calls": 10,
+        "total_minutes": 2.0,
         "lists": [
           "59847"
         ]
       },
-      "Edward Law Group": {
-        "total_calls": 16,
-        "total_minutes": 5.13,
+      "StrikeFirst PPC Irons": {
+        "total_calls": 5,
+        "total_minutes": 1.0,
         "lists": [
-          "59767"
+          "60087"
+        ]
+      },
+      "Loncar Lyon": {
+        "total_calls": 160,
+        "total_minutes": 31.42,
+        "lists": [
+          "60139"
         ]
       },
       "Hilley Solis": {
-        "total_calls": 8,
-        "total_minutes": 1.4,
+        "total_calls": 15,
+        "total_minutes": 6.33,
         "lists": [
+          "60131",
           "59733"
         ]
       },
       "Fang Accident Lawyers": {
-        "total_calls": 52,
-        "total_minutes": 12.13,
+        "total_calls": 55,
+        "total_minutes": 16.0,
         "lists": [
           "59645"
         ]
       },
-      "Hilley Solis Law": {
-        "total_calls": 4,
-        "total_minutes": 0.8,
+      "Luke Moreau": {
+        "total_calls": 25,
+        "total_minutes": 5.67,
         "lists": [
-          "59661"
+          "60137"
         ]
       },
-      "Marker Law": {
-        "total_calls": 16,
-        "total_minutes": 3.53,
+      "KJ Injury Law Wommster SP": {
+        "total_calls": 5,
+        "total_minutes": 1.58,
         "lists": [
-          "59747",
-          "59695"
+          "59679"
         ]
       },
-      "Larry H Parker": {
-        "total_calls": 4,
-        "total_minutes": 0.4,
+      "KJ Injury Law Wommster": {
+        "total_calls": 40,
+        "total_minutes": 9.08,
         "lists": [
-          "59717"
-        ]
-      },
-      "Ohio": {
-        "total_calls": 8,
-        "total_minutes": 1.6,
-        "lists": [
-          "59739"
+          "59677"
         ]
       },
       "Bernard Law Group": {
-        "total_calls": 4,
-        "total_minutes": 0.8,
+        "total_calls": 5,
+        "total_minutes": 1.0,
         "lists": [
           "59701"
         ]
       },
       "SF PPC Astrix Truck": {
-        "total_calls": 4,
-        "total_minutes": 0.8,
+        "total_calls": 5,
+        "total_minutes": 1.0,
         "lists": [
           "59967"
+        ]
+      },
+      "Marker Law": {
+        "total_calls": 20,
+        "total_minutes": 7.5,
+        "lists": [
+          "59695",
+          "59747"
+        ]
+      },
+      "Ohio": {
+        "total_calls": 10,
+        "total_minutes": 2.0,
+        "lists": [
+          "59739"
+        ]
+      },
+      "LawyerUp": {
+        "total_calls": 10,
+        "total_minutes": 0.42,
+        "lists": [
+          "59803"
+        ]
+      },
+      "StrikeFirst LSA Irons": {
+        "total_calls": 5,
+        "total_minutes": 1.0,
+        "lists": [
+          "60085"
+        ]
+      },
+      "Law Offices of Luke T Moreau": {
+        "total_calls": 5,
+        "total_minutes": 1.0,
+        "lists": [
+          "59685"
+        ]
+      },
+      "Edward Law Group": {
+        "total_calls": 5,
+        "total_minutes": 3.42,
+        "lists": [
+          "59767"
         ]
       }
     }
@@ -265,25 +288,18 @@
     },
     "Boston Auto Law": {
       "firm_name": "Boston Auto Law",
-      "source": "google_sheets",
-      "retainers_prepaid": 12.0,
-      "total_invoiced_sheets": 4080.0,
-      "total_signups": 20,
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
       "signups_since_dec20": 0,
-      "paid_count": 24,
+      "paid_count": 0,
       "fb_total_invoiced": 30111.0,
       "fb_total_paid": 30111.0,
       "fb_total_outstanding": 0.0,
       "fb_invoice_count": 2,
       "fb_prepaid_minutes": 2500,
       "fb_minutes_used": 2679,
-      "convoso_total_calls": 0,
-      "convoso_total_minutes": 0.0,
-      "convoso_lists": [],
-      "hubspot_signups_since_dec20": 10,
-      "hubspot_by_stage": {
-        "SISIGN": 10
-      },
       "fb_invoices": [
         {
           "invoice_number": "0000544",
@@ -304,12 +320,19 @@
           "description": "Starting Balance [10/3/2025]: 2500 prepaid minutes\nCurrent Balance [01/01/2026]: -179 prepaid minutes [2,679 minutes used between 10/03/2025-01/01/2026]\nBalance after invoice is paid: 2500 prepaid min"
         }
       ],
+      "convoso_total_calls": 0,
+      "convoso_total_minutes": 0.0,
+      "convoso_lists": [],
+      "hubspot_signups_since_dec20": 7,
+      "hubspot_by_stage": {
+        "SISIGN": 7
+      },
       "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": 0,
       "minutes_alert": true,
       "is_active": true,
-      "total_spend": 34191.0
+      "total_spend": 30111.0
     },
     "Law Offices of Krystina T Tran": {
       "firm_name": "Law Offices of Krystina T Tran",
@@ -1049,28 +1072,18 @@
     },
     "Sweet Law": {
       "firm_name": "Sweet Law",
-      "source": "google_sheets",
-      "retainers_prepaid": 0.0,
-      "total_invoiced_sheets": 0.0,
-      "total_signups": 4,
+      "source": "freshbooks",
+      "retainers_prepaid": 0,
+      "total_invoiced_sheets": 0,
+      "total_signups": 0,
       "signups_since_dec20": 0,
-      "paid_count": 3,
+      "paid_count": 0,
       "fb_total_invoiced": 18630.0,
       "fb_total_paid": 18630.0,
       "fb_total_outstanding": 0.0,
       "fb_invoice_count": 2,
       "fb_prepaid_minutes": 0,
       "fb_minutes_used": 0,
-      "convoso_total_calls": 12,
-      "convoso_total_minutes": 2.6666666666666665,
-      "convoso_lists": [
-        "59807"
-      ],
-      "hubspot_signups_since_dec20": 5,
-      "hubspot_by_stage": {
-        "SISIGN": 4,
-        "Signed e-Sign Commercial": 1
-      },
       "fb_invoices": [
         {
           "invoice_number": "0000687",
@@ -1091,6 +1104,16 @@
           "description": "Previous balance: 25 prepaid retainers\nBalance on 03/11/2026: 1 prepaid retainer (24 prepaid retainers used between 11/21/2025-03/11/2026)\nNew Balance: 25 prepaid retainers"
         }
       ],
+      "convoso_total_calls": 35,
+      "convoso_total_minutes": 5.916666666666667,
+      "convoso_lists": [
+        "59807"
+      ],
+      "hubspot_signups_since_dec20": 4,
+      "hubspot_by_stage": {
+        "SISIGN": 3,
+        "Signed e-Sign Commercial": 1
+      },
       "retainer_remaining_pct": null,
       "retainer_alert": false,
       "minutes_remaining_pct": null,
@@ -1836,14 +1859,14 @@
           "description": "Starting Balance: 2500 prepaid minutes\nBalance as of 01/08/2025: 784 prepaid minutes (1716 prepaid minutes used between 12/17/2025 -01/07/2026)\nBalance after invoice is paid: 2500 prepaid minutes"
         }
       ],
-      "convoso_total_calls": 52,
-      "convoso_total_minutes": 12.133333333333333,
+      "convoso_total_calls": 55,
+      "convoso_total_minutes": 16.0,
       "convoso_lists": [
         "59645"
       ],
-      "hubspot_signups_since_dec20": 66,
+      "hubspot_signups_since_dec20": 42,
       "hubspot_by_stage": {
-        "SISIGN": 62,
+        "SISIGN": 38,
         "Signed e-Sign Commercial": 4
       },
       "retainer_remaining_pct": null,
@@ -2059,16 +2082,16 @@
           "description": "Previous Balance: 2500 prepaid minutes\nBalance on 01/01/2026: -3947 minutes (6,447 minutes used between 12/09/2025-01/01/2026)\nUpdated Balance (after invoice is paid): 2500 prepaid minutes"
         }
       ],
-      "convoso_total_calls": 184,
-      "convoso_total_minutes": 77.13333333333334,
+      "convoso_total_calls": 235,
+      "convoso_total_minutes": 46.25,
       "convoso_lists": [
         "59707",
         "59829",
         "59635"
       ],
-      "hubspot_signups_since_dec20": 67,
+      "hubspot_signups_since_dec20": 50,
       "hubspot_by_stage": {
-        "SISIGN": 48,
+        "SISIGN": 31,
         "Signed e-Sign Commercial": 19
       },
       "retainer_remaining_pct": null,
@@ -2142,9 +2165,9 @@
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 34,
+      "hubspot_signups_since_dec20": 33,
       "hubspot_by_stage": {
-        "SISIGN": 8,
+        "SISIGN": 7,
         "Signed e-Sign Commercial": 26
       },
       "retainer_remaining_pct": null,
@@ -2227,9 +2250,9 @@
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 121,
+      "hubspot_signups_since_dec20": 98,
       "hubspot_by_stage": {
-        "SISIGN": 88,
+        "SISIGN": 65,
         "Signed e-Sign Commercial": 33
       },
       "retainer_remaining_pct": null,
@@ -2409,15 +2432,15 @@
           "description": "Previous balance (12/09/2025): 5000 prepaid minutes\nBalance on 12/23/2025: -1,160 prepaid minutes (6,160 minutes used between 12/10/2025-12/23/2025)\nBalance after invoice is paid: 5000 minutes"
         }
       ],
-      "convoso_total_calls": 483,
-      "convoso_total_minutes": 135.35,
+      "convoso_total_calls": 615,
+      "convoso_total_minutes": 133.41666666666666,
       "convoso_lists": [
-        "60139",
-        "59723"
+        "59723",
+        "60139"
       ],
-      "hubspot_signups_since_dec20": 85,
+      "hubspot_signups_since_dec20": 63,
       "hubspot_by_stage": {
-        "SISIGN": 69,
+        "SISIGN": 47,
         "Signed e-Sign Commercial": 16
       },
       "retainer_remaining_pct": null,
@@ -2859,14 +2882,14 @@
           "description": "2500 prepaid minutes @ $2 / minute"
         }
       ],
-      "convoso_total_calls": 156,
-      "convoso_total_minutes": 43.4,
+      "convoso_total_calls": 165,
+      "convoso_total_minutes": 76.25,
       "convoso_lists": [
         "59699"
       ],
-      "hubspot_signups_since_dec20": 8,
+      "hubspot_signups_since_dec20": 6,
       "hubspot_by_stage": {
-        "SISIGN": 6,
+        "SISIGN": 4,
         "Signed e-Sign Commercial": 2
       },
       "retainer_remaining_pct": null,
@@ -2910,14 +2933,15 @@
           "description": "Previous Balance [12/03/2025] : 48 prepaid retainers\nBalance as of 02/01/2026: 0 prepaid retainers remaining [45 signed \nbetween 12/03/2025-02/01/2026]\nUpdated balance: 50 prepaid retainers"
         }
       ],
-      "convoso_total_calls": 40,
-      "convoso_total_minutes": 7.466666666666667,
+      "convoso_total_calls": 20,
+      "convoso_total_minutes": 5.0,
       "convoso_lists": [
-        "59715"
+        "59715",
+        "59663"
       ],
-      "hubspot_signups_since_dec20": 23,
+      "hubspot_signups_since_dec20": 18,
       "hubspot_by_stage": {
-        "SISIGN": 21,
+        "SISIGN": 16,
         "Signed e-Sign Commercial": 2
       },
       "retainer_remaining_pct": null,
@@ -2955,9 +2979,9 @@
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 6,
+      "hubspot_signups_since_dec20": 5,
       "hubspot_by_stage": {
-        "SISIGN": 3,
+        "SISIGN": 2,
         "Signed e-Sign Commercial": 3
       },
       "retainer_remaining_pct": null,
@@ -3038,15 +3062,15 @@
           "description": "Previous Balance [12/16/2025]: 2500 prepaid minutes\nCurrent Balance [03/25/2026]: -635 prepaid minutes [1,742 prepaid minutes used between 12/17/2025-03/25/2026]\nBalance after invoice is paid: 2500 pr"
         }
       ],
-      "convoso_total_calls": 16,
-      "convoso_total_minutes": 3.533333333333333,
+      "convoso_total_calls": 20,
+      "convoso_total_minutes": 7.5,
       "convoso_lists": [
-        "59747",
-        "59695"
+        "59695",
+        "59747"
       ],
-      "hubspot_signups_since_dec20": 5,
+      "hubspot_signups_since_dec20": 4,
       "hubspot_by_stage": {
-        "SISIGN": 5
+        "SISIGN": 4
       },
       "retainer_remaining_pct": null,
       "retainer_alert": false,
@@ -3080,15 +3104,15 @@
           "description": "Previous Balance (11/19/2025): 2500 prepaid minutes\nBalance on 03/19/2026: -239 minutes ( 5239 minutes used between 11/20/2025-03/19/2026)\nBalance after invoice is paid: 5000 minutes"
         }
       ],
-      "convoso_total_calls": 12,
-      "convoso_total_minutes": 2.2,
+      "convoso_total_calls": 15,
+      "convoso_total_minutes": 6.333333333333333,
       "convoso_lists": [
-        "59733",
-        "59661"
+        "60131",
+        "59733"
       ],
-      "hubspot_signups_since_dec20": 16,
+      "hubspot_signups_since_dec20": 12,
       "hubspot_by_stage": {
-        "SISIGN": 9,
+        "SISIGN": 5,
         "Signed e-Sign Commercial": 7
       },
       "retainer_remaining_pct": null,
@@ -3123,14 +3147,13 @@
           "description": "Intake services + 25 prepaid retainers @ $399/ retainer"
         }
       ],
-      "convoso_total_calls": 16,
-      "convoso_total_minutes": 5.133333333333334,
+      "convoso_total_calls": 5,
+      "convoso_total_minutes": 3.4166666666666665,
       "convoso_lists": [
         "59767"
       ],
-      "hubspot_signups_since_dec20": 13,
+      "hubspot_signups_since_dec20": 11,
       "hubspot_by_stage": {
-        "SISIGN": 2,
         "Signed e-Sign Commercial": 11
       },
       "retainer_remaining_pct": null,
@@ -3241,9 +3264,9 @@
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 33,
+      "hubspot_signups_since_dec20": 28,
       "hubspot_by_stage": {
-        "SISIGN": 21,
+        "SISIGN": 16,
         "Signed e-Sign Commercial": 12
       },
       "retainer_remaining_pct": null,
@@ -3287,14 +3310,14 @@
           "description": "Balance on 9/17/2025: 10 prepaid retainers\nBalance on 02/18/2026: -8 prepaid retainers (18 signed between 09/17/2025-02/18/2026)\nNew Balance: 12 prepaid retainers"
         }
       ],
-      "convoso_total_calls": 4,
+      "convoso_total_calls": 5,
       "convoso_total_minutes": 1.0,
       "convoso_lists": [
         "59685"
       ],
-      "hubspot_signups_since_dec20": 10,
+      "hubspot_signups_since_dec20": 8,
       "hubspot_by_stage": {
-        "SISIGN": 10
+        "SISIGN": 8
       },
       "retainer_remaining_pct": null,
       "retainer_alert": false,
@@ -3471,9 +3494,9 @@
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 9,
+      "hubspot_signups_since_dec20": 6,
       "hubspot_by_stage": {
-        "SISIGN": 9
+        "SISIGN": 6
       },
       "retainer_remaining_pct": null,
       "retainer_alert": false,
@@ -3510,9 +3533,9 @@
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 2,
+      "hubspot_signups_since_dec20": 1,
       "hubspot_by_stage": {
-        "SISIGN": 2
+        "SISIGN": 1
       },
       "retainer_remaining_pct": null,
       "retainer_alert": false,
@@ -3706,9 +3729,9 @@
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 3,
+      "hubspot_signups_since_dec20": 2,
       "hubspot_by_stage": {
-        "SISIGN": 2,
+        "SISIGN": 1,
         "Signed e-Sign Commercial": 1
       },
       "retainer_remaining_pct": null,
@@ -4056,9 +4079,9 @@
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 10,
+      "hubspot_signups_since_dec20": 7,
       "hubspot_by_stage": {
-        "SISIGN": 10
+        "SISIGN": 7
       },
       "retainer_remaining_pct": null,
       "retainer_alert": false,
@@ -4084,9 +4107,9 @@
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 8,
+      "hubspot_signups_since_dec20": 7,
       "hubspot_by_stage": {
-        "SISIGN": 7,
+        "SISIGN": 6,
         "Signed e-Sign Commercial": 1
       },
       "retainer_remaining_pct": null,
@@ -4142,9 +4165,8 @@
       "convoso_total_calls": 0,
       "convoso_total_minutes": 0.0,
       "convoso_lists": [],
-      "hubspot_signups_since_dec20": 6,
+      "hubspot_signups_since_dec20": 5,
       "hubspot_by_stage": {
-        "SISIGN": 1,
         "Signed e-Sign Commercial": 5
       },
       "retainer_remaining_pct": null,
