@@ -832,7 +832,7 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
     cid_list = list(all_cids)
     _contact_props = [
         "firstname", "lastname", "email", "phone",
-        "hs_lead_status", "createdate", "lead_source",
+        "hs_lead_status", "createdate", "lead_source", "marketing_source",
         "notes_last_updated", "rejection_reason",
         "e_sign_signed_date"
     ]
@@ -948,7 +948,11 @@ def hubspot_get_leads_for_firm(firm_name, max_deals=200, since_days=None):
                 "phone": props.get("phone", ""),
                 "status": dp["stage"],
                 "date": lead_date,
-                "lead_source": props.get("lead_source", ""),
+                # marketing_source is the populated canonical property (what the portal
+                # shows); HubSpot lead_source is unpopulated for most firms (Fang/Chalik
+                # shipped a BLANK source column). Prefer marketing_source, fall back to
+                # lead_source. Client Excel still NAR-transforms this via to_client_source_label.
+                "lead_source": props.get("marketing_source") or props.get("lead_source") or "",
                 "notes": props.get("notes_last_updated", ""),
                 "rejection_reason": props.get("rejection_reason", "")
             })
