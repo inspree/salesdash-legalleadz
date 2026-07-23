@@ -45,6 +45,15 @@ from functools import wraps
 from flask import (Flask, render_template, jsonify, request, redirect,
                    url_for, abort, send_file, Response)
 
+
+# Display-only client label transform for marketing sources (Forest MSG-835810,
+# 2026-07-23 via Steve): a CLIENT / law-firm-facing surface must NEVER show the
+# words "accident report". Replace "Non-Accident-Report" (any spacing/casing) with
+# "NAR" in the visible LABEL only. The underlying marketing_source in HubSpot / Neon /
+# Convoso is UNCHANGED. Apply ONLY to firm-facing display/output, never a query/filter key.
+def to_client_source_label(s):
+    return re.sub(r'Non[-\s]?Accident[-\s]?Report', 'NAR', s or '', flags=re.IGNORECASE)
+
 # ── Paths ──
 # When deployed to Railway, use relative paths from the app directory
 DASHBOARD_DIR = Path(__file__).parent
@@ -1279,7 +1288,7 @@ def build_client_leads_excel(firm_name, leads):
             lead.get("phone", ""),
             lead.get("email", ""),
             lead.get("status", ""),
-            lead.get("lead_source", ""),
+            to_client_source_label(lead.get("lead_source", "")),
             lead.get("date", ""),
         ]
         for col_idx, val in enumerate(values, 1):
